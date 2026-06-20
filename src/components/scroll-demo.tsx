@@ -68,6 +68,26 @@ const DEMOS: readonly Demo[] = [
 // The remaining scroll is split evenly across the demos.
 const SHRINK_END = 1 / (DEMOS.length + 1);
 
+// Navbar deep-links: maps a section id (the nav tab) to the demo index it should
+// land on, so clicking a tab scrolls to where that frame is active.
+const NAV_ANCHORS: { id: string; index: number }[] = [
+  { id: "exploration", index: 1 }, // Well logs
+  { id: "production", index: 2 }, // Production
+  { id: "finance", index: 4 }, // Your books
+  { id: "operations", index: 5 }, // The whole picture
+];
+
+/**
+ * Top offset (as a % of the tall section) at which demo `i` is centered in its
+ * active band. Derived from the scroll math: demo i is active for
+ * scrollYProgress in [(i+1)/(N+1), (i+2)/(N+1)); the midpoint maps to this
+ * fraction of the section height. Landing here shows that frame docked.
+ */
+function anchorTopPercent(index: number): number {
+  const n = DEMOS.length;
+  return ((index + 1.5) * n) / (n + 1) ** 2 * 100;
+}
+
 export function ScrollDemo() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -106,6 +126,18 @@ export function ScrollDemo() {
       style={{ height: `${(DEMOS.length + 1) * 100}vh` }}
       className="relative"
     >
+      {/* Invisible scroll anchors for the navbar deep-links. Each sits at the
+          offset where its mapped demo frame is active. */}
+      {NAV_ANCHORS.map(({ id, index }) => (
+        <span
+          key={id}
+          id={id}
+          aria-hidden
+          className="absolute left-0 h-px w-px"
+          style={{ top: `${anchorTopPercent(index)}%` }}
+        />
+      ))}
+
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="relative mx-auto h-full max-w-7xl px-6 lg:px-10">
           {/* Left: header + caption that cycles with the active demo */}

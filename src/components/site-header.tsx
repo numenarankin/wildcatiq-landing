@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { LogoIcon } from "@/components/logo";
+import { SIGN_IN_URL, SIGN_UP_URL } from "@/lib/links";
 
 const NAV_ITEMS = [
-  { label: "Exploration", href: "#" },
-  { label: "Production", href: "#" },
-  { label: "Operations", href: "#" },
-  { label: "Finance", href: "#" },
-  { label: "Pricing", href: "/pricing" },
+  { label: "Exploration", href: "/#exploration" },
+  { label: "Production", href: "/#production" },
+  { label: "Finance", href: "/#finance" },
+  { label: "Operations", href: "/#operations" },
+  { label: "Pricing", href: "/#pricing" },
 ] as const;
 
 export function SiteHeader() {
@@ -64,13 +65,13 @@ export function SiteHeader() {
             {/* Auth actions */}
             <div className="flex items-center gap-2">
               <a
-                href="#"
+                href={SIGN_IN_URL}
                 className="inline-flex items-center rounded-sm border border-white/15 px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-white/5"
               >
                 Sign in
               </a>
               <a
-                href="#"
+                href={SIGN_UP_URL}
                 className="inline-flex items-center rounded-sm bg-foreground px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
               >
                 Get started

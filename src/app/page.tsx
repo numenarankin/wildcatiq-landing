@@ -28,9 +28,7 @@ export default function Home() {
       <ScrollDemo />
       <Explainer />
       <PricingSection />
-      <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        <div className="border-t border-white/10" />
-      </div>
+      <div className="border-t border-white/5" />
       <BookDemoCta />
     </main>
   );

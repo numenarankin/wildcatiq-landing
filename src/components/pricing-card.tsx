@@ -1,5 +1,6 @@
 import type { PricingTier } from "@/lib/pricing";
 import { formatCredits, formatUsd } from "@/lib/pricing";
+import { SIGN_UP_URL } from "@/lib/links";
 
 interface PricingCardProps {
   tier: PricingTier;
@@ -41,7 +42,7 @@ export function PricingCard({ tier }: PricingCardProps) {
       </p>
 
       <a
-        href="#"
+        href={isContactSales ? "#" : SIGN_UP_URL}
         className="mt-6 inline-flex items-center justify-center rounded-sm border border-white/15 px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-white/5"
       >
         {isContactSales ? "Contact sales" : "Get started"}

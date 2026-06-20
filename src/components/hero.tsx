@@ -27,7 +27,7 @@ export function Hero() {
 
         <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">
           <span className="text-base font-semibold text-foreground">
-            AI that:
+            Personalized AI that:
           </span>
           <ul className="flex flex-wrap items-center gap-x-8 gap-y-3">
             {HIGHLIGHTS.map(({ icon: Icon, label }) => (
