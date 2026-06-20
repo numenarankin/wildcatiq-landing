@@ -18,6 +18,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Home,
@@ -32,12 +33,14 @@ import {
   Calculator,
   BarChart3,
   DollarSign,
+  Settings,
+  PanelLeft,
   Mic,
   AudioLines,
+  Loader2,
   Send,
   FileText,
   Search,
-  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 
@@ -47,10 +50,9 @@ const SUB = "#5a5a5a";
 const MUTE = "#8e8e8e";
 const FAINT = "#b3b3b3";
 const LINE = "#ececec";
-const SIDEBAR = "#fafafa";
+const SIDEBAR = "#ffffff"; // app overrides --sidebar to bg-background (white)
 const ACCENT = "#6b65ff";
 const RED = "#d32f2f";
-const GREEN = "#059669";
 const OIL = "#059669";
 const GAS = "#800000";
 const WATER = "#4169e1";
@@ -112,7 +114,8 @@ type NavId =
   | "people"
   | "accounting"
   | "analytics"
-  | "pricing";
+  | "pricing"
+  | "settings";
 
 const NAV: { group: string; items: { id: NavId; label: string; Icon: LucideIcon }[] }[] = [
   {
@@ -142,25 +145,29 @@ const NAV: { group: string; items: { id: NavId; label: string; Icon: LucideIcon 
       { id: "pricing", label: "Pricing", Icon: DollarSign },
     ],
   },
+  {
+    group: "Administration",
+    items: [{ id: "settings", label: "Settings", Icon: Settings }],
+  },
 ];
 
 function Sidebar({ active }: { active: NavId }) {
   return (
     <div
-      className="flex h-full w-[210px] shrink-0 flex-col border-r"
+      className="flex h-full w-[218px] shrink-0 flex-col border-r"
       style={{ background: SIDEBAR, borderColor: LINE }}
     >
       <div className="flex h-[52px] items-center gap-2 border-b px-4" style={{ borderColor: LINE }}>
-        <Droplet className="h-[18px] w-[18px]" style={{ color: INK }} fill={INK} strokeWidth={0} />
+        <Image src="/wildcat-logo.png" alt="" width={24} height={24} className="h-6 w-6 object-contain" />
         <span className="text-[15px] font-semibold tracking-tight" style={{ color: INK }}>
           WildcatIQ
         </span>
       </div>
-      <div className="flex-1 overflow-hidden px-2 py-3">
+      <div className="flex-1 overflow-hidden px-2 py-1.5">
         {NAV.map((g) => (
-          <div key={g.group} className="mb-1.5">
+          <div key={g.group} className="mb-0.5">
             <div
-              className="px-2 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider"
+              className="px-2 pb-0.5 pt-1 text-[10px] font-semibold uppercase tracking-wider"
               style={{ color: FAINT }}
             >
               {g.group}
@@ -170,14 +177,14 @@ function Sidebar({ active }: { active: NavId }) {
               return (
                 <div
                   key={id}
-                  className="mb-0.5 flex items-center gap-2 rounded-md px-2 py-[7px] text-[13px]"
+                  className="mb-0.5 flex items-center gap-2 rounded-md px-2 py-[5px] text-[12.5px]"
                   style={{
-                    background: on ? "#efeff1" : "transparent",
+                    background: on ? "#eeeef0" : "transparent",
                     color: on ? INK : SUB,
                     fontWeight: on ? 500 : 400,
                   }}
                 >
-                  <Icon className="h-4 w-4" style={{ color: on ? INK : MUTE }} strokeWidth={1.9} />
+                  <Icon className="h-[15px] w-[15px]" style={{ color: on ? INK : MUTE }} strokeWidth={1.9} />
                   {label}
                 </div>
               );
@@ -185,42 +192,67 @@ function Sidebar({ active }: { active: NavId }) {
           </div>
         ))}
       </div>
+      <div className="border-t px-4 py-2 text-[10px]" style={{ borderColor: LINE, color: FAINT }}>
+        © 2026 Wildcat Labs, Inc.
+      </div>
     </div>
   );
 }
 
-function TopBar({ crumbs }: { crumbs: string[] }) {
+function Quote({ label, price, change, up }: { label: string; price: string; change: string; up: boolean }) {
+  return (
+    <span className="flex items-baseline gap-1 whitespace-nowrap text-[14px]">
+      <span className="font-medium" style={{ color: MUTE }}>
+        {label}
+      </span>
+      <span className="font-semibold tabular-nums" style={{ color: INK }}>
+        {price}
+      </span>
+      <span className="tabular-nums" style={{ color: up ? "#16a34a" : "#dc2626" }}>
+        {up ? "▲" : "▼"}
+        {change}
+      </span>
+    </span>
+  );
+}
+
+function TopBar({ icon: Icon, crumbs }: { icon?: LucideIcon; crumbs: string[] }) {
   return (
     <div
-      className="flex h-[52px] shrink-0 items-center justify-between border-b px-4"
+      className="flex h-[52px] shrink-0 items-center justify-between border-b px-3"
       style={{ borderColor: LINE }}
     >
-      <div className="flex items-center gap-1.5 text-[13px]">
-        {crumbs.map((c, i) => (
-          <span key={c} className="flex items-center gap-1.5">
-            {i > 0 && <span style={{ color: FAINT }}>/</span>}
-            <span style={{ color: i === crumbs.length - 1 ? INK : MUTE, fontWeight: i === crumbs.length - 1 ? 500 : 400 }}>
-              {c}
+      <div className="flex items-center gap-2.5">
+        <PanelLeft className="h-[17px] w-[17px]" style={{ color: MUTE }} strokeWidth={1.8} />
+        <span className="h-4 w-px" style={{ background: LINE }} />
+        <div className="flex items-center gap-1.5 text-[13px]">
+          {Icon && <Icon className="h-[15px] w-[15px]" style={{ color: SUB }} strokeWidth={1.9} />}
+          {crumbs.map((c, i) => (
+            <span key={c} className="flex items-center gap-1.5">
+              {i > 0 && <span style={{ color: FAINT }}>/</span>}
+              <span style={{ color: i === crumbs.length - 1 ? INK : MUTE, fontWeight: i === crumbs.length - 1 ? 500 : 400 }}>
+                {c}
+              </span>
             </span>
-          </span>
-        ))}
+          ))}
+        </div>
       </div>
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 text-[12px]" style={{ color: SUB }}>
-          <span className="font-medium">WTI</span>
-          <span className="font-mono">$78.20</span>
-          <span className="flex items-center gap-0.5 font-mono" style={{ color: GREEN }}>
-            <TrendingUp className="h-3 w-3" strokeWidth={2.2} /> 1.2%
-          </span>
-        </div>
-        <Mic className="h-[18px] w-[18px]" style={{ color: MUTE }} strokeWidth={1.8} />
-        <Sparkles className="h-[18px] w-[18px]" style={{ color: ACCENT }} strokeWidth={1.8} />
-        <div
-          className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold text-white"
-          style={{ background: INK }}
+        <Quote label="WTI" price="$76.54" change="0.9%" up />
+        <Quote label="Nat Gas" price="$3.20" change="1.1%" up={false} />
+        <span className="flex h-7 w-7 items-center justify-center rounded-md border bg-white" style={{ borderColor: LINE }}>
+          <Mic className="h-[15px] w-[15px]" style={{ color: "#2563eb" }} strokeWidth={1.9} />
+        </span>
+        <span className="flex h-7 w-7 items-center justify-center rounded-md border bg-white" style={{ borderColor: LINE }}>
+          <Sparkles className="h-[15px] w-[15px]" style={{ color: SUB }} strokeWidth={1.9} />
+        </span>
+        <span className="mx-0.5 h-4 w-px" style={{ background: LINE }} />
+        <span
+          className="flex h-8 w-8 items-center justify-center rounded-full text-[12.5px] leading-none"
+          style={{ background: "#f1f1f1", color: MUTE }}
         >
-          RP
-        </div>
+          JI
+        </span>
       </div>
     </div>
   );
@@ -228,11 +260,13 @@ function TopBar({ crumbs }: { crumbs: string[] }) {
 
 function AppShell({
   active,
+  icon,
   crumbs,
   children,
   drawer,
 }: {
   active: NavId;
+  icon?: LucideIcon;
   crumbs: string[];
   children: ReactNode;
   drawer?: ReactNode;
@@ -241,7 +275,7 @@ function AppShell({
     <div className="flex h-full w-full font-sans" style={{ color: INK }}>
       <Sidebar active={active} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar crumbs={crumbs} />
+        <TopBar icon={icon} crumbs={crumbs} />
         <div className="flex min-h-0 flex-1">
           <div className="min-w-0 flex-1 overflow-hidden">{children}</div>
           {drawer}
@@ -262,7 +296,7 @@ function Bubble({ role, children }: { role: "user" | "bot"; children: ReactNode 
       className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}
     >
       <div
-        className="max-w-[86%] rounded-2xl px-3 py-1.5 text-[12.5px] leading-relaxed"
+        className="max-w-[74%] rounded-2xl px-3.5 py-2 text-[12.5px] leading-relaxed"
         style={
           role === "user"
             ? { background: INK, color: "#fff" }
@@ -317,51 +351,72 @@ function Thinking({ tools }: { tools?: string[] }) {
 }
 
 // ------------------------------------------------------------------ 1. Voice
-function VoiceDemo() {
-  const step = useLoop(4, 1700); // 0 listen, 1 question, 2 answer, 3 hold
-  const statusColor = ACCENT;
+function VoiceComposer({ state }: { state: "listening" | "thinking" | "speaking" }) {
+  const label =
+    state === "listening"
+      ? "Listening…"
+      : state === "thinking"
+        ? "Orion is thinking…"
+        : "Speaking, talk to interrupt";
   return (
-    <AppShell active="orion" crumbs={["Orion"]}>
+    <div className="px-6 pb-5">
+      <div className="rounded-xl border bg-white" style={{ borderColor: LINE }}>
+        <div className="flex items-center gap-2 px-4 pt-2.5">
+          <span className="relative flex h-4 w-4 items-center justify-center">
+            {state === "listening" && (
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full" style={{ background: "#2563eb", opacity: 0.25 }} />
+            )}
+            {state === "thinking" ? (
+              <Loader2 className="h-[15px] w-[15px] animate-spin" style={{ color: "#2563eb" }} />
+            ) : state === "speaking" ? (
+              <AudioLines className="h-[15px] w-[15px]" style={{ color: "#2563eb" }} strokeWidth={2} />
+            ) : (
+              <Mic className="h-[15px] w-[15px]" style={{ color: "#2563eb" }} strokeWidth={2} />
+            )}
+          </span>
+          <span className="text-[12px] font-medium" style={{ color: MUTE }}>
+            {label}
+          </span>
+        </div>
+        <div className="flex items-center justify-between px-4 pb-3 pt-2">
+          <span className="text-[13px]" style={{ color: MUTE }}>
+            Speak, or type a message…
+          </span>
+          <span className="flex h-7 w-7 items-center justify-center rounded-md" style={{ background: INK }}>
+            <Send className="h-3.5 w-3.5 text-white" strokeWidth={2} />
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VoiceDemo() {
+  const step = useLoop(4, 2000); // 0 listen, 1 question, 2 answer, 3 hold
+  return (
+    <AppShell active="orion" icon={Sparkles} crumbs={["Orion"]}>
       <div className="flex h-full flex-col">
-        <div className="flex min-h-0 flex-1 flex-col justify-end gap-2.5 px-6 py-5">
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden px-6 py-5">
+          <Bubble role="bot">
+            Voice mode is on. Just start talking, or type below. I&apos;ll answer
+            out loud and on screen. Talk over me anytime to interrupt.
+          </Bubble>
           <AnimatePresence>
             {step >= 1 && (
               <Bubble key="q" role="user">
-                How did the Johnson lease produce last month?
+                Hey Orion, how did the Johnson lease do last month?
               </Bubble>
             )}
             {step >= 2 && (
               <Bubble key="a" role="bot">
-                The Johnson lease made <strong>4,210 bbl</strong> of oil and{" "}
+                The Johnson lease made <strong>4,210 barrels</strong> of oil and{" "}
                 <strong>9.8 MMcf</strong> of gas in May, up about 6% from April.
-                Water cut held steady near 38%.
+                Water cut held near 38%.
               </Bubble>
             )}
           </AnimatePresence>
         </div>
-        <div className="flex items-center gap-2.5 border-t px-6 py-3" style={{ borderColor: LINE }}>
-          <div className="flex items-end gap-[3px]">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <motion.span
-                key={i}
-                className="w-[3px] rounded-full"
-                style={{ background: statusColor }}
-                animate={{ height: step === 0 ? [5, 16, 5] : 5 }}
-                transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.12 }}
-              />
-            ))}
-          </div>
-          <span className="text-[12px] font-medium" style={{ color: MUTE }}>
-            {step === 0 && "Listening…"}
-            {step === 1 && "Orion is thinking…"}
-            {step >= 2 && (
-              <span className="flex items-center gap-1.5">
-                <AudioLines className="h-3.5 w-3.5" style={{ color: ACCENT }} strokeWidth={1.9} />
-                Speaking — talk to interrupt
-              </span>
-            )}
-          </span>
-        </div>
+        <VoiceComposer state={step === 0 ? "listening" : step === 1 ? "thinking" : "speaking"} />
       </div>
     </AppShell>
   );
@@ -391,6 +446,7 @@ function LogDemo() {
   return (
     <AppShell
       active="files"
+      icon={Files}
       crumbs={["Files", "Smith #4 logs", "triple-combo.las"]}
       drawer={
         <DrawerShell badge="AI">
@@ -545,7 +601,7 @@ function ChartHeader({
 function ProductionDemo() {
   const step = useLoop(4, 1700);
   return (
-    <AppShell active="wells" crumbs={["Wells", "Smith #4"]}>
+    <AppShell active="wells" icon={Droplet} crumbs={["Wells", "Smith #4"]}>
       <div className="flex h-full flex-col">
         <div className="flex items-center gap-4 border-b px-5 pt-4 text-[13px]" style={{ borderColor: LINE }}>
           {["Production", "Comments", "Equipment", "Files", "Royalty"].map((t, i) => (
@@ -619,6 +675,7 @@ function PaperworkDemo() {
   return (
     <AppShell
       active="files"
+      icon={Files}
       crumbs={["Files"]}
       drawer={
         <DrawerShell badge="AI">
@@ -681,6 +738,7 @@ function BooksDemo() {
   return (
     <AppShell
       active="accounting"
+      icon={Calculator}
       crumbs={["Accounting"]}
       drawer={
         <DrawerShell badge="AI">
@@ -733,7 +791,7 @@ const SYNTH_ROWS: [string, string, string, string][] = [
 function WholePictureDemo() {
   const step = useLoop(4, 1900); // 0 q, 1 thinking+tools, 2 answer+table, 3 hold
   return (
-    <AppShell active="orion" crumbs={["Orion"]}>
+    <AppShell active="orion" icon={Sparkles} crumbs={["Orion"]}>
       <div className="flex h-full flex-col justify-center gap-2.5 px-8 py-5">
         <AnimatePresence>
           {step >= 0 && (

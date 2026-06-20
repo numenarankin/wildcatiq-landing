@@ -38,7 +38,7 @@ export function PricingCard({ tier }: PricingCardProps) {
         <span className="font-semibold text-foreground">
           {formatCredits(tier.monthlyCredits)}
         </span>{" "}
-        <span className="text-muted">AI credits / month</span>
+        <span className="text-muted">free AI credits / month</span>
       </p>
 
       <a

@@ -22,12 +22,12 @@ export function PricingSection() {
         <div className="flex items-end justify-between gap-6">
           <div className="max-w-3xl">
             <h2 className="font-sans text-4xl font-medium leading-[1.1] tracking-tight sm:text-5xl">
-              Pricing that scales with your wells
+              Pricing that scales with your business
             </h2>
             <p className="mt-5 text-lg text-muted">
               Every plan includes the entire platform across Exploration,
               Production, Operations, and Finance, plus a monthly allotment of AI
-              credits. Pick the band that matches your well count.
+              credits. Pick the plan that matches your well count.
             </p>
           </div>
 

@@ -53,20 +53,20 @@ const DEMOS: readonly Demo[] = [
       "Open a well to see its oil, gas, and water and how it's trending. Point at a dip in the chart and ask what happened.",
   },
   {
-    eyebrow: "Your paperwork",
-    header: "Find any document by asking",
+    eyebrow: "Documents",
+    header: "Analyze any document instantly",
     caption:
-      "Ask for “the lease on the Smith tract” or “the Johnson #2 well file” and it pulls the right document out of years of paperwork in seconds.",
+      "Open a lease, a contract, or a well file and put it to work. It pulls the key dates and obligations, flags the terms that could cost you, and checks them against the rest of your paperwork in seconds.",
   },
   {
     eyebrow: "Your books",
-    header: "Turn the books you already keep into answers",
+    header: "Know which wells actually make money",
     caption:
-      "Bring in the statements and invoices you already get and put those numbers to work. Ask what a lease is costing you and see profit and expenses by well. No new accounting system to learn.",
+      "It reads your statements and invoices and drafts the bookkeeping for you, dated to the production month and matched to each well. Then it shows profit and lifting cost per well, so you finally know which ones earn and which ones bleed.",
   },
   {
     eyebrow: "The whole picture",
-    header: "It already knows your whole operation",
+    header: "Insights across your entire operation",
     caption:
       "It's been reading your logs, your production, and your books all along, so you can ask what no spreadsheet could: “which wells logged good pay but are barely producing and losing money?” You get a straight answer back.",
   },
