@@ -1,491 +1,813 @@
+"use client";
+
 /**
- * Coded, light-themed recreations of the WildcatIQ app for the landing-page
- * scroll showcase, one per demo frame. These are static mockups (no live data)
- * built to look like real screenshots of the app, which is light-themed while
- * the landing page around them is dark. Colors and chrome mirror the webapp:
- * Figtree (font-sans), neutral grayscale, charts in oil green / gas maroon /
- * water blue, the Orion accent #6b65ff.
+ * Animated, light-themed recreations of the WildcatIQ app for the landing-page
+ * scroll showcase. Each demo renders the FULL app (sidebar + top bar + content,
+ * plus the Orion drawer where relevant), scaled to fit the 16:9 frame, and
+ * plays a looping user flow. The app is light; the landing around it is dark,
+ * so these read as real product screenshots.
+ *
+ * Built at a fixed design size and scaled with a ResizeObserver so the whole UI
+ * shrinks uniformly into whatever size the frame is.
  */
 
-// App palette (approximate hex of the webapp's light-theme oklch tokens).
-const INK = "#242424"; // foreground
-const MUTE = "#8e8e8e"; // muted-foreground
-const LINE = "#ebebeb"; // border
-const ACCENT = "#6b65ff"; // Orion / data accent
-const RED = "#d32f2f"; // destructive
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { motion, AnimatePresence } from "motion/react";
+import {
+  Home,
+  Files,
+  Sparkles,
+  Droplet,
+  Compass,
+  Package,
+  ListTodo,
+  Calendar,
+  Users,
+  Calculator,
+  BarChart3,
+  DollarSign,
+  Mic,
+  AudioLines,
+  Send,
+  FileText,
+  Search,
+  TrendingUp,
+  type LucideIcon,
+} from "lucide-react";
+
+// Webapp light-theme palette (approx hex of the oklch tokens).
+const INK = "#242424";
+const SUB = "#5a5a5a";
+const MUTE = "#8e8e8e";
+const FAINT = "#b3b3b3";
+const LINE = "#ececec";
+const SIDEBAR = "#fafafa";
+const ACCENT = "#6b65ff";
+const RED = "#d32f2f";
+const GREEN = "#059669";
 const OIL = "#059669";
 const GAS = "#800000";
 const WATER = "#4169e1";
 
-function Screen({ children }: { children: React.ReactNode }) {
+const DESIGN_W = 1040;
+const DESIGN_H = 585;
+
+const useIso = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+/** Renders children at a fixed design size, scaled to fill the container. */
+function ScaledScreen({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0);
+  useIso(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setScale(el.clientWidth / DESIGN_W);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden bg-white font-sans text-[13px] leading-snug text-[#242424]">
-      {children}
+    <div ref={ref} className="h-full w-full overflow-hidden bg-white">
+      <div
+        style={{
+          width: DESIGN_W,
+          height: DESIGN_H,
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }
 
-function Sparkle({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
-      <path d="M12 2l2.1 7.4L21 12l-6.9 2.6L12 22l-2.1-7.4L3 12l6.9-2.6z" />
-    </svg>
-  );
+/** Looping step counter that pauses when the tab is hidden. */
+function useLoop(steps: number, ms: number): number {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setStep((s) => (s + 1) % steps), ms);
+    return () => clearInterval(id);
+  }, [steps, ms]);
+  return step;
 }
 
-function OrionHeader({ badge }: { badge: string }) {
+// ---------------------------------------------------------------- App shell
+type NavId =
+  | "home"
+  | "files"
+  | "orion"
+  | "wells"
+  | "projects"
+  | "inventory"
+  | "tasks"
+  | "calendar"
+  | "people"
+  | "accounting"
+  | "analytics"
+  | "pricing";
+
+const NAV: { group: string; items: { id: NavId; label: string; Icon: LucideIcon }[] }[] = [
+  {
+    group: "Overview",
+    items: [
+      { id: "home", label: "Home", Icon: Home },
+      { id: "files", label: "Files", Icon: Files },
+      { id: "orion", label: "Orion", Icon: Sparkles },
+    ],
+  },
+  {
+    group: "Operations",
+    items: [
+      { id: "wells", label: "Wells", Icon: Droplet },
+      { id: "projects", label: "Projects", Icon: Compass },
+      { id: "inventory", label: "Inventory", Icon: Package },
+      { id: "tasks", label: "Tasks", Icon: ListTodo },
+      { id: "calendar", label: "Calendar", Icon: Calendar },
+    ],
+  },
+  {
+    group: "Business",
+    items: [
+      { id: "people", label: "People", Icon: Users },
+      { id: "accounting", label: "Accounting", Icon: Calculator },
+      { id: "analytics", label: "Analytics", Icon: BarChart3 },
+      { id: "pricing", label: "Pricing", Icon: DollarSign },
+    ],
+  },
+];
+
+function Sidebar({ active }: { active: NavId }) {
   return (
     <div
-      className="flex shrink-0 items-center gap-2 border-b px-3.5 py-2.5"
+      className="flex h-full w-[210px] shrink-0 flex-col border-r"
+      style={{ background: SIDEBAR, borderColor: LINE }}
+    >
+      <div className="flex h-[52px] items-center gap-2 border-b px-4" style={{ borderColor: LINE }}>
+        <Droplet className="h-[18px] w-[18px]" style={{ color: INK }} fill={INK} strokeWidth={0} />
+        <span className="text-[15px] font-semibold tracking-tight" style={{ color: INK }}>
+          WildcatIQ
+        </span>
+      </div>
+      <div className="flex-1 overflow-hidden px-2 py-3">
+        {NAV.map((g) => (
+          <div key={g.group} className="mb-1.5">
+            <div
+              className="px-2 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider"
+              style={{ color: FAINT }}
+            >
+              {g.group}
+            </div>
+            {g.items.map(({ id, label, Icon }) => {
+              const on = id === active;
+              return (
+                <div
+                  key={id}
+                  className="mb-0.5 flex items-center gap-2 rounded-md px-2 py-[7px] text-[13px]"
+                  style={{
+                    background: on ? "#efeff1" : "transparent",
+                    color: on ? INK : SUB,
+                    fontWeight: on ? 500 : 400,
+                  }}
+                >
+                  <Icon className="h-4 w-4" style={{ color: on ? INK : MUTE }} strokeWidth={1.9} />
+                  {label}
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TopBar({ crumbs }: { crumbs: string[] }) {
+  return (
+    <div
+      className="flex h-[52px] shrink-0 items-center justify-between border-b px-4"
       style={{ borderColor: LINE }}
     >
-      <Sparkle className="h-3.5 w-3.5" />
-      <span className="font-medium" style={{ color: INK }}>
-        Orion
-      </span>
-      <span
-        className="rounded-full px-1.5 py-0.5 text-[10px]"
-        style={{ background: "#f5f5f5", color: MUTE }}
-      >
-        {badge}
-      </span>
-    </div>
-  );
-}
-
-function UserBubble({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex justify-end">
-      <div
-        className="max-w-[82%] rounded-2xl px-3 py-1.5 text-[12px] text-white"
-        style={{ background: INK }}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function BotBubble({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex justify-start">
-      <div
-        className="max-w-[88%] rounded-2xl px-3 py-1.5 text-[12px] leading-relaxed"
-        style={{ background: "#f5f5f5", color: INK }}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function Composer() {
-  return (
-    <div className="shrink-0 px-3.5 pb-3">
-      <div
-        className="flex items-center justify-between rounded-lg border px-3 py-2 text-[12px]"
-        style={{ borderColor: LINE, color: MUTE }}
-      >
-        <span>Ask Orion…</span>
-        <span
-          className="flex h-5 w-5 items-center justify-center rounded-md"
-          style={{ background: INK }}
-        >
-          <svg viewBox="0 0 24 24" className="h-3 w-3 text-white" fill="currentColor">
-            <path d="M3 11l18-8-8 18-2-7-8-3z" />
-          </svg>
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// 1 -------------------------------------------------------------- Voice
-function VoiceDemo() {
-  return (
-    <Screen>
-      <OrionHeader badge="Voice" />
-      <div className="flex flex-1 flex-col justify-end gap-2 overflow-hidden px-3.5 py-3">
-        <UserBubble>How did the Johnson lease produce last month?</UserBubble>
-        <BotBubble>
-          The Johnson lease made <strong>4,210 bbl</strong> of oil and{" "}
-          <strong>9.8 MMcf</strong> of gas in May, up about 6% from April. Water
-          cut held steady near 38%.
-        </BotBubble>
-      </div>
-      <div
-        className="flex shrink-0 items-center gap-2 border-t px-3.5 py-2.5"
-        style={{ borderColor: LINE }}
-      >
-        <span className="relative flex h-3.5 w-3.5 items-center justify-center">
-          <span
-            className="absolute inline-flex h-full w-full animate-ping rounded-full"
-            style={{ background: ACCENT, opacity: 0.4 }}
-          />
-          <svg viewBox="0 0 24 24" className="h-3 w-3" fill="currentColor" style={{ color: ACCENT }}>
-            <path d="M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z" />
-            <path d="M5 11a7 7 0 0 0 14 0" fill="none" stroke="currentColor" strokeWidth="1.6" />
-            <path d="M12 18v3" fill="none" stroke="currentColor" strokeWidth="1.6" />
-          </svg>
-        </span>
-        <span className="text-[11px] font-medium" style={{ color: MUTE }}>
-          Listening…
-        </span>
-      </div>
-    </Screen>
-  );
-}
-
-// 2 ------------------------------------------------------------ Well logs
-function LogDemo() {
-  const depths = ["9,600", "9,700", "9,800", "9,900", "10,000"];
-  return (
-    <Screen>
-      <div
-        className="flex shrink-0 items-center justify-between border-b px-3 py-1.5 text-[11px]"
-        style={{ borderColor: LINE }}
-      >
-        <span className="font-medium" style={{ color: "#5a5a5a" }}>
-          Smith #4 — triple combo.las
-        </span>
-        <span className="font-mono" style={{ color: MUTE }}>
-          LAS well log
-        </span>
-      </div>
-      <div
-        className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-0.5 border-b px-3 py-1.5 text-[10px]"
-        style={{ borderColor: LINE }}
-      >
-        {[
-          ["Well", "Smith #4"],
-          ["Field", "Midland"],
-          ["API", "42-329-31021"],
-          ["Interval", "9,600–10,020 ft"],
-          ["Curves", "8"],
-        ].map(([k, v]) => (
-          <span key={k}>
-            <span style={{ color: "#b3b3b3" }}>{k}: </span>
-            <span className="font-medium" style={{ color: "#5a5a5a" }}>
-              {v}
+      <div className="flex items-center gap-1.5 text-[13px]">
+        {crumbs.map((c, i) => (
+          <span key={c} className="flex items-center gap-1.5">
+            {i > 0 && <span style={{ color: FAINT }}>/</span>}
+            <span style={{ color: i === crumbs.length - 1 ? INK : MUTE, fontWeight: i === crumbs.length - 1 ? 500 : 400 }}>
+              {c}
             </span>
           </span>
         ))}
       </div>
-      <div className="relative flex-1 bg-white">
-        <svg viewBox="0 0 320 210" preserveAspectRatio="none" className="h-full w-full">
-          {/* depth grid */}
-          {[8, 56, 104, 152, 200].map((y) => (
-            <line key={y} x1="36" y1={y} x2="320" y2={y} stroke={LINE} strokeWidth="0.5" />
-          ))}
-          {/* track separators */}
-          <line x1="36" y1="0" x2="36" y2="210" stroke={LINE} strokeWidth="1" />
-          <line x1="180" y1="0" x2="180" y2="210" stroke={LINE} strokeWidth="1" />
-          {/* pay zone highlight */}
-          <rect x="36" y="96" width="284" height="26" fill={ACCENT} opacity="0.08" />
-          <line x1="36" y1="96" x2="36" y2="122" stroke={ACCENT} strokeWidth="2" />
-          {/* GR (green) */}
-          <path
-            d="M100 6 C 78 30, 124 48, 96 68 C 74 88, 120 108, 98 128 C 78 148, 122 168, 100 204"
-            fill="none"
-            stroke="#2e7d32"
-            strokeWidth="1.4"
-          />
-          {/* caliper (brown dashed) */}
-          <path
-            d="M150 6 C 142 46, 158 86, 150 126 C 142 166, 158 186, 150 204"
-            fill="none"
-            stroke="#8d6e63"
-            strokeWidth="1.1"
-            strokeDasharray="4 3"
-          />
-          {/* resistivity (black) */}
-          <path
-            d="M225 6 C 205 28, 245 46, 222 66 C 200 86, 246 106, 224 126 C 204 146, 248 166, 226 204"
-            fill="none"
-            stroke="#111111"
-            strokeWidth="1.4"
-          />
-          {/* second resistivity (red) */}
-          <path
-            d="M272 6 C 258 46, 284 86, 268 126 C 256 166, 284 186, 272 204"
-            fill="none"
-            stroke="#c62828"
-            strokeWidth="1.1"
-          />
-          {depths.map((d, i) => (
-            <text key={d} x="4" y={11 + i * 48} fontSize="7" fill={MUTE} fontFamily="monospace">
-              {d}
-            </text>
-          ))}
-        </svg>
-        {/* Orion pay-zone callout */}
-        <div
-          className="absolute right-2 top-[40%] flex items-center gap-1 rounded-md border bg-white px-1.5 py-1 text-[10px] font-medium shadow-sm"
-          style={{ borderColor: LINE, color: INK }}
-        >
-          <Sparkle className="h-2.5 w-2.5" />
-          Likely pay · ~14% φ
-        </div>
-      </div>
-    </Screen>
-  );
-}
-
-function ChartLegend({ items }: { items: [string, string][] }) {
-  return (
-    <div className="flex items-center gap-2.5 text-[10px]" style={{ color: MUTE }}>
-      {items.map(([color, label]) => (
-        <span key={label} className="flex items-center gap-1">
-          <span className="h-0.5 w-3 rounded-full" style={{ background: color }} />
-          {label}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-function RangeTabs({ tabs, active }: { tabs: string[]; active: string }) {
-  return (
-    <div
-      className="flex items-center gap-0.5 rounded-md p-0.5 text-[10px] font-medium"
-      style={{ background: "#f5f5f5" }}
-    >
-      {tabs.map((t) => (
-        <span
-          key={t}
-          className="rounded px-1.5 py-0.5"
-          style={
-            t === active
-              ? { background: "#fff", color: INK, boxShadow: "0 1px 2px rgba(0,0,0,0.06)" }
-              : { color: MUTE }
-          }
-        >
-          {t}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-// 3 ----------------------------------------------------------- Production
-function ProductionDemo() {
-  return (
-    <Screen>
-      <div
-        className="flex shrink-0 items-start justify-between gap-3 border-b px-3.5 py-2.5"
-        style={{ borderColor: LINE }}
-      >
-        <div>
-          <div className="font-medium" style={{ color: INK }}>
-            Production History
-          </div>
-          <div className="text-[11px]" style={{ color: MUTE }}>
-            Last 90 days · daily readings
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-1.5">
-          <ChartLegend
-            items={[
-              [OIL, "Oil"],
-              [GAS, "Gas"],
-              [WATER, "Water"],
-            ]}
-          />
-          <RangeTabs tabs={["1M", "3M", "12M"]} active="3M" />
-        </div>
-      </div>
-      <div className="relative flex flex-1 flex-col px-2 pb-1 pt-2">
-        <svg viewBox="0 0 320 150" preserveAspectRatio="none" className="w-full flex-1">
-          {[40, 75, 110].map((y) => (
-            <line key={y} x1="8" y1={y} x2="312" y2={y} stroke={LINE} strokeWidth="0.6" />
-          ))}
-          <path
-            d="M8 40 L40 38 L72 45 L104 35 L136 50 L168 45 L200 78 L232 70 L264 65 L296 60 L312 58"
-            fill="none"
-            stroke={OIL}
-            strokeWidth="2"
-          />
-          <path
-            d="M8 92 L40 90 L72 95 L104 88 L136 96 L168 92 L200 100 L232 96 L264 99 L296 95 L312 97"
-            fill="none"
-            stroke={GAS}
-            strokeWidth="2"
-          />
-          <path
-            d="M8 118 L40 116 L72 119 L104 115 L136 121 L168 117 L200 122 L232 118 L264 120 L296 117 L312 119"
-            fill="none"
-            stroke={WATER}
-            strokeWidth="2"
-          />
-        </svg>
-        <div className="mt-1 flex justify-between px-1 text-[9px]" style={{ color: MUTE }}>
-          {["Apr", "May", "Jun", "Jul", "Aug", "Sep"].map((m) => (
-            <span key={m}>{m}</span>
-          ))}
-        </div>
-        <div
-          className="absolute left-[55%] top-[44%] flex items-center gap-1 rounded-md border bg-white px-1.5 py-1 text-[10px] font-medium shadow-sm"
-          style={{ borderColor: LINE, color: INK }}
-        >
-          <Sparkle className="h-2.5 w-2.5" />
-          −7% · pump change
-        </div>
-      </div>
-    </Screen>
-  );
-}
-
-// 4 ------------------------------------------------------------ Paperwork
-function PaperworkDemo() {
-  return (
-    <Screen>
-      <OrionHeader badge="AI" />
-      <div className="flex flex-1 flex-col justify-end gap-2 overflow-hidden px-3.5 py-3">
-        <UserBubble>Pull up the lease on the Smith tract.</UserBubble>
-        <BotBubble>Found it. Here’s the Smith tract lease — section 4 covers the royalty terms:</BotBubble>
-        <div
-          className="flex items-start gap-2 rounded-lg border p-2.5"
-          style={{ borderColor: LINE }}
-        >
-          <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="#c62828" strokeWidth="1.6">
-            <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
-            <path d="M14 3v5h5" />
-          </svg>
-          <div className="min-w-0">
-            <div className="text-[12px] font-medium" style={{ color: INK }}>
-              Smith Tract Lease.pdf
-            </div>
-            <div className="text-[10px]" style={{ color: MUTE }}>
-              PDF · 14 pages
-            </div>
-            <div className="mt-1 text-[11px] leading-relaxed" style={{ color: "#5a5a5a" }}>
-              §4 Royalties — lessor reserves a 3/16 (0.1875) royalty on all oil and
-              gas produced and saved…
-            </div>
-          </div>
-        </div>
-      </div>
-      <Composer />
-    </Screen>
-  );
-}
-
-// 5 -------------------------------------------------------------- Books
-function BooksDemo() {
-  return (
-    <Screen>
-      <div
-        className="flex shrink-0 items-start justify-between gap-3 border-b px-3.5 py-2.5"
-        style={{ borderColor: LINE }}
-      >
-        <div>
-          <div className="font-medium" style={{ color: INK }}>
-            Cash Flow
-          </div>
-          <div className="text-[11px]" style={{ color: MUTE }}>
-            Monthly · all wells
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-1.5">
-          <span
-            className="flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium"
-            style={{ borderColor: LINE, color: "#5a5a5a" }}
-          >
-            Cash Flow
-            <svg viewBox="0 0 24 24" className="h-2.5 w-2.5" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 9l6 6 6-6" />
-            </svg>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 text-[12px]" style={{ color: SUB }}>
+          <span className="font-medium">WTI</span>
+          <span className="font-mono">$78.20</span>
+          <span className="flex items-center gap-0.5 font-mono" style={{ color: GREEN }}>
+            <TrendingUp className="h-3 w-3" strokeWidth={2.2} /> 1.2%
           </span>
-          <RangeTabs tabs={["6M", "12M", "All"]} active="12M" />
         </div>
-      </div>
-      <div className="relative flex flex-1 flex-col px-2 pb-1 pt-2">
-        <svg viewBox="0 0 320 150" preserveAspectRatio="none" className="w-full flex-1">
-          {/* y labels grid */}
-          <line x1="40" y1="85" x2="312" y2="85" stroke={LINE} strokeWidth="1" strokeDasharray="3 3" />
-          {/* positive (green) segments */}
-          <path d="M40 58 L80 56 L120 66 L150 84" fill="none" stroke={OIL} strokeWidth="2" />
-          <path d="M250 86 L286 60 L312 50" fill="none" stroke={OIL} strokeWidth="2" />
-          {/* negative (red) segment */}
-          <path d="M150 84 L186 102 L214 108 L250 86" fill="none" stroke={RED} strokeWidth="2" />
-          <text x="6" y="36" fontSize="8" fill={MUTE} fontFamily="monospace">$40k</text>
-          <text x="14" y="88" fontSize="8" fill={MUTE} fontFamily="monospace">$0</text>
-          <text x="2" y="128" fontSize="8" fill={MUTE} fontFamily="monospace">−$20k</text>
-        </svg>
+        <Mic className="h-[18px] w-[18px]" style={{ color: MUTE }} strokeWidth={1.8} />
+        <Sparkles className="h-[18px] w-[18px]" style={{ color: ACCENT }} strokeWidth={1.8} />
         <div
-          className="absolute bottom-2 left-2 flex items-center gap-1 rounded-md border bg-white px-1.5 py-1 text-[10px] font-medium shadow-sm"
-          style={{ borderColor: LINE, color: INK }}
+          className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold text-white"
+          style={{ background: INK }}
         >
-          <Sparkle className="h-2.5 w-2.5" />
-          Henderson lease ≈ $18.4k/mo, up since March
+          RP
         </div>
       </div>
-    </Screen>
+    </div>
   );
 }
 
-// 6 ---------------------------------------------------------- Whole picture
-function WholePictureDemo() {
-  const rows: [string, string, string, string][] = [
-    ["Smith #4", "14% φ", "3", "−$1,240"],
-    ["Carter A2", "12% φ", "5", "−$870"],
-    ["Doyle 11", "16% φ", "2", "−$2,110"],
+function AppShell({
+  active,
+  crumbs,
+  children,
+  drawer,
+}: {
+  active: NavId;
+  crumbs: string[];
+  children: ReactNode;
+  drawer?: ReactNode;
+}) {
+  return (
+    <div className="flex h-full w-full font-sans" style={{ color: INK }}>
+      <Sidebar active={active} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <TopBar crumbs={crumbs} />
+        <div className="flex min-h-0 flex-1">
+          <div className="min-w-0 flex-1 overflow-hidden">{children}</div>
+          {drawer}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --------------------------------------------------------------- Chat atoms
+function Bubble({ role, children }: { role: "user" | "bot"; children: ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}
+    >
+      <div
+        className="max-w-[86%] rounded-2xl px-3 py-1.5 text-[12.5px] leading-relaxed"
+        style={
+          role === "user"
+            ? { background: INK, color: "#fff" }
+            : { background: "#f5f5f5", color: INK }
+        }
+      >
+        {children}
+      </div>
+    </motion.div>
+  );
+}
+
+function DrawerShell({ badge, children }: { badge: string; children: ReactNode }) {
+  return (
+    <div className="flex w-[300px] shrink-0 flex-col border-l" style={{ borderColor: LINE }}>
+      <div className="flex h-[44px] items-center gap-2 border-b px-3.5" style={{ borderColor: LINE }}>
+        <Sparkles className="h-4 w-4" style={{ color: ACCENT }} strokeWidth={1.9} />
+        <span className="text-[13px] font-medium">Orion</span>
+        <span className="rounded-full px-1.5 py-0.5 text-[10px]" style={{ background: "#f5f5f5", color: MUTE }}>
+          {badge}
+        </span>
+      </div>
+      <div className="flex min-h-0 flex-1 flex-col justify-end gap-2 px-3.5 py-3">{children}</div>
+      <div className="px-3.5 pb-3">
+        <div
+          className="flex items-center justify-between rounded-lg border px-3 py-2 text-[12px]"
+          style={{ borderColor: LINE, color: MUTE }}
+        >
+          Ask Orion…
+          <span className="flex h-5 w-5 items-center justify-center rounded-md" style={{ background: INK }}>
+            <Send className="h-3 w-3 text-white" strokeWidth={2} />
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Thinking({ tools }: { tools?: string[] }) {
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-0.5">
+      <span className="text-[12px]" style={{ color: MUTE }}>
+        Orion is thinking…
+      </span>
+      {tools?.map((t) => (
+        <span key={t} className="font-mono text-[11px]" style={{ color: `${MUTE}cc` }}>
+          → {t}
+        </span>
+      ))}
+    </motion.div>
+  );
+}
+
+// ------------------------------------------------------------------ 1. Voice
+function VoiceDemo() {
+  const step = useLoop(4, 1700); // 0 listen, 1 question, 2 answer, 3 hold
+  const statusColor = ACCENT;
+  return (
+    <AppShell active="orion" crumbs={["Orion"]}>
+      <div className="flex h-full flex-col">
+        <div className="flex min-h-0 flex-1 flex-col justify-end gap-2.5 px-6 py-5">
+          <AnimatePresence>
+            {step >= 1 && (
+              <Bubble key="q" role="user">
+                How did the Johnson lease produce last month?
+              </Bubble>
+            )}
+            {step >= 2 && (
+              <Bubble key="a" role="bot">
+                The Johnson lease made <strong>4,210 bbl</strong> of oil and{" "}
+                <strong>9.8 MMcf</strong> of gas in May, up about 6% from April.
+                Water cut held steady near 38%.
+              </Bubble>
+            )}
+          </AnimatePresence>
+        </div>
+        <div className="flex items-center gap-2.5 border-t px-6 py-3" style={{ borderColor: LINE }}>
+          <div className="flex items-end gap-[3px]">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <motion.span
+                key={i}
+                className="w-[3px] rounded-full"
+                style={{ background: statusColor }}
+                animate={{ height: step === 0 ? [5, 16, 5] : 5 }}
+                transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.12 }}
+              />
+            ))}
+          </div>
+          <span className="text-[12px] font-medium" style={{ color: MUTE }}>
+            {step === 0 && "Listening…"}
+            {step === 1 && "Orion is thinking…"}
+            {step >= 2 && (
+              <span className="flex items-center gap-1.5">
+                <AudioLines className="h-3.5 w-3.5" style={{ color: ACCENT }} strokeWidth={1.9} />
+                Speaking — talk to interrupt
+              </span>
+            )}
+          </span>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+// ---------------------------------------------------------------- 2. Well log
+function AnimatedPath(props: React.ComponentProps<typeof motion.path>) {
+  return (
+    <motion.path
+      initial={{ pathLength: 0, opacity: 0 }}
+      animate={{ pathLength: 1, opacity: 1 }}
+      transition={{ duration: 1.2, ease: "easeInOut" }}
+      {...props}
+    />
+  );
+}
+
+function LogDemo() {
+  const step = useLoop(4, 1700);
+  const meta: [string, string][] = [
+    ["Well", "Smith #4"],
+    ["Field", "Midland"],
+    ["API", "42-329-31021"],
+    ["Interval", "9,600 to 10,020 ft"],
+    ["Curves", "8"],
   ];
   return (
-    <Screen>
-      <OrionHeader badge="AI" />
-      <div className="flex flex-1 flex-col justify-center gap-2 overflow-hidden px-3.5 py-3">
-        <UserBubble>
-          Which wells logged good pay but are barely producing and losing money?
-        </UserBubble>
-        <BotBubble>Three worth a look:</BotBubble>
-        <div className="overflow-hidden rounded-lg border" style={{ borderColor: LINE }}>
-          <div
-            className="grid grid-cols-[1.4fr_1fr_0.9fr_1fr] gap-2 px-2.5 py-1.5 font-mono text-[9px] font-semibold uppercase tracking-wider"
-            style={{ background: "#f8f8f8", color: MUTE }}
-          >
-            <span>Well</span>
-            <span>Logged pay</span>
-            <span className="text-right">Oil b/d</span>
-            <span className="text-right">P/L</span>
-          </div>
-          {rows.map(([well, pay, oil, pl]) => (
-            <div
-              key={well}
-              className="grid grid-cols-[1.4fr_1fr_0.9fr_1fr] gap-2 border-t px-2.5 py-1.5 text-[11px] tabular-nums"
-              style={{ borderColor: LINE }}
-            >
-              <span className="font-medium" style={{ color: INK }}>
-                {well}
+    <AppShell
+      active="files"
+      crumbs={["Files", "Smith #4 logs", "triple-combo.las"]}
+      drawer={
+        <DrawerShell badge="AI">
+          <AnimatePresence>
+            {step >= 1 && (
+              <Bubble key="q" role="user">
+                Where is the best pay on this log?
+              </Bubble>
+            )}
+            {step >= 2 && (
+              <Bubble key="a" role="bot">
+                Best interval looks like <strong>9,820 to 9,870 ft</strong>: low gamma
+                ray with about 14% porosity. Worth a closer look.
+              </Bubble>
+            )}
+          </AnimatePresence>
+        </DrawerShell>
+      }
+    >
+      <div className="flex h-full flex-col bg-white">
+        <div className="flex items-center justify-between border-b px-3 py-2 text-[11px]" style={{ borderColor: LINE }}>
+          <span className="font-medium" style={{ color: SUB }}>
+            triple-combo.las
+          </span>
+          <span className="font-mono" style={{ color: MUTE }}>
+            LAS well log
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-b px-3 py-1.5 text-[10.5px]" style={{ borderColor: LINE }}>
+          {meta.map(([k, v]) => (
+            <span key={k}>
+              <span style={{ color: FAINT }}>{k}: </span>
+              <span className="font-medium" style={{ color: SUB }}>
+                {v}
               </span>
-              <span style={{ color: "#5a5a5a" }}>{pay}</span>
-              <span className="text-right" style={{ color: "#5a5a5a" }}>
-                {oil}
-              </span>
-              <span className="text-right font-medium" style={{ color: RED }}>
-                {pl}
-              </span>
-            </div>
+            </span>
           ))}
         </div>
-        <div className="text-[10px]" style={{ color: MUTE }}>
-          Cross-checked against your logs, production, and the ledger.
+        <div className="relative flex-1">
+          <svg viewBox="0 0 600 360" preserveAspectRatio="none" className="h-full w-full">
+            {[8, 76, 144, 212, 280, 348].map((y) => (
+              <line key={y} x1="60" y1={y} x2="600" y2={y} stroke={LINE} strokeWidth="0.6" />
+            ))}
+            <line x1="60" y1="0" x2="60" y2="360" stroke={LINE} strokeWidth="1" />
+            <line x1="330" y1="0" x2="330" y2="360" stroke={LINE} strokeWidth="1" />
+            {step >= 2 && (
+              <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+                <rect x="60" y="176" width="540" height="44" fill={ACCENT} opacity="0.09" />
+                <line x1="60" y1="176" x2="60" y2="220" stroke={ACCENT} strokeWidth="3" />
+              </motion.g>
+            )}
+            <AnimatedPath
+              d="M170 6 C 120 56, 220 96, 160 136 C 110 176, 220 216, 170 256 C 120 296, 220 326, 170 358"
+              fill="none"
+              stroke="#2e7d32"
+              strokeWidth="1.6"
+            />
+            <AnimatedPath
+              d="M270 6 C 250 86, 290 166, 270 246 C 252 306, 290 336, 270 358"
+              fill="none"
+              stroke="#8d6e63"
+              strokeWidth="1.2"
+              strokeDasharray="5 4"
+            />
+            <AnimatedPath
+              d="M420 6 C 380 50, 470 92, 410 136 C 360 180, 470 222, 420 266 C 372 306, 472 332, 420 358"
+              fill="none"
+              stroke="#111111"
+              strokeWidth="1.6"
+            />
+            <AnimatedPath
+              d="M510 6 C 492 86, 532 166, 510 246 C 494 306, 532 336, 510 358"
+              fill="none"
+              stroke="#c62828"
+              strokeWidth="1.2"
+            />
+            {["9,600", "9,700", "9,800", "9,900", "10,000"].map((d, i) => (
+              <text key={d} x="6" y={14 + i * 68} fontSize="11" fill={MUTE} fontFamily="monospace">
+                {d}
+              </text>
+            ))}
+          </svg>
+          {step >= 2 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="absolute right-3 top-[46%] flex items-center gap-1 rounded-md border bg-white px-2 py-1 text-[11px] font-medium shadow-sm"
+              style={{ borderColor: LINE, color: INK }}
+            >
+              <Sparkles className="h-3 w-3" style={{ color: ACCENT }} strokeWidth={1.9} />
+              Likely pay, ~14% porosity
+            </motion.div>
+          )}
         </div>
       </div>
-    </Screen>
+    </AppShell>
   );
 }
 
-const SCREENS = [
-  VoiceDemo,
-  LogDemo,
-  ProductionDemo,
-  PaperworkDemo,
-  BooksDemo,
-  WholePictureDemo,
+// -------------------------------------------------- shared chart chrome
+function ChartHeader({
+  title,
+  subtitle,
+  legend,
+  tabs,
+  active,
+}: {
+  title: string;
+  subtitle: string;
+  legend?: [string, string][];
+  tabs: string[];
+  active: string;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3 border-b px-5 py-3" style={{ borderColor: LINE }}>
+      <div>
+        <div className="text-[14px] font-medium" style={{ color: INK }}>
+          {title}
+        </div>
+        <div className="text-[11.5px]" style={{ color: MUTE }}>
+          {subtitle}
+        </div>
+      </div>
+      <div className="flex flex-col items-end gap-2">
+        {legend && (
+          <div className="flex items-center gap-3 text-[10.5px]" style={{ color: MUTE }}>
+            {legend.map(([c, l]) => (
+              <span key={l} className="flex items-center gap-1">
+                <span className="h-[2px] w-3 rounded-full" style={{ background: c }} />
+                {l}
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center gap-0.5 rounded-md p-0.5 text-[10.5px] font-medium" style={{ background: "#f5f5f5" }}>
+          {tabs.map((t) => (
+            <span
+              key={t}
+              className="rounded px-2 py-0.5"
+              style={t === active ? { background: "#fff", color: INK, boxShadow: "0 1px 2px rgba(0,0,0,.06)" } : { color: MUTE }}
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --------------------------------------------------------------- 3. Production
+function ProductionDemo() {
+  const step = useLoop(4, 1700);
+  return (
+    <AppShell active="wells" crumbs={["Wells", "Smith #4"]}>
+      <div className="flex h-full flex-col">
+        <div className="flex items-center gap-4 border-b px-5 pt-4 text-[13px]" style={{ borderColor: LINE }}>
+          {["Production", "Comments", "Equipment", "Files", "Royalty"].map((t, i) => (
+            <span
+              key={t}
+              className="pb-2"
+              style={
+                i === 0
+                  ? { color: INK, fontWeight: 500, borderBottom: `2px solid ${INK}` }
+                  : { color: MUTE }
+              }
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+        <ChartHeader
+          title="Production History"
+          subtitle="Last 90 days · daily readings"
+          legend={[
+            [OIL, "Oil"],
+            [GAS, "Gas"],
+            [WATER, "Water"],
+          ]}
+          tabs={["1M", "3M", "12M"]}
+          active="3M"
+        />
+        <div className="relative flex flex-1 flex-col px-3 pb-2 pt-3">
+          <svg viewBox="0 0 600 240" preserveAspectRatio="none" className="w-full flex-1">
+            {[60, 120, 180].map((y) => (
+              <line key={y} x1="10" y1={y} x2="590" y2={y} stroke={LINE} strokeWidth="0.7" />
+            ))}
+            <AnimatedPath d="M10 64 L74 60 L138 72 L202 56 L266 80 L330 72 L394 128 L458 112 L522 104 L590 96" fill="none" stroke={OIL} strokeWidth="2.4" />
+            <AnimatedPath d="M10 150 L74 146 L138 154 L202 142 L266 156 L330 150 L394 164 L458 156 L522 160 L590 156" fill="none" stroke={GAS} strokeWidth="2.4" />
+            <AnimatedPath d="M10 196 L74 192 L138 198 L202 190 L266 200 L330 194 L394 202 L458 196 L522 199 L590 196" fill="none" stroke={WATER} strokeWidth="2.4" />
+          </svg>
+          <div className="mt-1 flex justify-between px-1 text-[9.5px]" style={{ color: MUTE }}>
+            {["Apr", "May", "Jun", "Jul", "Aug", "Sep"].map((m) => (
+              <span key={m}>{m}</span>
+            ))}
+          </div>
+          {step >= 2 && (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute left-[58%] top-[46%] flex items-center gap-1 rounded-md border bg-white px-2 py-1 text-[11px] font-medium shadow-sm"
+              style={{ borderColor: LINE, color: INK }}
+            >
+              <Sparkles className="h-3 w-3" style={{ color: ACCENT }} strokeWidth={1.9} />
+              Oil down 7% after the Jun 12 pump change
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+// --------------------------------------------------------------- 4. Paperwork
+const FILES: [string, string, string][] = [
+  ["Drilling AFE 2024.pdf", "PDF", "2 days ago"],
+  ["Smith Tract Lease.pdf", "PDF", "Mar 4"],
+  ["Johnson #2 well file.pdf", "PDF", "Feb 18"],
+  ["Field notes.note", "NOTE", "Jan 30"],
+  ["seismic-line-3.png", "IMAGE", "Jan 12"],
 ];
+
+function PaperworkDemo() {
+  const step = useLoop(4, 1700);
+  const hit = step >= 2 ? 1 : -1; // highlight Smith Tract Lease row
+  return (
+    <AppShell
+      active="files"
+      crumbs={["Files"]}
+      drawer={
+        <DrawerShell badge="AI">
+          <AnimatePresence>
+            {step >= 1 && (
+              <Bubble key="q" role="user">
+                Pull up the lease on the Smith tract.
+              </Bubble>
+            )}
+            {step >= 2 && (
+              <Bubble key="a" role="bot">
+                Here it is. Section 4 covers the royalty terms: lessor reserves a
+                3/16 (0.1875) royalty.
+              </Bubble>
+            )}
+          </AnimatePresence>
+        </DrawerShell>
+      }
+    >
+      <div className="flex h-full flex-col">
+        <div className="flex items-center gap-2 border-b px-5 py-2.5" style={{ borderColor: LINE }}>
+          <Search className="h-4 w-4" style={{ color: MUTE }} strokeWidth={1.8} />
+          <span className="text-[13px]" style={{ color: MUTE }}>
+            Search files
+          </span>
+        </div>
+        <div className="px-2 py-1.5">
+          <div className="grid grid-cols-[28px_1fr_90px_110px] gap-2 px-3 py-2 text-[11px] font-medium" style={{ color: MUTE }}>
+            <span />
+            <span>Name</span>
+            <span>Type</span>
+            <span>Modified</span>
+          </div>
+          {FILES.map(([name, type, mod], i) => (
+            <motion.div
+              key={name}
+              animate={{ backgroundColor: i === hit ? "#efefff" : "rgba(255,255,255,0)" }}
+              transition={{ duration: 0.4 }}
+              className="grid grid-cols-[28px_1fr_90px_110px] items-center gap-2 rounded-md px-3 py-2 text-[12.5px]"
+            >
+              <FileText className="h-4 w-4" style={{ color: i === hit ? ACCENT : MUTE }} strokeWidth={1.7} />
+              <span className="font-medium" style={{ color: INK }}>
+                {name}
+              </span>
+              <span className="uppercase" style={{ color: MUTE }}>
+                {type}
+              </span>
+              <span style={{ color: MUTE }}>{mod}</span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+// ------------------------------------------------------------------ 5. Books
+function BooksDemo() {
+  const step = useLoop(4, 1700);
+  return (
+    <AppShell
+      active="accounting"
+      crumbs={["Accounting"]}
+      drawer={
+        <DrawerShell badge="AI">
+          <AnimatePresence>
+            {step >= 1 && (
+              <Bubble key="q" role="user">
+                What is it costing me to run the Henderson lease?
+              </Bubble>
+            )}
+            {step >= 2 && (
+              <Bubble key="a" role="bot">
+                About <strong>$18,400 a month</strong>, mostly $7,200 lifting and
+                $5,900 saltwater disposal. It has climbed since March.
+              </Bubble>
+            )}
+          </AnimatePresence>
+        </DrawerShell>
+      }
+    >
+      <div className="flex h-full flex-col">
+        <ChartHeader title="Cash Flow" subtitle="Monthly · all wells" tabs={["6M", "12M", "All"]} active="12M" />
+        <div className="relative flex flex-1 flex-col px-3 pb-2 pt-3">
+          <svg viewBox="0 0 600 240" preserveAspectRatio="none" className="w-full flex-1">
+            <line x1="70" y1="140" x2="590" y2="140" stroke={LINE} strokeWidth="1" strokeDasharray="4 4" />
+            <AnimatedPath d="M70 92 L150 88 L230 108 L286 138" fill="none" stroke={OIL} strokeWidth="2.4" />
+            <AnimatedPath d="M286 138 L350 172 L410 182 L470 142" fill="none" stroke={RED} strokeWidth="2.4" />
+            <AnimatedPath d="M470 142 L540 96 L590 80" fill="none" stroke={OIL} strokeWidth="2.4" />
+            <text x="18" y="60" fontSize="11" fill={MUTE} fontFamily="monospace">$40k</text>
+            <text x="34" y="144" fontSize="11" fill={MUTE} fontFamily="monospace">$0</text>
+            <text x="8" y="212" fontSize="11" fill={MUTE} fontFamily="monospace">-$20k</text>
+          </svg>
+          <div className="mt-1 flex justify-between px-1 text-[9.5px]" style={{ color: MUTE }}>
+            {["Jan", "Mar", "May", "Jul", "Sep", "Nov"].map((m) => (
+              <span key={m}>{m}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+// ------------------------------------------------------------ 6. Whole picture
+const SYNTH_ROWS: [string, string, string, string][] = [
+  ["Smith #4", "14% φ", "3", "-$1,240"],
+  ["Carter A2", "12% φ", "5", "-$870"],
+  ["Doyle 11", "16% φ", "2", "-$2,110"],
+];
+
+function WholePictureDemo() {
+  const step = useLoop(4, 1900); // 0 q, 1 thinking+tools, 2 answer+table, 3 hold
+  return (
+    <AppShell active="orion" crumbs={["Orion"]}>
+      <div className="flex h-full flex-col justify-center gap-2.5 px-8 py-5">
+        <AnimatePresence>
+          {step >= 0 && (
+            <Bubble key="q" role="user">
+              Which wells logged good pay but are barely producing and losing money?
+            </Bubble>
+          )}
+          {step === 1 && (
+            <motion.div key="t" exit={{ opacity: 0 }}>
+              <Thinking tools={["list_wells()", "get_production()", "get_accounting_overview()"]} />
+            </motion.div>
+          )}
+          {step >= 2 && (
+            <Bubble key="a" role="bot">
+              Three worth a look:
+            </Bubble>
+          )}
+        </AnimatePresence>
+        {step >= 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-[480px] overflow-hidden rounded-lg border"
+            style={{ borderColor: LINE }}
+          >
+            <div
+              className="grid grid-cols-[1.4fr_1fr_0.8fr_1fr] gap-2 px-3 py-1.5 font-mono text-[9.5px] font-semibold uppercase tracking-wider"
+              style={{ background: "#f8f8f8", color: MUTE }}
+            >
+              <span>Well</span>
+              <span>Logged pay</span>
+              <span className="text-right">Oil b/d</span>
+              <span className="text-right">P/L</span>
+            </div>
+            {SYNTH_ROWS.map(([w, pay, oil, pl], i) => (
+              <motion.div
+                key={w}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.15 + i * 0.18 }}
+                className="grid grid-cols-[1.4fr_1fr_0.8fr_1fr] gap-2 border-t px-3 py-1.5 text-[12px] tabular-nums"
+                style={{ borderColor: LINE }}
+              >
+                <span className="font-medium" style={{ color: INK }}>
+                  {w}
+                </span>
+                <span style={{ color: SUB }}>{pay}</span>
+                <span className="text-right" style={{ color: SUB }}>
+                  {oil}
+                </span>
+                <span className="text-right font-medium" style={{ color: RED }}>
+                  {pl}
+                </span>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+        {step >= 2 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-[10.5px]" style={{ color: MUTE }}>
+            Cross-checked against your logs, production, and the ledger.
+          </motion.div>
+        )}
+      </div>
+    </AppShell>
+  );
+}
+
+const SCREENS = [VoiceDemo, LogDemo, ProductionDemo, PaperworkDemo, BooksDemo, WholePictureDemo];
 
 export function DemoScreen({ index }: { index: number }) {
   const Component = SCREENS[Math.max(0, Math.min(SCREENS.length - 1, index))];
-  return <Component />;
+  return (
+    <ScaledScreen>
+      <Component />
+    </ScaledScreen>
+  );
 }
