@@ -35,10 +35,10 @@ interface Demo {
 
 const DEMOS: readonly Demo[] = [
   {
-    eyebrow: "Voice",
+    eyebrow: "Chat + Voice",
     header: "Just talk to it",
     caption:
-      "Tap the mic and ask out loud: “how did the Johnson lease produce last month?” It answers back, out loud and on the screen.",
+      "Type or tap the mic and ask: “how did the Johnson lease produce last month?” It answers back, out loud and on the screen.",
   },
   {
     eyebrow: "Well logs",
@@ -48,9 +48,9 @@ const DEMOS: readonly Demo[] = [
   },
   {
     eyebrow: "Production",
-    header: "Every well's numbers in one look",
+    header: "Log it in the field, track it from the office",
     caption:
-      "Open a well to see its oil, gas, and water and how it's trending. Point at a dip in the chart and ask what happened.",
+      "Your pumpers log oil, gas, and water straight from the field in seconds. Management sees every well trending in one place and can point at a dip in the chart and ask what happened.",
   },
   {
     eyebrow: "Documents",
@@ -125,8 +125,8 @@ export function ScrollDemo() {
   });
 
   // Screen geometry: full-width container → smaller, right-aligned.
-  const width = useTransform(scrollYProgress, [0, SHRINK_END], ["100%", "48%"]);
-  const right = useTransform(scrollYProgress, [0, SHRINK_END], ["0%", "3%"]);
+  const width = useTransform(scrollYProgress, [0, SHRINK_END], ["100%", "56%"]);
+  const right = useTransform(scrollYProgress, [0, SHRINK_END], ["0%", "2%"]);
   // Left-hand copy only appears once the screen has docked.
   const textOpacity = useTransform(
     scrollYProgress,
@@ -135,8 +135,12 @@ export function ScrollDemo() {
   );
 
   const [active, setActive] = useState(0);
+  // Full app layout while large; switch to the tight, zoomed-in layout once the
+  // screen has docked (shrunk small).
+  const [docked, setDocked] = useState(false);
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
+    setDocked(v >= SHRINK_END);
     const cycle = (v - SHRINK_END) / (1 - SHRINK_END);
     const index = Math.min(
       DEMOS.length - 1,
@@ -197,7 +201,7 @@ export function ScrollDemo() {
           {/* Left: header + caption that cycles with the active demo */}
           <motion.div
             style={{ opacity: textOpacity }}
-            className="absolute left-6 top-1/2 w-[34%] max-w-sm -translate-y-1/2 lg:left-10"
+            className="absolute left-6 top-1/2 w-[30%] max-w-sm -translate-y-1/2 lg:left-10"
           >
             <AnimatePresence mode="wait">
               <motion.div
@@ -227,14 +231,14 @@ export function ScrollDemo() {
           >
             <AnimatePresence mode="wait">
               <motion.div
-                key={active}
+                key={`${active}-${docked}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.35 }}
                 className="h-full w-full"
               >
-                <DemoScreen index={active} />
+                <DemoScreen index={active} compact={docked} />
               </motion.div>
             </AnimatePresence>
           </motion.div>

@@ -1,7 +1,7 @@
 const STEPS = [
   {
     n: "01",
-    title: "Add your operation",
+    title: "Upload your data",
     body: "Your production reports, well logs, accounting, vendors, and files all go in one place. The records you already keep, now together.",
   },
   {
