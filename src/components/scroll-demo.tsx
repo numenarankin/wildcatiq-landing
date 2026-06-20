@@ -54,15 +54,15 @@ const DEMOS: readonly Demo[] = [
   },
   {
     eyebrow: "Documents",
-    header: "Analyze any document instantly",
+    header: "AI for every document",
     caption:
-      "Open a lease, a contract, or a well file and put it to work. It pulls the key dates and obligations, flags the terms that could cost you, and checks them against the rest of your paperwork in seconds.",
+      "Analyze any lease, contract, or well file with AI. Orion pulls the key dates and obligations, flags the terms that could cost you, and checks them against the rest of your paperwork in seconds.",
   },
   {
-    eyebrow: "Your books",
-    header: "Know which wells actually make money",
+    eyebrow: "Accounting records",
+    header: "Understand your financial performance",
     caption:
-      "It reads your statements and invoices and drafts the bookkeeping for you, dated to the production month and matched to each well. Then it shows profit and lifting cost per well, so you finally know which ones earn and which ones bleed.",
+      "Upload your records and produce structured financial data in seconds. Pull up monthly reports for any well or the whole company, and chat with your financial data in plain English with Orion.",
   },
   {
     eyebrow: "The whole picture",
@@ -127,12 +127,6 @@ export function ScrollDemo() {
   // Screen geometry: full-width container → smaller, right-aligned.
   const width = useTransform(scrollYProgress, [0, SHRINK_END], ["100%", "56%"]);
   const right = useTransform(scrollYProgress, [0, SHRINK_END], ["0%", "2%"]);
-  // Left-hand copy only appears once the screen has docked.
-  const textOpacity = useTransform(
-    scrollYProgress,
-    [SHRINK_END * 0.7, SHRINK_END],
-    [0, 1],
-  );
 
   const [active, setActive] = useState(0);
   // Full app layout while large; switch to the tight, zoomed-in layout once the
@@ -198,30 +192,40 @@ export function ScrollDemo() {
 
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="relative mx-auto h-full max-w-7xl px-6 lg:px-10">
-          {/* Left: header + caption that cycles with the active demo */}
+          {/* Left: header + caption that cycles with the active demo.
+              Visibility is gated on the `docked` boolean (copy appears once the
+              screen has shrunk and docked). We deliberately do NOT drive this
+              with a scroll-linked useTransform: Motion accelerates numeric
+              `opacity` via a native ScrollTimeline that ignores useTransform's
+              clamp, so a "fade in then hold at 1" curve instead extrapolated
+              into a fade-out across the rest of the section, making the copy
+              progressively invisible the further you scrolled. */}
           <motion.div
-            style={{ opacity: textOpacity }}
+            initial={false}
+            animate={{ opacity: docked ? 1 : 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             className="absolute left-6 top-1/2 w-[30%] max-w-sm -translate-y-1/2 lg:left-10"
           >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={active}
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -18 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-              >
-                <p className="text-sm font-semibold uppercase tracking-wider text-muted">
-                  {current.eyebrow}
-                </p>
-                <h2 className="mt-3 font-sans text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
-                  {current.header}
-                </h2>
-                <p className="mt-4 text-base leading-relaxed text-muted">
-                  {current.caption}
-                </p>
-              </motion.div>
-            </AnimatePresence>
+            {/* Keyed remount (not AnimatePresence) so initial→animate runs on
+                every demo change and reliably settles at opacity 1. A waited
+                exit can stall mid-fade under scroll-driven key changes, which
+                left the whole copy block dimmed on every demo after the first. */}
+            <motion.div
+              key={active}
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            >
+              <p className="text-sm font-semibold uppercase tracking-wider text-muted">
+                {current.eyebrow}
+              </p>
+              <h2 className="mt-3 font-sans text-3xl font-medium leading-tight tracking-tight sm:text-4xl">
+                {current.header}
+              </h2>
+              <p className="mt-4 text-lg leading-relaxed text-muted">
+                {current.caption}
+              </p>
+            </motion.div>
           </motion.div>
 
           {/* Right: the demo screen - shrinks, docks, then cycles gifs */}

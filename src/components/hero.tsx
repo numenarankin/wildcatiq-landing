@@ -8,7 +8,7 @@ import { BOOK_DEMO_URL } from "@/lib/links";
 
 const HIGHLIGHTS = [
   { icon: LogIcon, label: "Understands your well logs" },
-  { icon: NetworkIcon, label: "Reasons across everything" },
+  { icon: NetworkIcon, label: "Analyzes your whole operation" },
   { icon: ChatIcon, label: "Answers in plain English" },
 ] as const;
 

@@ -2,17 +2,17 @@ const STEPS = [
   {
     n: "01",
     title: "Upload your data",
-    body: "Your production reports, well logs, accounting, vendors, and files all go in one place. The records you already keep, now together.",
+    body: "Add your production reports, well logs, accounting, inventory, vendors, and files all go in one place. The records you already keep, now together.",
   },
   {
     n: "02",
     title: "Ask Orion, or put it to work",
-    body: "Get a straight answer to any question. Or hand Orion the job: log production from a run sheet, fill in a well's equipment, add a well, set a calendar reminder, or draft a memo. Orion always asks before it changes anything.",
+    body: "Get a straight answer to any question, or give Orion a task. Record production from a run sheet, add a well, or draft a memo. Orion always asks before it changes anything.",
   },
   {
     n: "03",
     title: "Orion gets smarter the more you use it",
-    body: "The more you put in and the more you ask, the more Orion learns your wells, your numbers, and the way you like things done. Orion sharpens over time.",
+    body: "The more data you add and the more you use the app, the more Orion learns your wells, your numbers, and the way you like things done. Orion learns your business and becomes more helpful over time.",
   },
 ] as const;
 
