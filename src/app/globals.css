@@ -1,26 +1,45 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Dark-themed landing palette. Neutral grayscale, matching the WildcatIQ
+     webapp's design language but inverted to dark (the app itself is light).
+     See STYLE_GUIDE.md for the mapping. */
+  --background: #000000;
+  --foreground: #f5f5f5;
+  --muted: #8a8f98; /* secondary / muted text - app's --muted-foreground */
+  --card: rgba(255, 255, 255, 0.02); /* elevated surface fill */
+  --border: rgba(255, 255, 255, 0.1); /* hairline borders - app uses white/10 */
+
+  /* Radius scale ported from the webapp (10px base). Overrides Tailwind's
+     defaults so rounded-lg = 10px (controls) and rounded-xl = 14px (cards). */
+  --radius: 0.625rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-border: var(--border);
+
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+
+  --radius-sm: calc(var(--radius) * 0.6); /* 6px */
+  --radius-md: calc(var(--radius) * 0.8); /* 8px */
+  --radius-lg: var(--radius); /* 10px - controls, buttons, inputs */
+  --radius-xl: calc(var(--radius) * 1.4); /* 14px - cards */
+  --radius-2xl: calc(var(--radius) * 1.8); /* 18px */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
