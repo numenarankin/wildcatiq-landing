@@ -96,8 +96,8 @@ export function ScrollDemo() {
   });
 
   // Screen geometry: full-width container → smaller, right-aligned.
-  const width = useTransform(scrollYProgress, [0, SHRINK_END], ["100%", "40%"]);
-  const right = useTransform(scrollYProgress, [0, SHRINK_END], ["0%", "5%"]);
+  const width = useTransform(scrollYProgress, [0, SHRINK_END], ["100%", "48%"]);
+  const right = useTransform(scrollYProgress, [0, SHRINK_END], ["0%", "3%"]);
   // Left-hand copy only appears once the screen has docked.
   const textOpacity = useTransform(
     scrollYProgress,
@@ -143,7 +143,7 @@ export function ScrollDemo() {
           {/* Left: header + caption that cycles with the active demo */}
           <motion.div
             style={{ opacity: textOpacity }}
-            className="absolute left-6 top-1/2 w-[42%] max-w-md -translate-y-1/2 lg:left-10"
+            className="absolute left-6 top-1/2 w-[34%] max-w-sm -translate-y-1/2 lg:left-10"
           >
             <AnimatePresence mode="wait">
               <motion.div
