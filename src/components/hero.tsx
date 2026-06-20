@@ -4,6 +4,7 @@ import {
   NetworkIcon,
   ChatIcon,
 } from "@/components/icons";
+import { BOOK_DEMO_URL } from "@/lib/links";
 
 const HIGHLIGHTS = [
   { icon: LogIcon, label: "Understands your well logs" },
@@ -44,7 +45,9 @@ export function Hero() {
 
         <div className="mt-12">
           <a
-            href="#"
+            href={BOOK_DEMO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2.5 rounded-sm bg-foreground px-5 py-2.5 text-base font-semibold text-background transition-opacity hover:opacity-90"
           >
             Book a demo

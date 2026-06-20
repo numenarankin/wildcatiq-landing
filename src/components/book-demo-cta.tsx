@@ -1,4 +1,5 @@
 import { ArrowIcon } from "@/components/icons";
+import { BOOK_DEMO_URL } from "@/lib/links";
 
 /** Closing call-to-action: book a product demo. */
 export function BookDemoCta() {
@@ -14,7 +15,9 @@ export function BookDemoCta() {
         </p>
         <div className="mt-10 flex justify-center">
           <a
-            href="#"
+            href={BOOK_DEMO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2.5 rounded-sm bg-foreground px-5 py-2.5 text-base font-semibold text-background transition-opacity hover:opacity-90"
           >
             Book a demo
