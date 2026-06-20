@@ -947,8 +947,8 @@ function BooksDemo({ compact }: { compact: boolean }) {
 // well, current oil rate (low), uphole pay zone from the logs, porosity
 const SYNTH_ROWS: [string, string, string, string][] = [
   ["Doyle 11", "2 b/d", "3,920-3,970 ft", "16%"],
-  ["Smith #4", "3 b/d", "4,180-4,230 ft", "14%"],
-  ["Carter A2", "5 b/d", "5,050-5,090 ft", "12%"],
+  ["Smith #4", "3 b/d", "3,540-3,590 ft", "14%"],
+  ["Carter A2", "5 b/d", "2,980-3,030 ft", "12%"],
 ];
 
 const WHOLE_PHASES = [800, 1300, 2200, 1700, 1700, 1700, 1700] as const;

@@ -68,7 +68,7 @@ const DEMOS: readonly Demo[] = [
     eyebrow: "The whole picture",
     header: "Insights across your entire operation",
     caption:
-      "It's been reading your logs, your production, and your books all along, so you can ask what no spreadsheet could: “which wells logged good pay but are barely producing and losing money?” You get a straight answer back.",
+      "Orion has access to your production data, well logs, accounting records, documents, inventory, team, vendors, and previous chat history. You are always one prompt away from actionable, cross-cutting analysis.",
   },
 ] as const;
 
