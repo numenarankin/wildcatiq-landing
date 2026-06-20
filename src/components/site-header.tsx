@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { LogoIcon } from "@/components/logo";
 import { SIGN_IN_URL, SIGN_UP_URL } from "@/lib/links";
 
@@ -42,12 +43,12 @@ export function SiteHeader() {
         <nav className="relative flex h-full items-center justify-between gap-6 px-6 lg:px-10">
           {/* Brand + left-aligned nav */}
           <div className="flex items-center gap-10">
-            <a href="/" className="flex items-center gap-2.5 text-foreground">
+            <Link href="/" className="flex items-center gap-2.5 text-foreground">
               <LogoIcon className="h-6 w-6" aria-hidden />
               <span className="text-lg font-semibold tracking-tight">
                 WildcatIQ
               </span>
-            </a>
+            </Link>
 
             <ul className="hidden items-center gap-8 md:flex">
               {NAV_ITEMS.map((item) => (
