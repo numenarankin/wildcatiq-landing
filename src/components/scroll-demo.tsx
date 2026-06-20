@@ -8,6 +8,7 @@ import {
   useTransform,
   useMotionValueEvent,
 } from "motion/react";
+import { DemoScreen } from "@/components/demos/demo-screens";
 
 /**
  * Scroll-driven product showcase.
@@ -134,10 +135,8 @@ export function ScrollDemo() {
   );
 
   const [active, setActive] = useState(0);
-  const [docked, setDocked] = useState(false);
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setDocked(v >= SHRINK_END * 0.98);
     const cycle = (v - SHRINK_END) / (1 - SHRINK_END);
     const index = Math.min(
       DEMOS.length - 1,
@@ -162,10 +161,8 @@ export function ScrollDemo() {
               <p className="mt-3 text-base leading-relaxed text-muted">
                 {demo.caption}
               </p>
-              <div className="mt-5 flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-xl border border-border bg-white/[0.06]">
-                <span className="text-sm font-medium text-muted">
-                  {demo.eyebrow} demo gif
-                </span>
+              <div className="mt-5 aspect-[16/9] w-full overflow-hidden rounded-xl border border-border bg-white">
+                <DemoScreen index={i} />
               </div>
             </div>
           ))}
@@ -230,18 +227,14 @@ export function ScrollDemo() {
           >
             <AnimatePresence mode="wait">
               <motion.div
-                key={docked ? active : "main"}
+                key={active}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.35 }}
-                className="flex h-full w-full items-center justify-center"
+                className="h-full w-full"
               >
-                <span className="text-sm font-medium text-muted">
-                  {docked
-                    ? `${current.eyebrow} demo gif`
-                    : "Home - Orion answering a question"}
-                </span>
+                <DemoScreen index={active} />
               </motion.div>
             </AnimatePresence>
           </motion.div>
