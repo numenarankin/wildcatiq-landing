@@ -20,16 +20,16 @@ export function Hero() {
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_80%_at_50%_-10%,rgba(120,130,160,0.12),transparent_60%)]"
       />
 
-      <div className="mx-auto flex min-h-[640px] max-w-7xl flex-col justify-center px-6 pb-24 pt-40 lg:px-10">
-        <h1 className="max-w-5xl font-sans text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
+      <div className="mx-auto flex min-h-[88vh] max-w-7xl flex-col justify-center px-6 pb-20 pt-32 sm:min-h-[640px] sm:pb-24 sm:pt-40 lg:px-10">
+        <h1 className="max-w-5xl font-sans text-4xl font-medium leading-[1.08] tracking-tight sm:text-6xl sm:leading-[1.05] lg:text-7xl">
           Run your entire oil &amp; gas company with AI
         </h1>
 
-        <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">
+        <div className="mt-8 flex flex-col items-start gap-3 sm:mt-10 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-3">
           <span className="text-base font-semibold text-foreground">
             Personalized AI that:
           </span>
-          <ul className="flex flex-wrap items-center gap-x-8 gap-y-3">
+          <ul className="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-3">
             {HIGHLIGHTS.map(({ icon: Icon, label }) => (
               <li
                 key={label}

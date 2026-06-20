@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   motion,
   AnimatePresence,
@@ -12,11 +12,18 @@ import {
 /**
  * Scroll-driven product showcase.
  *
- * As the user scrolls into the section the large "main" demo screen shrinks
- * and docks to the right, vertically centered. From there it stays pinned and
+ * Desktop: as the user scrolls into the section the large "main" demo screen
+ * shrinks and docks to the right, vertically centered, then stays pinned and
  * cycles through demo clips while the matching header + caption fade in on the
- * left. Everything is placeholder (gray screens, dummy copy) for now - swap the
- * gray panels for real gifs and the copy for real headlines later.
+ * left.
+ *
+ * Mobile: the pinned/dock interaction doesn't translate, so we render the same
+ * demos as a simple vertical stack (copy + full-width gif each). Layout is
+ * chosen before paint via a media query so there's no flash and the navbar
+ * anchor ids exist only once.
+ *
+ * Everything is placeholder (gray screens) for now - swap the gray panels for
+ * real gifs later.
  */
 
 interface Demo {
@@ -77,6 +84,10 @@ const NAV_ANCHORS: { id: string; index: number }[] = [
   { id: "operations", index: 5 }, // The whole picture
 ];
 
+const NAV_ID_BY_INDEX = new Map<number, string>(
+  NAV_ANCHORS.map(({ id, index }) => [index, id]),
+);
+
 /**
  * Top offset (as a % of the tall section) at which demo `i` is centered in its
  * active band. Derived from the scroll math: demo i is active for
@@ -88,8 +99,25 @@ function anchorTopPercent(index: number): number {
   return ((index + 1.5) * n) / (n + 1) ** 2 * 100;
 }
 
+// Run before paint on the client so the mobile/desktop choice never flashes.
+const useIsoLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(false);
+  useIsoLayoutEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return isMobile;
+}
+
 export function ScrollDemo() {
   const ref = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end end"],
@@ -118,6 +146,35 @@ export function ScrollDemo() {
     setActive(index);
   });
 
+  // --- Mobile: simple vertical stack of copy + full-width gif ---------------
+  if (isMobile) {
+    return (
+      <section className="border-y border-white/5">
+        <div className="mx-auto max-w-xl space-y-16 px-6 py-20">
+          {DEMOS.map((demo, i) => (
+            <div key={demo.header} id={NAV_ID_BY_INDEX.get(i)} className="scroll-mt-24">
+              <p className="text-sm font-semibold uppercase tracking-wider text-muted">
+                {demo.eyebrow}
+              </p>
+              <h2 className="mt-2 font-sans text-2xl font-medium leading-tight tracking-tight">
+                {demo.header}
+              </h2>
+              <p className="mt-3 text-base leading-relaxed text-muted">
+                {demo.caption}
+              </p>
+              <div className="mt-5 flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-xl border border-border bg-white/[0.06]">
+                <span className="text-sm font-medium text-muted">
+                  {demo.eyebrow} demo gif
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // --- Desktop: pinned screen that shrinks, docks, and cycles ---------------
   const current = DEMOS[active];
 
   return (
