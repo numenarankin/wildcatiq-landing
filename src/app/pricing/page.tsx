@@ -36,7 +36,7 @@ export default function PricingPage() {
             </p>
           </div>
 
-          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {PRICING_TIERS.map((tier) => (
               <PricingCard key={tier.label} tier={tier} />
             ))}

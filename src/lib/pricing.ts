@@ -9,8 +9,14 @@ export interface PricingTier {
   label: string;
   /** Human-readable well-count band. */
   wells: string;
-  /** Monthly price in USD, or null for contact-sales. */
+  /** Monthly price in USD, or null for contact-sales / usage-based. */
   monthlyUsd: number | null;
+  /**
+   * Large price text shown when monthlyUsd is null but the tier still has a
+   * displayable rate (e.g. usage-based "$10/well"). Renders with the "/ month"
+   * suffix like fixed-price tiers. Omit for a plain "Custom" card.
+   */
+  priceLabel?: string;
   /** Free AI credits granted each billing period. */
   monthlyCredits: number;
   /** Short positioning line. */
@@ -21,35 +27,29 @@ export const PRICING_TIERS: readonly PricingTier[] = [
   {
     label: "Tier 1",
     wells: "1 to 49 wells",
-    monthlyUsd: 500,
+    monthlyUsd: 1_000,
     monthlyCredits: 10_000,
     blurb: "For independents getting started.",
   },
   {
     label: "Tier 2",
     wells: "50 to 99 wells",
-    monthlyUsd: 1_000,
+    monthlyUsd: 1_500,
     monthlyCredits: 25_000,
     blurb: "For growing operators.",
   },
   {
     label: "Tier 3",
-    wells: "100 to 149 wells",
-    monthlyUsd: 1_500,
+    wells: "100 to 199 wells",
+    monthlyUsd: 2_000,
     monthlyCredits: 50_000,
     blurb: "For established field operations.",
   },
   {
     label: "Tier 4",
-    wells: "150 to 199 wells",
-    monthlyUsd: 2_000,
-    monthlyCredits: 100_000,
-    blurb: "For large multi-asset operators.",
-  },
-  {
-    label: "Tier 5",
     wells: "200+ wells",
     monthlyUsd: null,
+    priceLabel: "$10 per well",
     monthlyCredits: 250_000,
     blurb: "Enterprise scale, tailored to you.",
   },
