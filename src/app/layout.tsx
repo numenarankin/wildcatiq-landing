@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WildcatIQ | Run your entire oil & gas company with AI",
+  title: "WildcatIQ | AI for oil & gas independents",
   description:
     "WildcatIQ is the AI-powered platform to run exploration, production, operations, and finance for your oil & gas company, all in one place.",
 };
