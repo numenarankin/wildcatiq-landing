@@ -140,7 +140,7 @@ function Sidebar({ active }: { active: NavId }) {
   return (
     <div className="flex h-full w-[218px] shrink-0 flex-col border-r bg-white" style={{ borderColor: LINE }}>
       <div className="flex h-[52px] items-center gap-2 border-b px-4" style={{ borderColor: LINE }}>
-        <Image src="/slim_normal.png" alt="" width={903} height={859} className="h-6 w-6 object-contain" />
+        <Image src="/slim_normal.png" alt="" width={903} height={859} className="h-[15px] w-[15px] object-contain" />
         <span className="text-[15px] font-semibold tracking-tight">WildcatIQ</span>
       </div>
       <div className="flex-1 overflow-hidden px-2 py-1.5">
