@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { LogoIcon } from "@/components/logo";
+import Image from "next/image";
 import { SIGN_IN_URL, SIGN_UP_URL } from "@/lib/links";
 
 const NAV_ITEMS = [
@@ -44,7 +44,14 @@ export function SiteHeader() {
           {/* Brand + left-aligned nav */}
           <div className="flex items-center gap-10">
             <Link href="/" className="flex items-center gap-2.5 text-foreground">
-              <LogoIcon className="h-6 w-6" aria-hidden />
+              <Image
+                src="/slim_normal_white.png"
+                alt=""
+                width={903}
+                height={859}
+                aria-hidden
+                className="h-6 w-6 object-contain"
+              />
               <span className="text-lg font-semibold tracking-tight">
                 WildcatIQ
               </span>
