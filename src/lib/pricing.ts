@@ -13,7 +13,7 @@ export interface PricingTier {
   monthlyUsd: number | null;
   /**
    * Large price text shown when monthlyUsd is null but the tier still has a
-   * displayable rate (e.g. usage-based "$10/well"). Renders with the "/ month"
+   * displayable rate (e.g. usage-based "$18/well"). Renders with the "/ month"
    * suffix like fixed-price tiers. Omit for a plain "Custom" card.
    */
   priceLabel?: string;
@@ -26,30 +26,30 @@ export interface PricingTier {
 export const PRICING_TIERS: readonly PricingTier[] = [
   {
     label: "Tier 1",
-    wells: "1 to 49 wells",
-    monthlyUsd: 1_000,
+    wells: "1 to 24 wells",
+    monthlyUsd: 800,
     monthlyCredits: 10_000,
     blurb: "For independents getting started.",
   },
   {
     label: "Tier 2",
-    wells: "50 to 99 wells",
-    monthlyUsd: 1_500,
+    wells: "25 to 49 wells",
+    monthlyUsd: 1_200,
     monthlyCredits: 25_000,
     blurb: "For growing operators.",
   },
   {
     label: "Tier 3",
-    wells: "100 to 199 wells",
-    monthlyUsd: 2_000,
+    wells: "50 to 99 wells",
+    monthlyUsd: 1_800,
     monthlyCredits: 50_000,
     blurb: "For established field operations.",
   },
   {
     label: "Tier 4",
-    wells: "200+ wells",
+    wells: "100+ wells",
     monthlyUsd: null,
-    priceLabel: "$10 per well",
+    priceLabel: "$18 per well",
     monthlyCredits: 250_000,
     blurb: "Enterprise scale, tailored to you.",
   },
