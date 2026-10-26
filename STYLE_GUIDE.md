@@ -1,10 +1,11 @@
 # WildcatIQ Landing - Style Guide
 
 This landing page borrows the WildcatIQ webapp's design language so the two feel
-like one product. The single deliberate difference is **theme**: the **app is
-light**, the **landing is dark**. Everything else - fonts, radii, spacing
-rhythm, component shapes, neutral-grayscale palette - stays as close to the app
-as possible.
+like one product: black on white, the same fonts, radii, spacing rhythm,
+component shapes and neutral-grayscale palette. Product screens
+(`src/components/screens/`) render in the app's own light theme and sit on the
+page without a seam. (The site was dark until 2026-10-26. The sections below
+that still describe white/10 borders or a dark background are historical.)
 
 > Source of truth for the app: `wildcat-webapp/src/app/globals.css` and
 > `wildcat-webapp/src/components/ui/*`. When in doubt, match the app.

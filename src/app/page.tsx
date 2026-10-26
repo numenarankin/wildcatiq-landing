@@ -1,35 +1,37 @@
 import { SiteHeader } from "@/components/site-header";
-import { Hero } from "@/components/hero";
-import { ScrollDemo } from "@/components/scroll-demo";
-import { Explainer } from "@/components/explainer";
-import { PricingSection } from "@/components/pricing-section";
-import { BookDemoCta } from "@/components/book-demo-cta";
-import { Particles } from "@/components/ui/particles";
+import { SiteFooter } from "@/components/site-footer";
+import {
+  Hero,
+  FeatureSection,
+  GettingStarted,
+  Comparison,
+  PricingSummary,
+  Security,
+  Faq,
+  ClosingCta,
+} from "@/components/home/sections";
+import { FEATURES } from "@/lib/site";
+
+// Home-page order from docs/landing-redesign-plan.md. The hero carries the
+// dashboard screen, so the dashboard section is not repeated below it.
+const ORDER = ["orion", "mobile", "recon", "documents", "reports", "filings", "flow-map"] as const;
 
 export default function Home() {
   return (
-    <main className="relative min-h-dvh">
+    <main className="relative">
       <SiteHeader />
-
-      {/* Hero region - overflow-hidden is scoped here so it doesn't break the
-          position: sticky used by ScrollDemo further down the page. */}
-      <div className="relative overflow-hidden">
-        <Particles
-          className="absolute inset-0 z-0"
-          color="#888888"
-          quantity={140}
-          ease={20}
-        />
-        <div className="relative z-10">
-          <Hero />
-        </div>
-      </div>
-
-      <ScrollDemo />
-      <Explainer />
-      <PricingSection />
-      <div className="border-t border-white/5" />
-      <BookDemoCta />
+      <Hero />
+      {ORDER.map((slug, i) => {
+        const feature = FEATURES.find((f) => f.slug === slug)!;
+        return <FeatureSection key={slug} id={slug} feature={feature} flip={i % 2 === 1} />;
+      })}
+      <GettingStarted />
+      <Comparison />
+      <PricingSummary />
+      <Security />
+      <Faq />
+      <ClosingCta />
+      <SiteFooter />
     </main>
   );
 }

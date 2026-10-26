@@ -1,38 +1,31 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { PricingCard } from "@/components/pricing-card";
-import { Particles } from "@/components/ui/particles";
+import { Container, Eyebrow, Faq, ClosingCta } from "@/components/home/sections";
 import { CheckCircleIcon } from "@/components/icons";
 import { PRICING_TIERS, INCLUDED_FEATURES } from "@/lib/pricing";
+import { CREDITS_FAQ } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Pricing | WildcatIQ",
   description:
-    "Simple, well-based pricing for WildcatIQ. Every plan includes the full platform and a monthly allotment of AI credits.",
+    "Priced by the well. Every plan includes the whole platform and a monthly allotment of Orion credits.",
 };
 
 export default function PricingPage() {
   return (
-    <main className="relative min-h-dvh overflow-hidden">
-      <Particles
-        className="absolute inset-0 z-0"
-        color="#888888"
-        quantity={140}
-        ease={20}
-      />
+    <main>
+      <SiteHeader />
 
-      <div className="relative z-10">
-        <SiteHeader />
-
-        <section className="mx-auto max-w-7xl px-6 pb-24 pt-32 lg:px-10">
+      <section className="pb-20 pt-32 sm:pt-40">
+        <Container>
           <div className="max-w-3xl">
-            <h1 className="font-sans text-4xl font-medium leading-[1.1] tracking-tight sm:text-5xl">
-              Pricing that scales with your wells
-            </h1>
-            <p className="mt-5 text-lg text-muted">
-              Every plan includes the entire platform across Exploration,
-              Production, Operations, and Finance, plus a monthly allotment of
-              AI credits. Pick the band that matches your well count.
+            <Eyebrow>Pricing</Eyebrow>
+            <h1 className="mt-4 text-4xl font-medium leading-[1.08] tracking-tight sm:text-6xl">Priced by the well.</h1>
+            <p className="mt-6 text-lg text-muted-foreground sm:text-xl">
+              Four bands by well count. Every plan includes the whole platform, production, field, regulatory and intelligence, plus a
+              monthly allotment of Orion credits.
             </p>
           </div>
 
@@ -42,28 +35,26 @@ export default function PricingPage() {
             ))}
           </div>
 
-          <div className="mt-16 rounded-xl border border-white/10 bg-white/[0.02] p-8">
-            <h2 className="font-sans text-lg font-medium tracking-tight">
-              Included in every plan
-            </h2>
+          <div className="mt-16 rounded-xl border border-border bg-muted p-8">
+            <h2 className="text-lg font-medium tracking-tight">Included in every plan</h2>
             <ul className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
               {INCLUDED_FEATURES.map((feature) => (
                 <li key={feature} className="flex items-start gap-2.5 text-sm">
-                  <CheckCircleIcon
-                    className="mt-0.5 h-5 w-5 shrink-0 text-muted"
-                    aria-hidden
-                  />
-                  <span className="text-foreground">{feature}</span>
+                  <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-foreground" aria-hidden />
+                  <span>{feature}</span>
                 </li>
               ))}
             </ul>
-            <p className="mt-6 text-sm text-muted">
-              1 AI credit is $0.01 of usage. Unused credits don&apos;t roll
-              over. Top-ups are available any time inside the app.
+            <p className="mt-6 text-sm text-muted-foreground">
+              One Orion credit is one cent of usage. Unused credits do not roll over. Top-ups are available any time inside the app.
             </p>
           </div>
-        </section>
-      </div>
+        </Container>
+      </section>
+
+      <Faq items={CREDITS_FAQ} />
+      <ClosingCta />
+      <SiteFooter />
     </main>
   );
 }

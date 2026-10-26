@@ -57,11 +57,14 @@ export const PRICING_TIERS: readonly PricingTier[] = [
 
 /** Every plan includes the full platform - these are the shared inclusions. */
 export const INCLUDED_FEATURES: readonly string[] = [
-  "Exploration, Production, Operations & Finance",
-  "Orion AI copilot across all your data",
-  "Real-time production & financial analytics",
-  "Document management with OCR & search",
-  "Unlimited team members & role permissions",
+  "Production, disposal, leases, revenue and facilities",
+  "Orion across every page, with approval on every write",
+  "Mobile app for pumpers, with offline entry",
+  "Document ingest, OCR and search",
+  "Twenty-one reports with scheduled email delivery",
+  "Form PR generation and the filings docket",
+  "Recon: Texas wells, leases, permits and operators",
+  "Unlimited team members and per-person permissions",
 ];
 
 const usdFormatter = new Intl.NumberFormat("en-US", {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Figtree, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "./site.css";
+import { SalesChat } from "@/components/sales-chat/sales-chat";
 
 const figtree = Figtree({
   variable: "--font-sans",
@@ -13,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WildcatIQ | AI for oil & gas independents",
+  title: "WildcatIQ | Run the company from one place",
   description:
-    "WildcatIQ is the AI-powered platform to run exploration, production, operations, and finance for your oil & gas company, all in one place.",
+    "WildcatIQ runs production, field operations, documents and regulatory work for independent oil and gas operators, with an assistant that already knows the business.",
 };
 
 export default function RootLayout({
@@ -28,7 +29,10 @@ export default function RootLayout({
       lang="en"
       className={`${figtree.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <SalesChat />
+      </body>
     </html>
   );
 }
