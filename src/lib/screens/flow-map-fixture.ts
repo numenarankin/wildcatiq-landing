@@ -12,8 +12,8 @@
  *
  * Wiring, per lease: every producing well on its lease battery (oil, which
  * fans out across the battery's oil tanks), on its lease gas meter, and on
- * its lease's saltwater tank where the lease has one. Smith Water runs to
- * Smith SWD 1, and so does Johnson A Water, which makes Smith SWD 1 a shared
+ * its lease's saltwater tank where the lease has one. Smith W1 runs to
+ * Smith SWD 1, and so does Johnson A W1, which makes Smith SWD 1 a shared
  * facility on the Johnson A lane. Smith's two oil tanks sell through the purchaser's
  * LACT drawn as operator connections.
  */
@@ -152,8 +152,23 @@ const INPUT: GraphInput = {
 
 const SMITH_OIL_TANKS = OP_TANKS.filter((t) => t.lease === "l-smith" && t.kind === "oil").map((t) => t.id);
 
-export function flowMapGraph(): FacilityGraph {
-  const graph = buildFacilityGraph(INPUT);
+/**
+ * The graph, plus any records added on top of the operator's (a lease created
+ * on screen and what goes on it), built by the same `buildFacilityGraph`.
+ */
+export function flowMapGraph(extra: Partial<GraphInput> = {}): FacilityGraph {
+  const input: GraphInput = {
+    wells: [...INPUT.wells, ...(extra.wells ?? [])],
+    tanks: [...INPUT.tanks, ...(extra.tanks ?? [])],
+    meters: [...INPUT.meters, ...(extra.meters ?? [])],
+    batteries: [...INPUT.batteries, ...(extra.batteries ?? [])],
+    leases: [...INPUT.leases, ...(extra.leases ?? [])],
+    gatherers: [...(INPUT.gatherers ?? []), ...(extra.gatherers ?? [])],
+    tankAllocations: [...INPUT.tankAllocations, ...(extra.tankAllocations ?? [])],
+    meterAllocations: [...INPUT.meterAllocations, ...(extra.meterAllocations ?? [])],
+    batteryAllocations: [...INPUT.batteryAllocations, ...(extra.batteryAllocations ?? [])],
+  };
+  const graph = buildFacilityGraph(input);
   // The two oil tanks sell through the LACT: operator-drawn connections
   // (`flow_connections` rows), named the way the graph names every edge.
   const smithOil = PRODUCERS.filter((w) => w.leaseId === "l-smith").reduce((sum, w) => sum + w.oilProduction, 0);

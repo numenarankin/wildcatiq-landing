@@ -104,10 +104,10 @@ export interface TankSpec {
 export const TANKS: TankSpec[] = [
   { id: "t-ja-101", name: "Johnson A T101", lease: "l-johnson", kind: "oil", capacityBbl: 500, bblPerInch: 1.67 },
   { id: "t-ja-102", name: "Johnson A T102", lease: "l-johnson", kind: "oil", capacityBbl: 500, bblPerInch: 1.67 },
-  { id: "t-ja-w1", name: "Johnson A Water", lease: "l-johnson", kind: "water", capacityBbl: 500, bblPerInch: 1.67 },
+  { id: "t-ja-w1", name: "Johnson A W1", lease: "l-johnson", kind: "water", capacityBbl: 500, bblPerInch: 1.67 },
   { id: "t-sm-201", name: "Smith T201", lease: "l-smith", kind: "oil", capacityBbl: 500, bblPerInch: 1.67 },
   { id: "t-sm-202", name: "Smith T202", lease: "l-smith", kind: "oil", capacityBbl: 500, bblPerInch: 1.67 },
-  { id: "t-sm-w1", name: "Smith Water", lease: "l-smith", kind: "water", capacityBbl: 500, bblPerInch: 1.67 },
+  { id: "t-sm-w1", name: "Smith W1", lease: "l-smith", kind: "water", capacityBbl: 500, bblPerInch: 1.67 },
   { id: "t-rc-301", name: "Roy Corbett T301", lease: "l-corbett", kind: "oil", capacityBbl: 500, bblPerInch: 1.67 },
   { id: "t-fy-401", name: "Fannie Young T401", lease: "l-young", kind: "oil", capacityBbl: 500, bblPerInch: 1.67 },
   { id: "t-rp-501", name: "Roach Parrott T501", lease: "l-parrott", kind: "oil", capacityBbl: 500, bblPerInch: 1.67 },

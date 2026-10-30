@@ -989,7 +989,7 @@ export function WellModal({
                   <p className="px-4 py-2 text-xs leading-relaxed text-muted-foreground">
                     From the operator&rsquo;s own Form W-3. &ldquo;State
                     funded&rdquo; means the Commission plugged the well and the
-                    operator did not — the orphaned-well marker.
+                    operator did not, the orphaned-well marker.
                   </p>
                 </Panel>
               )}
@@ -1138,7 +1138,7 @@ export function WellModal({
                     <p className="mt-2 flex gap-2 border-t pt-2 text-xs leading-relaxed text-amber-600 dark:text-amber-400">
                       <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
                       The most recent permit was filed by a different operator
-                      than the one currently on schedule — often the trace of a
+                      than the one currently on schedule, often the trace of a
                       sale or a takeover in progress.
                     </p>
                   )}
@@ -1306,7 +1306,7 @@ export function WellModal({
                     .map((f, i) => (
                       <Panel
                         key={f.file_date ?? `undated-${i}`}
-                        title={`Wellbore construction — ${
+                        title={`Wellbore construction · ${
                           f.file_date ?? "filing date not recorded"
                         }`}
                       >
@@ -1401,7 +1401,7 @@ export function WellModal({
                 title={`Officers on file${
                   archon?.operator?.operator_display_name ??
                   archon?.operator?.operator_name
-                    ? ` — ${titleCase(
+                    ? ` · ${titleCase(
                         archon.operator.operator_display_name ??
                           archon.operator.operator_name
                       )}`
@@ -1485,8 +1485,8 @@ export function WellModal({
                   />
                   <p className="mt-2 border-t pt-2 text-xs leading-relaxed text-muted-foreground">
                     NAD83; the RRC&rsquo;s NAD27 pair sits ~100 m away and is
-                    never rendered. Symbol and reliability are RRC code values —
-                    their legends are not in the mirror, so they show as codes
+                    never rendered. Symbol and reliability are RRC code values.
+                    Their legends are not in the mirror, so they show as codes
                     rather than guessed labels.
                   </p>
                 </div>

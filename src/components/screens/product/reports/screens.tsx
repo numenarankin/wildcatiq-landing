@@ -9,16 +9,14 @@ import { PermissionsProvider } from "@/components/auth/permissions-context";
 import { ReportMarkdown } from "@/components/reports/viewer/report-markdown";
 import { ReportNav } from "@/components/reports/viewer/report-nav";
 import {
-  productionVarianceDoc,
   pumperDoc,
   reportsFixture,
   tanksCalledInDoc,
   type HubDocument,
 } from "@/lib/screens/reports-fixture";
-import { ReportsLive } from "../../reports-live";
 import { ScreenPanel } from "../../panel";
 import { Actions, PickerRow } from "./hub";
-import { DigestLive, LibraryLive, OutputsLive } from "./live";
+import { DigestLive, LibraryLive, OutputsLive, ProductionLive, ScheduleLive } from "./live";
 
 const PATH = "/reports";
 
@@ -52,14 +50,8 @@ export const LibraryScreen = LibraryLive;
 /** Section 2: the Daily Company Digest picked and read down (`DigestLive`). */
 export const DigestScreen = DigestLive;
 
-/** Section 3: Production Variance, with the lease and well pickers. */
-export function VarianceScreen() {
-  return (
-    <ScreenPanel w={1200} h={820} path={PATH}>
-      <Hub doc={productionVarianceDoc()} />
-    </ScreenPanel>
-  );
-}
+/** Section 3: the production reports picked in turn, monthly to exceptions (`ProductionLive`). */
+export const VarianceScreen = ProductionLive;
 
 /** Section 4: Tanks Called In, the pickup queue this month. */
 export function TanksScreen() {
@@ -82,7 +74,5 @@ export function PumperScreen() {
 /** Section 6: Narrate pressed and stopped, then the Download menu opened (`OutputsLive`). */
 export const OutputsScreen = OutputsLive;
 
-/** Section 7: the Report delivery modal over the hub, as the gear opens it. */
-export function ScheduleScreen() {
-  return <ReportsLive settings />;
-}
+/** Section 7: the Report delivery modal over the hub, switches flipped (`ScheduleLive`). */
+export const ScheduleScreen = ScheduleLive;

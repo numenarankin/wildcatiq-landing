@@ -25,7 +25,7 @@ import {
   readPart,
 } from "@/lib/screens/orion-fixture";
 import { AppFrame } from "./app-frame";
-import { useDemoActive } from "./demo-active";
+import { useDemoActive, useDemoProgress } from "./demo-active";
 
 type Phase =
   | "empty"
@@ -39,13 +39,16 @@ type Phase =
   | "approved"
   | "hold";
 
+/** The script in order, for the GTM progress report. */
+const ORDER: Phase[] = ["empty", "typing", "sent", "tools", "stream1", "chart", "stream2", "approval", "approved", "hold"];
+
 const HOLD: Partial<Record<Phase, number>> = {
-  empty: 1800,
+  empty: 500,
   sent: 1400,
   chart: 1600,
   approval: 3400,
   approved: 3800,
-  hold: 1400,
+  hold: 2700,
 };
 const TYPE_MS = 30;
 const TOOL_MS = 1100;
@@ -120,6 +123,7 @@ export function OrionLive() {
   const [conversations] = useState(orionConversations);
   const [activeId, setActiveId] = useState<string | null>(ACTIVE_CONVERSATION_ID);
   const { phase, typed, tools, streamed } = useScript();
+  useDemoProgress(ORDER.indexOf(phase), ORDER.length);
 
   const script = useMemo(() => {
     const messages: UIMessage[] = [];

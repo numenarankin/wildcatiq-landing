@@ -15,6 +15,7 @@ import {
   SOLUTIONS,
 } from "@/lib/site";
 import { PRODUCT_PAGES } from "@/lib/product";
+import { productPageVisible } from "@/lib/dev-only";
 import { INCLUDED_FEATURES, PRICING_TIERS, formatCredits, formatUsd } from "@/lib/pricing";
 import { docsCatalogText } from "@/lib/sales-chat/docs";
 
@@ -32,7 +33,8 @@ How to behave
 - Write in plain sentences. No headings. Bullet lists only for three or more parallel items. No em dashes.`;
 
 function featureFacts(): string {
-  return FEATURES.map((f) => {
+  // Only what the site sells: a local-only product page (the flow map) is not offered.
+  return FEATURES.filter((f) => productPageVisible(f.slug)).map((f) => {
     const page = PRODUCT_PAGES[f.slug];
     const cards = page.sections.flatMap((s) => s.cards.map((c) => `  - ${c.label} ${c.body}`));
     const faq = page.faq.map((q) => `  Q: ${q.q} A: ${q.a}`);
@@ -47,7 +49,7 @@ function solutionFacts(): string {
 function pricingFacts(): string {
   const tiers = PRICING_TIERS.map((t) => {
     const price = t.monthlyUsd !== null ? `${formatUsd(t.monthlyUsd)} per month` : `${t.priceLabel} per month`;
-    return `- ${t.wells}: ${price}, ${formatCredits(t.monthlyCredits)} Orion credits each month. ${t.blurb}`;
+    return `- ${t.wells}: ${price}, ${formatCredits(t.monthlyCredits)} Orion credits each month.`;
   });
   return [
     "Pricing is by well count. Every plan includes the whole platform.",

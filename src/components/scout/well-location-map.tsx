@@ -63,6 +63,14 @@ export function WellLocationMap({ location }: { location: WellLocation }) {
       zoom: deviated ? 13.5 : 14.5,
     });
     mapRef.current = map;
+    // landing: Mapbox sizes its canvas from getBoundingClientRect(), which the
+    // scaled screen canvas shrinks; the layout size is the one to fill.
+    const container = containerRef.current;
+    (map as unknown as { _containerDimensions: () => [number, number] })._containerDimensions = () => [
+      container.clientWidth,
+      container.clientHeight,
+    ];
+    map.resize();
     map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
     map.once("idle", () => setDrawn(true));
 

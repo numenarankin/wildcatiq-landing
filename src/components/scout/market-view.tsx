@@ -503,7 +503,7 @@ export function MarketView({
         <Stat
           label="Loaded through"
           value={lastLoaded}
-          hint={`reported through ${lastReal} — RRC lags ~3 months`}
+          hint={`reported through ${lastReal}, RRC lags ~3 months`}
         />
       </div>
 
@@ -522,7 +522,7 @@ export function MarketView({
         </div>
         {scoped.length > MAX_LINES && (
           <span className="text-[11px] text-muted-foreground">
-            {scoped.length} areas selected — charting the combined total only
+            {scoped.length} areas selected, charting the combined total only
           </span>
         )}
       </div>

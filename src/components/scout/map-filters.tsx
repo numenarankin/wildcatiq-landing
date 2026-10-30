@@ -1626,7 +1626,7 @@ export function MapFilters({
                     sample rather than letting it pass for the whole answer. */}
                 {focusCapped && (
                   <span
-                    title="More wells match than the map draws, so this is the first 30,000 by API number — which is county order, not a spread across the state. Add a county, district or operator to see the real answer."
+                    title="More wells match than the map draws, so this is the first 30,000 by API number, which is county order, not a spread across the state. Add a county, district or operator to see the real answer."
                     className="flex shrink-0 items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[11px] text-amber-600 dark:text-amber-400"
                   >
                     <AlertTriangle className="size-3" />
@@ -1745,7 +1745,7 @@ export function MapFilters({
 
             {noProductionData && (
               <span
-                title="No production figures in the loaded operator data — production and revenue filters will match nothing. Re-run scripts/scout-sync-data.mjs, then hard-refresh."
+                title="No production figures in the loaded operator data. Production and revenue filters will match nothing. Re-run scripts/scout-sync-data.mjs, then hard-refresh."
                 className="flex shrink-0 items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[11px] text-amber-600 dark:text-amber-400"
               >
                 <AlertTriangle className="size-3" />

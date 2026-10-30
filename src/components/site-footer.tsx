@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { FEATURES, SOLUTIONS } from "@/lib/site";
-import { BOOK_DEMO_URL, SIGN_IN_URL } from "@/lib/links";
+import { PRODUCT_MENU, SOLUTIONS, sectionHref } from "@/lib/site";
+import { DEV_ONLY_VISIBLE } from "@/lib/dev-only";
+import { BOOK_DEMO_URL, CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_TEL, SIGN_IN_URL } from "@/lib/links";
 
 export function SiteFooter() {
   return (
@@ -15,12 +16,17 @@ export function SiteFooter() {
           <p className="mt-4 max-w-xs text-sm text-muted-foreground">
             Production, field operations, documents and regulatory work for independent oil and gas operators, in one place.
           </p>
+          <p className="mt-4 max-w-xs text-sm text-muted-foreground">
+            <a href={`mailto:${CONTACT_EMAIL}`} className="transition-colors hover:text-foreground">{CONTACT_EMAIL}</a>
+            <br />
+            <a href={`tel:${CONTACT_PHONE_TEL}`} className="transition-colors hover:text-foreground">{CONTACT_PHONE}</a>
+          </p>
           <p className="mt-6 text-xs text-muted-foreground">© 2026 Wildcat Labs, Inc.</p>
         </div>
 
         <Column title="Product">
-          {FEATURES.map((f) => (
-            <FooterLink key={f.slug} href={`/product/${f.slug}`}>{f.label}</FooterLink>
+          {PRODUCT_MENU.map((f) => (
+            <FooterLink key={f.slug} href={sectionHref(f)}>{f.label}</FooterLink>
           ))}
         </Column>
 
@@ -32,9 +38,13 @@ export function SiteFooter() {
 
         <Column title="Company">
           <FooterLink href="/pricing">Pricing</FooterLink>
-          <FooterLink href="/story">Our story</FooterLink>
-          <FooterLink href="/security">Security</FooterLink>
-          <FooterLink href="/privacy">Privacy</FooterLink>
+          <FooterLink href="/contact">Contact</FooterLink>
+          {DEV_ONLY_VISIBLE && (
+            <>
+              <FooterLink href="/security">Security</FooterLink>
+              <FooterLink href="/privacy">Privacy</FooterLink>
+            </>
+          )}
           <FooterLink href={BOOK_DEMO_URL} external>Book a demo</FooterLink>
           <FooterLink href={SIGN_IN_URL} external>Sign in</FooterLink>
         </Column>

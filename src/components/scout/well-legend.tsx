@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import {
   GLYPH_PX,
   WELL_GLYPH_LABEL,
@@ -44,15 +44,22 @@ function Mark({ id, urls }: { id: WellGlyphId; urls: Record<string, string> }) {
 }
 
 export function WellLegend() {
-  // Canvas is a browser thing. The key is only mounted once the map has drawn,
-  // which is after hydration, so the marks can be rendered on first render;
-  // the guard is for a render with no document at all.
-  const [urls] = useState<Record<string, string>>(() => {
-    if (typeof document === "undefined") return {};
+  // landing: the app mounts the key only once its map has drawn, on the client.
+  // The landing server-renders it, so a `useState` initializer drew empty marks
+  // on the server and hydration kept that markup (React does not patch a
+  // mismatched style attribute): the labels showed with no symbols. The marks
+  // are now painted only once hydrated.
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const urls = useMemo(() => {
     const out: Record<string, string> = {};
+    if (!hydrated) return out;
     for (const row of ROWS) for (const id of row.ids) out[id] = wellGlyphDataUrl(id);
     return out;
-  });
+  }, [hydrated]);
 
   return (
     <div className="absolute bottom-8 left-3 z-10 flex flex-col gap-1 rounded-lg border bg-background/95 p-2.5 text-xs shadow-lg backdrop-blur">

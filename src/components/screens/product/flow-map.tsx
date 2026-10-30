@@ -25,7 +25,7 @@ export const flowMapScreens: SectionScreens = {
   build: { Component: () => <FlowMapCanvas view="water" pull={{ fromId: nodeId("well", "w-rc4"), side: "out", toId: nodeId("injection", "w-smswd1") }} /> },
   // The New facility menu open: tanks and a gas meter, no water meter card.
   rules: { Component: () => <FlowMapCanvas lease={SMITH} menuOpen /> },
-  // Saltwater, every lease: Smith SWD 1 takes Smith Water and Johnson A Water.
+  // Saltwater, every lease: Smith SWD 1 takes Smith W1 and Johnson A W1.
   disposal: { Component: () => <FlowMapCanvas view="water" selected={nodeId("injection", "w-smswd1")} /> },
   // A member without manage_facilities: no New connection, New facility or ports.
   permissions: { Component: () => <FlowMapCanvas lease={SMITH} permissions={["view_facilities"]} /> },

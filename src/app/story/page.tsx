@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { devOnlyPage } from "@/lib/dev-only";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Container, Eyebrow, ClosingCta } from "@/components/home/sections";
@@ -62,6 +63,7 @@ function ImageBox({ label, className }: { label: string; className?: string }) {
 }
 
 export default function OurStoryPage() {
+  devOnlyPage();
   return (
     <main>
       <SiteHeader />

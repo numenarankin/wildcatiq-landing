@@ -104,7 +104,7 @@ export function isProviderOutOfCredits(err: unknown): boolean {
 export function userFacingError(err: unknown, turnId: string): string {
   const d = describeAIError(err);
   const reason = isProviderOutOfCredits(err)
-    ? "Orion is temporarily unavailable (the AI provider account needs attention). This is on us, not your account — please let support know."
+    ? "Orion is temporarily unavailable (the AI provider account needs attention). This is on us, not your account. Please let support know."
     : d.statusCode === 402
       ? "This organization is out of AI credits."
       : d.statusCode === 429

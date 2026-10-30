@@ -2,9 +2,11 @@ import Link from "next/link";
 import { ArrowIcon, CheckCircleIcon } from "@/components/icons";
 import { ButtonLink } from "@/components/ui/button-link";
 import { FeatureScreen } from "@/components/screens";
+import { Rise } from "./rise";
 import { BOOK_DEMO_URL, SIGN_UP_URL } from "@/lib/links";
-import { COMPARISON_ROWS, FAQ, SECURITY_POINTS, type Feature } from "@/lib/site";
+import { COMPARISON_ROWS, FAQ, SECURITY_POINTS, sectionHref, type HomeSection } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { DEV_ONLY_VISIBLE, productPageVisible } from "@/lib/dev-only";
 
 export function Container({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={cn("mx-auto max-w-7xl px-6 lg:px-10", className)}>{children}</div>;
@@ -19,26 +21,33 @@ export function Hero() {
     <section className="pb-20 pt-32 sm:pb-28 sm:pt-40">
       <Container>
         <div className="max-w-4xl">
-          <Eyebrow>WildcatIQ</Eyebrow>
-          <h1 className="mt-4 text-4xl font-medium leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">
-            AI for the independent<br />oil &amp; gas operator
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            WildcatIQ runs production, field operations, documents and regulatory work for independent oil and gas operators, with an
-            assistant that already knows the business.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <Rise>
+            <Eyebrow>WildcatIQ</Eyebrow>
+          </Rise>
+          <Rise delay={0.08}>
+            <h1 className="mt-4 text-4xl font-medium leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">
+              AI for the independent<br />oil &amp; gas operator
+            </h1>
+          </Rise>
+          <Rise delay={0.18}>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+              WildcatIQ runs production, field operations, documents and regulatory work for independent oil and gas operators, with an
+              assistant that already knows the business.
+            </p>
+          </Rise>
+          <Rise delay={0.28} className="mt-8 flex flex-wrap gap-3">
             <ButtonLink href={SIGN_UP_URL} external size="lg">
               Get started <ArrowIcon className="h-4 w-4" aria-hidden />
             </ButtonLink>
             <ButtonLink href={BOOK_DEMO_URL} external variant="outline" size="lg">
               Book a demo
             </ButtonLink>
-          </div>
+          </Rise>
         </div>
-        <div className="mt-14 sm:mt-20">
-          <FeatureScreen slug="dashboard" />
-        </div>
+        {/* The dashboard mounts, paints, then rises, so its first render never lands mid-animation. */}
+        <Rise afterPaint delay={0.2} distance={32} duration={1} className="mt-14 sm:mt-20">
+          <FeatureScreen slug="dashboard" eager />
+        </Rise>
       </Container>
     </section>
   );
@@ -49,16 +58,18 @@ export function Hero() {
  * full width under the copy, so every screenshot on the page is the same size.
  * The phone is the one exception and sits beside its copy.
  */
-export function FeatureSection({ feature, id }: { feature: Feature; flip?: boolean; id?: string }) {
+export function FeatureSection({ feature, id }: { feature: HomeSection; flip?: boolean; id?: string }) {
   const isMobile = feature.slug === "mobile";
   const copy = (
     <div className="max-w-3xl">
       <Eyebrow>{feature.eyebrow}</Eyebrow>
       <h2 className="mt-3 text-3xl font-medium leading-tight tracking-tight sm:text-4xl">{feature.headline}</h2>
       <p className="mt-5 text-lg leading-relaxed text-muted-foreground">{feature.body}</p>
-      <Link href={`/product/${feature.slug}`} className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
-        More about {feature.label.toLowerCase()} <ArrowIcon className="h-4 w-4" aria-hidden />
-      </Link>
+      {(feature.href || productPageVisible(feature.slug)) && (
+        <Link href={sectionHref(feature)} className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
+          More about {feature.label.toLowerCase()} <ArrowIcon className="h-4 w-4" aria-hidden />
+        </Link>
+      )}
     </div>
   );
   if (isMobile) {
@@ -122,20 +133,21 @@ export function Comparison() {
           Other tools give you a dashboard. WildcatIQ does the work.
         </h2>
         <div className="mt-12 overflow-hidden rounded-xl border border-border">
+          {/* Tighter cells under sm so all three columns fit a phone without clipping. */}
           <table className="w-full text-left">
-            <thead className="bg-muted text-sm">
+            <thead className="bg-muted text-xs sm:text-sm">
               <tr>
-                <th className="px-5 py-3 font-medium text-muted-foreground"> </th>
-                <th className="px-5 py-3 font-semibold">WildcatIQ</th>
-                <th className="px-5 py-3 font-medium text-muted-foreground">Spreadsheets, texts and the RRC portal</th>
+                <th className="px-3 py-3 font-medium text-muted-foreground sm:px-5"> </th>
+                <th className="px-3 py-3 font-semibold sm:px-5">WildcatIQ</th>
+                <th className="px-3 py-3 font-medium text-muted-foreground sm:px-5">Spreadsheets, texts and the RRC portal</th>
               </tr>
             </thead>
             <tbody>
               {COMPARISON_ROWS.map((r) => (
-                <tr key={r.label} className="border-t border-border text-base">
-                  <td className="px-5 py-4 font-medium">{r.label}</td>
-                  <td className="px-5 py-4">{r.us}</td>
-                  <td className="px-5 py-4 text-muted-foreground">{r.them}</td>
+                <tr key={r.label} className="border-t border-border text-sm sm:text-base">
+                  <td className="px-3 py-4 font-medium sm:px-5">{r.label}</td>
+                  <td className="px-3 py-4 sm:px-5">{r.us}</td>
+                  <td className="px-3 py-4 text-muted-foreground sm:px-5">{r.them}</td>
                 </tr>
               ))}
             </tbody>
@@ -172,9 +184,11 @@ export function Security() {
         <div>
           <Eyebrow>Security</Eyebrow>
           <h2 className="mt-3 text-3xl font-medium leading-tight tracking-tight sm:text-4xl">Your data is yours.</h2>
-          <Link href="/security" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold">
-            How we handle it <ArrowIcon className="h-4 w-4" aria-hidden />
-          </Link>
+          {DEV_ONLY_VISIBLE && (
+            <Link href="/security" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold">
+              How we handle it <ArrowIcon className="h-4 w-4" aria-hidden />
+            </Link>
+          )}
         </div>
         <ul className="grid gap-4 sm:grid-cols-2">
           {SECURITY_POINTS.map((p) => (

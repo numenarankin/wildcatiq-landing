@@ -1,16 +1,19 @@
 /**
  * Where a "have someone contact me" request goes: one email to the sales
- * inbox through Brevo, the same transactional sender the web app uses.
+ * inbox through Brevo, the same transactional sender the web app uses. The
+ * sales chat's follow-up tool and the contact page's form both send here.
  *
- * Only the sales-chat route imports this file, so the API key stays on the
- * server. Configuration:
+ * Only server code imports this file, so the API key stays on the server. Configuration:
  *   BREVO_API_KEY, BREVO_SENDER_EMAIL  (sender, must be verified in Brevo)
- *   SALES_LEAD_EMAIL                   (where the lead is delivered)
+ * Leads are delivered to `SALES_LEAD_EMAIL`, fixed here rather than in the environment.
  * When any is missing the tool reports that honestly and the assistant tells
  * the visitor to book a demo instead. Nothing is swallowed.
  */
 
 const BREVO_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
+
+/** Where every lead is delivered. */
+const SALES_LEAD_EMAIL = "info@wildcatiq.ai";
 
 export interface FollowupLead {
   name: string;
@@ -19,6 +22,8 @@ export interface FollowupLead {
   wells?: string;
   note?: string;
   pathname: string;
+  /** Where the lead came from, for the subject line. Defaults to the chat. */
+  source?: "chat" | "contact";
 }
 
 export type FollowupResult = { ok: true } | { ok: false; error: string };
@@ -30,9 +35,9 @@ function escapeHtml(s: string): string {
 export async function sendFollowupLead(lead: FollowupLead): Promise<FollowupResult> {
   const apiKey = process.env.BREVO_API_KEY;
   const senderEmail = process.env.BREVO_SENDER_EMAIL;
-  const to = process.env.SALES_LEAD_EMAIL;
-  if (!apiKey || !senderEmail || !to) {
-    console.error("[sales-chat] follow-up not configured: set BREVO_API_KEY, BREVO_SENDER_EMAIL and SALES_LEAD_EMAIL");
+  const to = SALES_LEAD_EMAIL;
+  if (!apiKey || !senderEmail) {
+    console.error(`[${lead.source ?? "chat"}] follow-up not configured: set BREVO_API_KEY and BREVO_SENDER_EMAIL`);
     return { ok: false, error: "Follow-up requests are not set up yet." };
   }
 
@@ -57,14 +62,14 @@ export async function sendFollowupLead(lead: FollowupLead): Promise<FollowupResu
       sender: { email: senderEmail, name: process.env.BREVO_SENDER_NAME?.trim() || "WildcatIQ" },
       to: [{ email: to }],
       replyTo: { email: lead.email, name: lead.name },
-      subject: `Website chat lead: ${lead.name}${lead.company ? ` (${lead.company})` : ""}`,
+      subject: `${lead.source === "contact" ? "Contact form" : "Website chat lead"}: ${lead.name}${lead.company ? ` (${lead.company})` : ""}`,
       htmlContent,
       textContent,
     }),
   });
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
-    console.error(`[sales-chat] Brevo send failed (${response.status}): ${detail}`);
+    console.error(`[${lead.source ?? "chat"}] Brevo send failed (${response.status}): ${detail}`);
     return { ok: false, error: "The request could not be delivered." };
   }
   return { ok: true };

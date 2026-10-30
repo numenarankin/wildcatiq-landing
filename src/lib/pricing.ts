@@ -19,8 +19,6 @@ export interface PricingTier {
   priceLabel?: string;
   /** Free AI credits granted each billing period. */
   monthlyCredits: number;
-  /** Short positioning line. */
-  blurb: string;
 }
 
 export const PRICING_TIERS: readonly PricingTier[] = [
@@ -29,21 +27,18 @@ export const PRICING_TIERS: readonly PricingTier[] = [
     wells: "1 to 24 wells",
     monthlyUsd: 600,
     monthlyCredits: 10_000,
-    blurb: "For independents getting started.",
   },
   {
     label: "Tier 2",
     wells: "25 to 49 wells",
     monthlyUsd: 900,
     monthlyCredits: 25_000,
-    blurb: "For growing operators.",
   },
   {
     label: "Tier 3",
     wells: "50 to 99 wells",
     monthlyUsd: 1_400,
     monthlyCredits: 50_000,
-    blurb: "For established field operations.",
   },
   {
     label: "Tier 4",
@@ -51,20 +46,19 @@ export const PRICING_TIERS: readonly PricingTier[] = [
     monthlyUsd: null,
     priceLabel: "$14 per well",
     monthlyCredits: 250_000,
-    blurb: "Enterprise scale, tailored to you.",
   },
 ] as const;
 
 /** Every plan includes the full platform - these are the shared inclusions. */
 export const INCLUDED_FEATURES: readonly string[] = [
-  "Production, disposal, leases, revenue and facilities",
-  "Orion across every page, with approval on every write",
-  "Mobile app for pumpers, with offline entry",
+  "Production, leases, revenue and facilities",
+  "Orion on every page, with your approval",
+  "Mobile app for pumpers, works offline",
   "Document ingest, OCR and search",
-  "Twenty-one reports with scheduled email delivery",
-  "Form PR generation and the filings docket",
-  "Recon: Texas wells, leases, permits and operators",
-  "Unlimited team members and per-person permissions",
+  "Twenty-four reports, emailed on schedule",
+  "Form PR generation for the RRC",
+  "Recon: every Texas well and permit",
+  "Unlimited users and permissions",
 ];
 
 const usdFormatter = new Intl.NumberFormat("en-US", {

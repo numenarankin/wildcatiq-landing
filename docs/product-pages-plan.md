@@ -1,5 +1,7 @@
 # Product pages plan
 
+> **Superseded on card counts and length (2026-10-30).** The 39 to 60 cards per page below were cut to 4 to 6 sections of three one-sentence cards. The copy now lives in `src/lib/product/*.ts` under the budgets in `docs/copy-review.md`. Run `npx tsx --tsconfig tsconfig.json scripts/check-copy.ts` before changing copy.
+
 Written 2026-10-26. Companion to `landing-redesign-plan.md` and `landing-copy.md`. This doc holds the copy and the pseudoscreenshot spec for each of the eight product pages, drafted from a review of the wildcat and wildcat-phone code. Every capability card and FAQ answer cites the source file so the copy can be checked against the app before it ships. Source paths are relative to `/home/linuxuser/dev/wildcat` (or `wildcat-phone` where stated) unless prefixed `landing/`.
 
 The current pages have three or four one-line blocks each. These drafts run 39 to 60 cards per page. That is deliberate: the reference product pages (see `reference/<site>/*.md`) sell depth through repetition of one small unit, and the app has the surface to fill them. Cut from the drafts, do not pad.
@@ -413,8 +415,8 @@ Sell the phone as the pumper's whole day: every reading, ticket and note goes in
 
 ## Hero
 - Eyebrow: Mobile app
-- Headline: Log it once, from the lease.
-- Subhead: Pumpers gauge tanks, read meters and drop run tickets on the phone, offline if they have to, and the office never keys it twice.
+- Headline: The whole operation, from anywhere. (Owner, 2026-10-30: lead with breadth and working from anywhere, not "log it once".)
+- Subhead: Gauges, run tickets, the dashboard, Orion and every well's comments, on the phone. Readings save without signal and reach the office when it returns.
 - CTAs: Get started | Book a demo
 - Screen: keep `src/components/screens/mobile-screen.tsx`. It is a DOM transcription of the phone's gauge form, `wildcat-phone/src/components/tanks/tank-gauge-modal.tsx` (the gauge config, lines 1-16) on the `FullscreenDataEntry` hero layout (`wildcat-phone/src/components/ui/fullscreen-data-entry.tsx:6-9`), with the `MeasurementWheel` ft / in / quarters sheet (`wildcat-phone/src/components/ui/measurement-wheel.tsx:1-9`) and the app-wide `SuccessSheet` (`wildcat-phone/src/components/ui/success-sheet.tsx:1-20`). Pixel values and tokens come from the phone's `src/config/theme.ts` (mobile-screen.tsx:3-10). It already shows the right state: the wheel parked on yesterday's stick (0' 9 1/4"), the pumper spinning to 1' 6 1/2", Done, Add Reading, "Gauge saved · Tank 2". Porting concern for every mobile mock: the phone is React Native (StyleSheet, Pressable, Reanimated). The landing is React DOM, so each mock re-renders the same layout and data in HTML at the phone's pixel values inside `ScaledScreen w=390 h=844`. Nothing is imported from wildcat-phone. No `src/lib/screens/mobile-fixture.ts` exists yet. Add one carrying the shared operator's tank (Smith T2, 500 bbl, 15 ft, 2.7778 bbl/in), yesterday's and today's stick, and the derived barrels so the "= 51.39 bbl (+25.69 bbl)" line is computed, not typed (mobile-screen.tsx:58-61 hardcodes it today).
 
@@ -426,6 +428,8 @@ Sell the phone as the pumper's whole day: every reading, ticket and note goes in
 5. **Sync when the signal returns.** Readings land on the device first and queue for the server (`src/lib/offline/readings.ts:1-9`, `src/components/shell/offline-banner.tsx:1-9`).
 
 ## Sections
+
+**Cut by the owner on 2026-10-29.** The shipped page (`src/lib/product/mobile.ts`) keeps the gauge hero and five sections in this order: Orion on the phone (a looping demo like the web's /orion, asking a question), Run tickets (the full scan: camera, crop, Save while Orion reads, then the filled form), Charts and the dashboard (the loading cover, then the page), Offline (headline "No signal, no problem.") and Comments (a looping demo starting on the open thread). The gauge demo sits beside the hero copy. Readings, Notes and dictation, Logs and files and Device and security are dropped. The drafts below are kept for reference. Screens now transcribe `~/dev/mobile-background`, the closest checkout to the live app.
 
 ### 1. Readings
 - Headline: Gauge a tank in seconds.

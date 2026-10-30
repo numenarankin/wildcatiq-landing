@@ -14,8 +14,10 @@ import type { Conversation } from "@/lib/ai/conversations";
 import type { UIMessage } from "@/lib/ai/sdk";
 import type { ChartSpec } from "@/lib/ai/chart-spec";
 import { dashboardFixture } from "./dashboard-fixture";
+import { PRUITT_NAMES } from "./orion-facilities-fixture";
 import { EVENTS, LEASES, OPERATOR, PURCHASERS, SWD, TANKS, WELLS, leaseOf } from "./operator";
 import { A3_LNG_LAT, PERMIT_LNG_LAT, PERMIT_OPERATOR, milesBetween, reconPermit } from "./recon-fixture";
+import { NEIGHBOUR, OFFSETS, OFFSET_FIRST_YEAR } from "./recon-tonk-fixture";
 import { SEPTEMBER, SMITH_OCT_HAUL, feetInches, leaseTank, smithBbl, smithWeekGauges, wellMonthOil } from "./documents-tanks";
 import {
   BOYD,
@@ -38,6 +40,8 @@ export const FIXTURE_NAMES: Record<string, string> = Object.fromEntries([
   ...WELLS.map((w) => [w.id, w.name]),
   ...TANKS.map((t) => [t.id, t.name]),
   ...LEASES.map((l) => [l.id, l.name]),
+  // The lease the office manager sets up on Facilities, named once it exists.
+  ...Object.entries(PRUITT_NAMES),
 ]);
 
 const numberWord = (n: number) => ["no", "one", "two", "three", "four", "five", "six"][n] ?? String(n);
@@ -97,24 +101,11 @@ function a3FirstYear(): { month: string; rate: number }[] {
   return m.slice(first, first + 12).map((x) => ({ month: x.month, rate: x.oilBblPerDay ?? 0 }));
 }
 
-/**
- * Tonk Creek's three nearest producers (simulated public record), Caddo wells
- * that came on in 2024 and 2025: their first year averaged by month, bbl/d.
- * A hyperbolic flush decline (17.5 bbl/d initial, b 0.9, 15% a month nominal),
- * the shape a small Caddo buildup makes, rounded to a tenth as the RRC
- * record divides out.
+/*
+ * Tonk Creek's offsets (their first-year curve, the three wells, and the
+ * size of the P-5) live in `recon-tonk-fixture.ts`, the one source the Recon
+ * dossiers read too.
  */
-const OFFSET_FIRST_YEAR = Array.from({ length: 12 }, (_, t) => Math.round((17.5 / Math.pow(1 + 0.9 * 0.15 * t, 1 / 0.9)) * 10) / 10);
-
-/** The offsets as Orion lists them: name, distance and bearing from A-3, first month on, share of the average curve. */
-const OFFSETS = [
-  { name: "Harlan Ranch 1", where: "0.9 mi W", online: "May 2024", share: 1.06 },
-  { name: "Harlan Ranch 2", where: "1.2 mi NW", online: "Nov 2024", share: 0.99 },
-  { name: "Stambaugh 6", where: "1.6 mi W", online: "Mar 2025", share: 0.95 },
-] as const;
-
-/** Tonk Creek's wells on the P-5 (simulated public record). */
-const NEIGHBOUR = { wells: 38 } as const;
 
 const permitMiles = () => Math.round(milesBetween(A3_LNG_LAT, PERMIT_LNG_LAT) * 10) / 10;
 const permitDepth = () => (typeof reconPermit.depth === "number" ? reconPermit.depth : 0);
@@ -388,7 +379,7 @@ A-3 made ${fmt0(n.a3.reduce((s, r) => s + r.rate * 30.4, 0))} bbl over its own f
         parts: [
           { type: "step-start" },
           readPart("rrc_wells_near", 0),
-          readPart("rrc_production", 1),
+          readPart("rrc_series", 1),
           readPart("rrc_permits", 2),
           readPart("get_production", 3),
           { type: "text", text: answer, state: "done" },
@@ -480,7 +471,7 @@ export function t201FeedThread(): Conversation {
 
 ${rows.map((r) => `- **${r.name}**, ${fmt1(r.oilBbl)} bbl/d`).join("\n")}
 
-That is ${fmt1(total)} bbl/d of oil into T201 on the last gauged day. The battery's water, about ${fmt0(water)} bbl/d, goes to Smith Water and on to ${SWD.name}.`;
+That is ${fmt1(total)} bbl/d of oil into T201 on the last gauged day. The battery's water, about ${fmt0(water)} bbl/d, goes to Smith W1 and on to ${SWD.name}.`;
   return {
     id: "conv-t201-feed",
     title: "What feeds Smith T201",

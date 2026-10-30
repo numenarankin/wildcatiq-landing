@@ -107,6 +107,7 @@ function ChatWindow({ seed, onClose }: { seed: string; onClose: () => void }) {
   );
   const { messages, sendMessage, status, error } = useChat({ transport });
   const [draft, setDraft] = useState(seed.startsWith("\u0000") ? "" : seed);
+  const windowRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const busy = status === "submitted" || status === "streaming";
@@ -138,8 +139,16 @@ function ChatWindow({ seed, onClose }: { seed: string; onClose: () => void }) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
+    // A press anywhere off the window closes it, as Escape does.
+    const onPointer = (e: PointerEvent) => {
+      if (!windowRef.current?.contains(e.target as Node)) onClose();
+    };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointer);
+    };
   }, [onClose]);
 
   // Phones get the full screen, so the page behind must not scroll.
@@ -163,6 +172,7 @@ function ChatWindow({ seed, onClose }: { seed: string; onClose: () => void }) {
 
   return (
     <div
+      ref={windowRef}
       role="dialog"
       aria-label="Chat"
       className="fixed inset-0 z-50 flex flex-col bg-background text-foreground animate-in fade-in duration-200 md:inset-auto md:bottom-5 md:left-1/2 md:h-[min(560px,calc(100dvh-5rem))] md:w-[min(680px,calc(100vw-2rem))] md:-translate-x-1/2 md:rounded-2xl md:border md:border-border md:shadow-[0_24px_60px_-20px_rgb(0_0_0/0.3)] md:slide-in-from-bottom-2"

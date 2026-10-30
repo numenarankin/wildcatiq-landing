@@ -1,0 +1,109 @@
+# Snitcher Documentation
+
+- [Welcome to Snitcher](https://docs.snitcher.com/product/introduction.md): Official documentation for Snitcher's B2B visitor identification platform. Install the tracker, integrate with CRMs, and use our APIs to identify companies visiting your website.
+- [What is Snitcher?](https://docs.snitcher.com/product/what-is-snitcher.md): Snitcher is a B2B visitor identification platform that reveals which companies visit your website using IP intelligence—no form submission required.
+- [How Snitcher Works](https://docs.snitcher.com/product/how-snitcher-works.md): Snitcher uses IP intelligence to identify companies and first-party tracking to identify users visiting your website. Learn how the technology works.
+- [Snitcher Identity Layer](https://docs.snitcher.com/product/identity-layer.md): The Identity Layer connects anonymous website visitors to known users by linking email addresses to browsing sessions across devices.
+- [Tracker Installation](https://docs.snitcher.com/product/tracker/installation.md): Install the Snitcher JavaScript tracker on your website in minutes. Supports WordPress, Next.js, Webflow, Shopify, Google Tag Manager, and more.
+- [Automatic Tracking](https://docs.snitcher.com/product/tracker/automatic-tracking.md): Enable form, click, and download tracking with zero code. Understand what each feature captures and how to use the data.
+- [First-Party Tracking](https://docs.snitcher.com/product/tracker/first-party-tracking.md): Serve Snitcher's tracker from your own domain: let Snitcher manage it with one DNS record, or run your own proxy.
+- [Cookie Consent](https://docs.snitcher.com/product/tracker/cookie-consent.md): Configure Snitcher to work with your cookie consent management solution for GDPR and privacy compliance.
+- [Custom Events](https://docs.snitcher.com/product/tracker/custom-events.md): Track custom events and conversions with automatic tracking or the Snitcher JavaScript API.
+- [Identify Users](https://docs.snitcher.com/product/tracker/identify-users.md): Associate known user data with Snitcher visitor sessions for enhanced lead intelligence.
+- [Identify Email Recipients](https://docs.snitcher.com/product/tracker/identify-email-recipients.md): Track and identify visitors who click links in your outbound and marketing emails.
+- [Best Practices](https://docs.snitcher.com/product/tracker/best-practices.md): Get the most out of Snitcher with these proven strategies for tracking, identification, and data quality.
+- [Getting Started with Spotter](https://docs.snitcher.com/product/spotter/installation.md): Use Snitcher's Spotter API to identify companies visiting your website in real-time for personalization and targeting.
+- [Google Analytics 4 Integration](https://docs.snitcher.com/product/spotter/example-ga-4.md): Send company identification data to Google Analytics 4 for enhanced B2B analytics.
+- [Segment Integration](https://docs.snitcher.com/product/spotter/example-segment.md): Sync company identification data to Segment for use across your analytics stack.
+- [Fullstory Integration](https://docs.snitcher.com/product/spotter/example-fullstory.md): Enrich Fullstory session recordings with company identification data.
+- [Google Tag Manager Integration](https://docs.snitcher.com/product/spotter/example-tag-manager.md): Push company identification data to the dataLayer for use in GTM tags and triggers.
+- [Integrations Overview](https://docs.snitcher.com/product/integrations/overview.md): Snitcher integrates with HubSpot, Salesforce, Pipedrive, Slack, Zapier, and 15+ other tools. Sync identified companies to your CRM and automate workflows.
+- [HubSpot Integration](https://docs.snitcher.com/product/integrations/hubspot.md): Connect Snitcher to HubSpot CRM to automatically sync identified companies and contacts with real-time webhooks and custom field mapping.
+- [Salesforce](https://docs.snitcher.com/product/integrations/salesforce.md): Sync identified companies to Salesforce as Leads, Contacts, or Accounts.
+- [Pipedrive](https://docs.snitcher.com/product/integrations/pipedrive.md): Sync identified companies to Pipedrive as Organizations with real-time webhooks.
+- [Zoho CRM](https://docs.snitcher.com/product/integrations/zoho.md): Sync identified companies to Zoho CRM as Accounts and Contacts.
+- [Microsoft Dynamics](https://docs.snitcher.com/product/integrations/dynamics.md): Sync identified companies to Microsoft Dynamics 365 as Accounts and Contacts.
+- [Attio](https://docs.snitcher.com/product/integrations/attio.md): Sync identified companies to Attio CRM.
+- [Close Integration](https://docs.snitcher.com/product/integrations/close.md): Connect Snitcher to Close CRM to automatically sync identified companies as Leads, reveal contacts, and import Opportunities — with real-time two-way sync.
+- [Slack](https://docs.snitcher.com/product/integrations/slack.md): Get real-time notifications in Slack when target accounts visit your website.
+- [Microsoft Teams](https://docs.snitcher.com/product/integrations/teams.md): Get real-time notifications in Microsoft Teams when target accounts visit your website.
+- [Lemlist](https://docs.snitcher.com/product/integrations/lemlist.md): Add identified contacts to Lemlist campaigns for automated outreach.
+- [Apollo](https://docs.snitcher.com/product/integrations/apollo.md): Sync identified contacts to Apollo.io for sales engagement and enrichment.
+- [Smartlead](https://docs.snitcher.com/product/integrations/smartlead.md): Add identified contacts to Smartlead campaigns for AI-powered outreach.
+- [Google Analytics 4](https://docs.snitcher.com/product/integrations/google-analytics.md): Enrich your GA4 data with company information using custom dimensions.
+- [Zapier](https://docs.snitcher.com/product/integrations/zapier.md): Connect Snitcher to 6,000+ apps with Zapier. Automatically sync identified companies with your CRM, Slack, email tools, and more.
+- [Webhooks](https://docs.snitcher.com/product/integrations/webhooks.md): Send real-time data to any endpoint. Build custom integrations with webhooks.
+- [MCP Server](https://docs.snitcher.com/product/mcp/overview.md): Connect Snitcher to Claude, ChatGPT, and other AI assistants with the Snitcher MCP server. Explore identified companies, manage segments, reveal contacts, and sync to your CRM in natural language.
+- [REST API Introduction](https://docs.snitcher.com/product/rest-api/introduction.md): Access your Snitcher data programmatically using our REST API for integrations, automation, and custom workflows.
+- [Get the workspace's contact reveal credit balance](https://docs.snitcher.com/api-reference/workspaces/get-the-workspaces-contact-reveal-credit-balance.md): The credits available for revealing contact emails and phone numbers in the current billing cycle, how many have been used, and when the cycle resets. Agency partners can read this for each of their client workspaces.
+- [Get the workspace's tracker features](https://docs.snitcher.com/api-reference/workspaces/get-the-workspaces-tracker-features.md): Whether the tracking script captures form submissions and abandons, link clicks and file downloads. A workspace without a tracking script reports the defaults its script will run with once installed.
+- [Update the workspace's tracker features](https://docs.snitcher.com/api-reference/workspaces/update-the-workspaces-tracker-features.md): Turn form, click or download tracking on or off. Only the fields in the request change; the others keep their current value. The tracking script picks the change up on its next load.
+- [Get the user's workspaces](https://docs.snitcher.com/api-reference/workspaces/get-the-users-workspaces.md)
+- [Create a new workspace](https://docs.snitcher.com/api-reference/workspaces/create-a-new-workspace.md)
+- [Get details of a specific workspace](https://docs.snitcher.com/api-reference/workspaces/get-details-of-a-specific-workspace.md)
+- [Delete a workspace](https://docs.snitcher.com/api-reference/workspaces/delete-a-workspace.md)
+- [Update workspace details](https://docs.snitcher.com/api-reference/workspaces/update-workspace-details.md)
+- [Invite a user to a workspace](https://docs.snitcher.com/api-reference/workspaces/invite-a-user-to-a-workspace.md)
+- [Create a new tag for a workspace](https://docs.snitcher.com/api-reference/workspaces/create-a-new-tag-for-a-workspace.md)
+- [List custom field definitions](https://docs.snitcher.com/api-reference/custom-fields/list-custom-field-definitions.md)
+- [Create a custom field definition](https://docs.snitcher.com/api-reference/custom-fields/create-a-custom-field-definition.md)
+- [Get a custom field definition](https://docs.snitcher.com/api-reference/custom-fields/get-a-custom-field-definition.md)
+- [Delete a custom field definition](https://docs.snitcher.com/api-reference/custom-fields/delete-a-custom-field-definition.md)
+- [Update a custom field definition](https://docs.snitcher.com/api-reference/custom-fields/update-a-custom-field-definition.md)
+- [Get contacts for an organisation](https://docs.snitcher.com/api-reference/contacts/get-contacts-for-an-organisation.md)
+- [Reveal an email for an organisation contact](https://docs.snitcher.com/api-reference/contacts/reveal-an-email-for-an-organisation-contact.md)
+- [List organisations](https://docs.snitcher.com/api-reference/organisations/list-organisations.md)
+- [List organisations using advanced filters](https://docs.snitcher.com/api-reference/organisations/list-organisations-using-advanced-filters.md)
+- [Get an organisation](https://docs.snitcher.com/api-reference/organisations/get-an-organisation.md)
+- [Add a tag to an organisation](https://docs.snitcher.com/api-reference/organisations/add-a-tag-to-an-organisation.md)
+- [Remove a tag from an organisation](https://docs.snitcher.com/api-reference/organisations/remove-a-tag-from-an-organisation.md)
+- [List custom field values for an organisation](https://docs.snitcher.com/api-reference/custom-field-values/list-custom-field-values-for-an-organisation.md)
+- [Set multiple custom field values on an organisation](https://docs.snitcher.com/api-reference/custom-field-values/set-multiple-custom-field-values-on-an-organisation.md): Set one or more custom field values in a single request (at most 50 per request). Unknown field keys are created automatically, with their type inferred from the value — so an integration does not have to pre-create fields. Values are validated against each field's type, and for select/status/multi-…
+- [Set a custom field value on an organisation](https://docs.snitcher.com/api-reference/custom-field-values/set-a-custom-field-value-on-an-organisation.md)
+- [Clear a custom field value on an organisation](https://docs.snitcher.com/api-reference/custom-field-values/clear-a-custom-field-value-on-an-organisation.md)
+- [List all segments in a workspace](https://docs.snitcher.com/api-reference/segments/list-all-segments-in-a-workspace.md)
+- [Overview of the sessions in a date range](https://docs.snitcher.com/api-reference/sessions/overview-of-the-sessions-in-a-date-range.md): Lists sessions within a date range. A date range is required: provide either `date` or `date_from` (optionally with `date_to`), otherwise the request fails with a 400.
+- [Overview of the sessions of an organisation](https://docs.snitcher.com/api-reference/sessions/overview-of-the-sessions-of-an-organisation.md)
+- [Get the authenticated user's profile](https://docs.snitcher.com/api-reference/user/get-the-authenticated-users-profile.md)
+- [Filter Fields Reference](https://docs.snitcher.com/reference/filter-fields.md): A complete reference of all available filter fields and their supported values for the advanced organisation filters endpoint.
+- [Company Sizes](https://docs.snitcher.com/reference/company-sizes.md): Reference table for all possible company size values returned by the API.
+- [Company Industries](https://docs.snitcher.com/reference/company-industries.md): Reference table for all possible industry values returned by the API.
+- [Countries](https://docs.snitcher.com/reference/countries.md): Reference table for all possible country codes and names returned by the API.
+- [Introduction](https://docs.snitcher.com/powered-by-snitcher/radar/introduction.md): Radar: Powerful, Whitelabeled Web Tracking
+- [Installation](https://docs.snitcher.com/powered-by-snitcher/radar/installation.md): Get Radar up and running with custom branding for your customers.
+- [Capturing Events](https://docs.snitcher.com/powered-by-snitcher/radar/capturing-events.md): How Radar tracks pageviews, interactions, and custom behavior on your customers' sites.
+- [Receiving Events](https://docs.snitcher.com/powered-by-snitcher/radar/receiving-events.md): Deliver Radar events to your backend via webhooks.
+- [Configuration](https://docs.snitcher.com/powered-by-snitcher/radar/configuration.md): A complete reference for all the options available in the Radar loader script configuration.
+- [Consent Management](https://docs.snitcher.com/powered-by-snitcher/radar/consent-management.md): How to manage user privacy and consent on your customers' websites.
+- [JavaScript SDK](https://docs.snitcher.com/powered-by-snitcher/radar/javascript-sdk.md): A complete reference for the methods available on the Radar JavaScript object for your customers to use.
+- [SPA & Client-Side Routing](https://docs.snitcher.com/powered-by-snitcher/radar/spa-tracking.md): How Radar automatically tracks pageviews in your customers' Single-Page Applications (SPAs).
+- [Identify company for a session](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/company/identify-company-for-a-session.md): Returns company information for the current visitor's session when available. Provide a session UUID when you want to restrict lookup to a specific session.
+- [List tracking scripts](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/tracking-scripts/list-tracking-scripts.md): Returns a paginated list of tracking scripts for the given workspace. Filtering by description or internal identifier is supported.
+- [Generate a tracking script](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/tracking-scripts/generate-a-tracking-script.md)
+- [Get a single tracking script](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/tracking-scripts/get-a-single-tracking-script.md): Returns a single tracking script by ID
+- [Update a tracking script](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/tracking-scripts/update-a-tracking-script.md)
+- [List tracking script filters](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/tracking-scripts/list-tracking-script-filters.md)
+- [Replace tracking script filters](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/tracking-scripts/replace-tracking-script-filters.md)
+- [Create a tracking script filter](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/tracking-scripts/create-a-tracking-script-filter.md)
+- [Delete a tracking script filter](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/tracking-scripts/delete-a-tracking-script-filter.md)
+- [Get tracking script usage](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/usage/get-tracking-script-usage.md): Returns usage data for tracking scripts in the workspace
+- [Get IP-to-Company (Reveal API) credit usage](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/usage/get-ip-to-company-reveal-api-credit-usage.md): Returns billable IP-to-Company usage for the current billing cycle, per tracking script. A unit is a distinct successful (HTTP 200) de-anonymisation deduped per (tracking script, monthly window) — the exact figure billing charges a credit for. Operators reconcile this per cycle to know which lookups…
+- [Get webhook configuration](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/webhooks/get-webhook-configuration.md)
+- [Update webhook configuration](https://docs.snitcher.com/powered-by-snitcher/radar-api-reference/webhooks/update-webhook-configuration.md)
+- [Introduction](https://docs.snitcher.com/powered-by-snitcher/ip2company/introduction.md): Turn any IP address into company intelligence with the Snitcher IP to Company API. Real-time company identification for B2B applications.
+- [Quickstart](https://docs.snitcher.com/powered-by-snitcher/ip2company/quickstart.md): The Snitcher IP to Company API allows you to identify companies based on IP addresses, providing detailed business insights for B2B use cases.
+- [Company Sizes](https://docs.snitcher.com/reference/company-sizes.md): Reference table for all possible company size values returned by the API.
+- [Company Industries](https://docs.snitcher.com/reference/company-industries.md): Reference table for all possible industry values returned by the API.
+- [Countries](https://docs.snitcher.com/reference/countries.md): Reference table for all possible country codes and names returned by the API.
+
+## OpenAPI Specs
+
+- [docs?api-docs](https://app.snitcher.com/api/docs?api-docs.json)
+- [docs?api-radar-docs](https://app.snitcher.com/api/radar/docs?api-radar-docs.json)
+
+## Optional
+
+- [Help Center](https://help.snitcher.com/en/)
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

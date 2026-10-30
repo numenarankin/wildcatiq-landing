@@ -641,7 +641,7 @@ export function ProductionChart({
           {data.map((d) => (
             <div
               key={d.cycle}
-              title={`${fullMonth.format(monthDate(d.cycle))} — ${
+              title={`${fullMonth.format(monthDate(d.cycle))} · ${
                 !d.reported
                   ? "not yet reported by the RRC"
                   : d.filed

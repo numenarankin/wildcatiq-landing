@@ -28,8 +28,6 @@ export function PricingCard({ tier }: PricingCardProps) {
         {suffix && <span className="whitespace-nowrap text-sm text-muted-foreground">{suffix}</span>}
       </div>
 
-      <p className="mt-4 text-sm text-muted-foreground">{tier.blurb}</p>
-
       <p className="mt-4 text-sm">
         <span className="font-semibold">{formatCredits(tier.monthlyCredits)}</span>{" "}
         <span className="text-muted-foreground">Orion credits / month</span>

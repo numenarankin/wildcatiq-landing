@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * Permits mode over Young County, played forward on a loop: the county at
- * cluster zoom, the camera easing in toward Harlan Ranch 3 west of Graham, its pin coming up,
+ * Permits mode over Young County on satellite, played forward on a loop: the
+ * county at cluster zoom with its pending, approved and drilled permits, the camera easing in toward Harlan Ranch 3 west of Graham, its pin coming up,
  * the pointer pressing it and the app's `PermitPanel` sliding in with the
  * approved permit, its days since issue and the W-1 and plats the RRC
- * published; a hold to read it; the panel's own Close pressed; the camera
+ * published; the W-1 opened, then the lease plat; the panel's own Close pressed; the camera
  * easing back out to the county.
  *
  * The panel is the app's, opened and closed through `ReconMapScene`'s
@@ -18,6 +18,7 @@ import type { ReconMapHandle } from "../../recon-map";
 import { useDemoActive } from "../../demo-active";
 import { ReconMapScene } from "./map-scene";
 import { DemoCursor, centreOf, toCanvas, type CursorPoint } from "./cursor";
+import { LeasePlat, PdfTab, W1Page } from "./permit-file";
 
 /** Young County whole, Graham a little right of centre. */
 const COUNTY = { center: [-98.69, 33.18] as [number, number], zoom: 8.7 };
@@ -25,12 +26,27 @@ const COUNTY = { center: [-98.69, 33.18] as [number, number], zoom: 8.7 };
 const PERMIT = { center: [PERMIT_LNG_LAT[0] + 0.094, PERMIT_LNG_LAT[1] + 0.002] as [number, number], zoom: 10.8 };
 
 /**
- * `county` holds the county; `fly` eases in; `pin` brings the pin up; `aim`
- * moves the pointer to it; `press` rings it; `open` slides the panel in and
- * holds it; `toClose` moves the pointer to Close; `close` presses it and the
- * panel slides out; `back` eases out to the county.
+ * `county` holds the county with its permits drawn; `fly` eases in; `pin`
+ * brings the pin up; `aim` moves the pointer to it; `press` rings it; `open`
+ * slides the panel in; `toW1` and `w1` press the panel's W-1 row and its PDF
+ * opens; `toPlat` and `plat` do the same for the lease plat; `toClose` moves
+ * the pointer to Close; `close` presses it and the panel slides out; `back`
+ * eases out to the county.
  */
-type Phase = "county" | "fly" | "pin" | "aim" | "press" | "open" | "toClose" | "close" | "back";
+type Phase =
+  | "county"
+  | "fly"
+  | "pin"
+  | "aim"
+  | "press"
+  | "open"
+  | "toW1"
+  | "w1"
+  | "toPlat"
+  | "plat"
+  | "toClose"
+  | "close"
+  | "back";
 
 const HOLD: Record<Phase, number> = {
   county: 2600,
@@ -38,7 +54,11 @@ const HOLD: Record<Phase, number> = {
   pin: 1400,
   aim: 1100,
   press: 600,
-  open: 6400,
+  open: 2600,
+  toW1: 1000,
+  w1: 5200,
+  toPlat: 1200,
+  plat: 4600,
   toClose: 1100,
   close: 1200,
   back: 3600,
@@ -49,7 +69,11 @@ const NEXT: Record<Phase, Phase> = {
   pin: "aim",
   aim: "press",
   press: "open",
-  open: "toClose",
+  open: "toW1",
+  toW1: "w1",
+  w1: "toPlat",
+  toPlat: "plat",
+  plat: "toClose",
   toClose: "close",
   close: "back",
   back: "county",
@@ -80,6 +104,14 @@ export function ReconPermitsScreen() {
 
   useEffect(() => {
     if (!active) return;
+    const docRow = (kind: string) =>
+      Array.from(root.current?.parentElement?.querySelectorAll<HTMLElement>("[data-permit-stack] a") ?? []).find((a) =>
+        (a.textContent ?? "").trim().startsWith(kind)
+      );
+    const aimAt = (el: Element | undefined) => {
+      const c = centreOf(el);
+      if (c) setCursor({ ...c, down: false });
+    };
     const frame = requestAnimationFrame(() => {
       const m = map.current;
       const pane = root.current?.parentElement?.querySelector(".mapboxgl-map")?.getBoundingClientRect();
@@ -109,6 +141,18 @@ export function ReconPermitsScreen() {
         case "open":
           setCursor((c) => (c ? { ...c, down: false } : c));
           break;
+        case "toW1":
+          aimAt(docRow("W-1"));
+          break;
+        case "toPlat":
+          aimAt(docRow("Plat"));
+          break;
+        case "w1":
+        case "plat":
+          // The row is a link to the RRC's PDF; the tab it opens is drawn
+          // here (`PdfTab`) rather than followed.
+          setCursor((c) => (c ? { ...c, down: true } : c));
+          break;
         case "toClose": {
           const c = centreOf(root.current?.parentElement?.querySelector('[data-permit-stack] button[aria-label="Close"]'));
           if (c) setCursor({ ...c, down: false });
@@ -130,7 +174,9 @@ export function ReconPermitsScreen() {
     return () => cancelAnimationFrame(frame);
   }, [active, phase]);
 
-  const open = !closed && (phase === "open" || phase === "toClose" || phase === "close");
+  const open =
+    !closed && ["open", "toW1", "w1", "toPlat", "plat", "toClose", "close"].includes(phase);
+  const doc = phase === "w1" ? "w1" : phase === "plat" ? "plat" : null;
   const pinShown = phase !== "county" && phase !== "fly" && phase !== "back";
 
   return (
@@ -147,6 +193,16 @@ export function ReconPermitsScreen() {
       onMapDrawn={() => setDrawn(true)}
     >
       <div ref={root} data-phase={phase} className="hidden" />
+      {doc === "w1" && (
+        <PdfTab fileName="0912417_W1_HARLAN RANCH 3 W-1 Application.pdf" pages={1}>
+          <W1Page />
+        </PdfTab>
+      )}
+      {doc === "plat" && (
+        <PdfTab fileName="0912417_Plat_HARLAN RANCH 3 Lease Plat.pdf" pages={1}>
+          <LeasePlat />
+        </PdfTab>
+      )}
       {cursor && <DemoCursor {...cursor} />}
     </ReconMapScene>
   );

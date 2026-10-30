@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import { devOnlyPage } from "@/lib/dev-only";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -59,6 +60,7 @@ function renderInline(text: string): ReactNode[] {
 }
 
 export default function PrivacyPage() {
+  devOnlyPage();
   const { dates, blocks } = parsePolicy(readFileSync(POLICY_PATH, "utf8"));
 
   return (

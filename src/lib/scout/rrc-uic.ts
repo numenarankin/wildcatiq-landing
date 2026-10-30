@@ -23,9 +23,9 @@ export const INJ_TYPE: Record<string, string> = {
   "2": "Disposal into a productive zone (H-1)",
   "3": "Secondary or tertiary recovery",
   "4": "Miscellaneous",
-  "5": "Liquid storage — salt formation",
-  "6": "Gas storage — reservoir",
-  "7": "Gas storage — salt formation",
+  "5": "Liquid storage, salt formation",
+  "6": "Gas storage, reservoir",
+  "7": "Gas storage, salt formation",
 };
 
 /** Codes whose meaning changed on 1995-06-01 (see INJ_TYPE). */
@@ -115,7 +115,7 @@ export const H15_STATUS: Record<string, string> = {
   P: "Pending approval",
   W: "W-3A extension",
   U: "UIC",
-  E: "No test — project extension",
+  E: "No test, project extension",
   X: "W-1X denied",
 };
 

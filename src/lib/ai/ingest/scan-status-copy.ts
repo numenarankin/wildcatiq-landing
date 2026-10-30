@@ -17,13 +17,13 @@ export const NO_CARD_MESSAGE: Record<Exclude<IngestScanStatus, "records">, strin
   all_on_file:
     "Everything in this document is already on file, so there's nothing new to add.",
   no_records: "The document was read but held nothing that could be added.",
-  no_credits: "Out of AI credits — top up in Billing to scan documents.",
+  no_credits: "Out of AI credits. Top up in Billing to scan documents.",
   ai_unavailable:
     "AI scanning is unavailable right now. Check your organization's AI settings.",
   scan_disabled:
     "Document scanning is turned off for your organization. Enable it in AI settings.",
   no_skills: "No data-entry skills are enabled, so nothing could be proposed.",
-  unreadable: "This file couldn't be read — try a clearer scan or another format.",
+  unreadable: "This file couldn't be read. Try a clearer scan or another format.",
   error: "Something went wrong while scanning. Please try again.",
 };
 

@@ -334,14 +334,14 @@ export function rotateCanvas(
 export function describeReject(reason: RejectReason): string {
   switch (reason) {
     case "no-contour":
-      return "Couldn't find the page — drag the corners to its edges.";
+      return "Couldn't find the page. Drag the corners to its edges.";
     case "too-small":
-      return "The page looks small in frame — check the corners.";
+      return "The page looks small in frame. Check the corners.";
     case "full-frame":
-      return "No page edge found — drag the corners to the page.";
+      return "No page edge found. Drag the corners to the page.";
     case "not-convex":
-      return "The detected shape isn't a page — drag the corners to its edges.";
+      return "The detected shape isn't a page. Drag the corners to its edges.";
     case "skewed":
-      return "This may span two pages — drag the corners to just one.";
+      return "This may span two pages. Drag the corners to just one.";
   }
 }

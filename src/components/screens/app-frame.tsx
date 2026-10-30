@@ -61,10 +61,16 @@ function LandingSidebar() {
   );
 }
 
+/** `use-ai-drawer.ts` DRAWER_DEFAULT_WIDTH. */
+const DRAWER_W = 384;
+
 export function AppFrame({
   path,
   crumbs,
   fullBleed,
+  drawer,
+  sidebarCollapsed = false,
+  width = 1600,
   children,
 }: {
   /** The app route this screen stands in for; the nav highlights it. */
@@ -72,18 +78,27 @@ export function AppFrame({
   crumbs: string[];
   /** Routes the app renders edge to edge (the flow map, Recon, Orion). */
   fullBleed?: boolean;
+  /**
+   * The Orion drawer (`ai-drawer.tsx`): a flex sibling of the inset, so opening
+   * it narrows the whole page, header included, rather than covering it.
+   */
+  drawer?: { open: boolean; children: React.ReactNode };
+  /** The sidebar starts collapsed to its icons, as a user would leave it beside an open drawer. */
+  sidebarCollapsed?: boolean;
+  /** Canvas width; the height keeps the 16:10 frame. Wider when a drawer would squeeze the page. */
+  width?: number;
   children: React.ReactNode;
 }) {
   return (
-    <ScaledScreen w={1600} h={1000}>
+    <ScaledScreen w={width} h={Math.round(width * 0.625)}>
       <ModalScope>
       <ScreenRoute path={path}>
         <TooltipProvider>
           <ChartPrefsProvider defaultRange={null} averageLine={false}>
-            <SidebarProvider defaultOpen className="h-full min-h-0">
+            <SidebarProvider defaultOpen={!sidebarCollapsed} className="h-full min-h-0">
               <LandingSidebar />
               <SidebarInset className="h-full min-h-0 overflow-hidden">
-                <AppHeader crumbs={crumbs} />
+                <AppHeader crumbs={crumbs} path={path} />
                 {fullBleed ? (
                   <div className="flex h-[calc(100%-3.5rem)] min-h-0 flex-col overflow-hidden">{children}</div>
                 ) : (
@@ -92,6 +107,21 @@ export function AppFrame({
                   </div>
                 )}
               </SidebarInset>
+              {drawer ? (
+                <aside
+                  aria-hidden={!drawer.open}
+                  aria-label="Orion assistant"
+                  style={{ width: drawer.open ? DRAWER_W : 0 }}
+                  className={cn(
+                    "h-full shrink-0 self-start overflow-hidden transition-[width] duration-300 ease-in-out",
+                    drawer.open && "border-l border-border"
+                  )}
+                >
+                  <div className="h-full" style={{ width: DRAWER_W }}>
+                    {drawer.children}
+                  </div>
+                </aside>
+              ) : null}
             </SidebarProvider>
           </ChartPrefsProvider>
         </TooltipProvider>

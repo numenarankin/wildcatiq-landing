@@ -22,7 +22,7 @@ import type { CompletionReport } from "@/lib/scout/rrc-types";
 export function CompletionReportPanel({ report: rep }: { report: CompletionReport }) {
   return (
     <Panel
-      title={`Completion report — ${
+      title={`Completion report · ${
         rep.completion_date ?? rep.approved_date ?? "date not recorded"
       }`}
     >

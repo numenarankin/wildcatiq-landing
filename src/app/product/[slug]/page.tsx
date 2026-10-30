@@ -10,12 +10,13 @@ import { ButtonLink } from "@/components/ui/button-link";
 import { ArrowIcon } from "@/components/icons";
 import { BOOK_DEMO_URL, SIGN_UP_URL } from "@/lib/links";
 import { FEATURES, getFeature } from "@/lib/site";
+import { productPageVisible } from "@/lib/dev-only";
 import { PRODUCT_PAGES } from "@/lib/product";
 
 type Params = { slug: string };
 
 export function generateStaticParams(): Params[] {
-  return FEATURES.map((f) => ({ slug: f.slug }));
+  return FEATURES.filter((f) => productPageVisible(f.slug)).map((f) => ({ slug: f.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
@@ -31,33 +32,39 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default async function ProductPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const feature = getFeature(slug);
-  if (!feature) notFound();
+  if (!feature || !productPageVisible(feature.slug)) notFound();
 
   const content = PRODUCT_PAGES[feature.slug];
   const { hero } = content;
-  const siblings = content.siblings.map((s) => ({ ...s, feature: getFeature(s.slug)! }));
+  const phone = feature.slug === "mobile";
+  const siblings = content.siblings
+    .filter((s) => productPageVisible(s.slug))
+    .map((s) => ({ ...s, feature: getFeature(s.slug)! }));
 
   return (
     <main>
       <SiteHeader />
 
-      <section className="pt-32 sm:pt-40">
+      <section className="pb-20 pt-32 sm:pb-28 sm:pt-40">
         <Container>
-          <div className="max-w-3xl">
-            <Eyebrow>{hero.eyebrow}</Eyebrow>
-            <h1 className="mt-4 text-4xl font-medium leading-[1.08] tracking-tight sm:text-6xl">{hero.headline}</h1>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground sm:text-xl">{hero.subhead}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <ButtonLink href={SIGN_UP_URL} external size="lg">
-                Get started <ArrowIcon className="h-4 w-4" aria-hidden />
-              </ButtonLink>
-              <ButtonLink href={BOOK_DEMO_URL} external variant="outline" size="lg">
-                Book a demo
-              </ButtonLink>
+          {/* A phone sits beside the copy, the way its sections lay out; a desktop screen goes full width under it. */}
+          <div className={phone ? "grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:gap-16" : undefined}>
+            <div className="max-w-3xl">
+              <Eyebrow>{hero.eyebrow}</Eyebrow>
+              <h1 className="mt-4 text-4xl font-medium leading-[1.08] tracking-tight sm:text-6xl">{hero.headline}</h1>
+              <p className="mt-6 text-lg leading-relaxed text-muted-foreground sm:text-xl">{hero.subhead}</p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <ButtonLink href={SIGN_UP_URL} external size="lg">
+                  Get started <ArrowIcon className="h-4 w-4" aria-hidden />
+                </ButtonLink>
+                <ButtonLink href={BOOK_DEMO_URL} external variant="outline" size="lg">
+                  Book a demo
+                </ButtonLink>
+              </div>
             </div>
-          </div>
-          <div className="mt-14 sm:mt-20">
-            <FeatureScreen slug={feature.slug} />
+            <div className={phone ? undefined : "mt-14 sm:mt-20"}>
+              <FeatureScreen slug={feature.slug} eager />
+            </div>
           </div>
         </Container>
       </section>

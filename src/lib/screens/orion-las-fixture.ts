@@ -201,6 +201,13 @@ export function lasReportZones(): PayZone[] {
   return lasPayZones().filter((z) => z.net > 0);
 }
 
+/** The pay zones above the producing Caddo, most porosity-feet first: the recompletion candidates. */
+export function behindPipeZones(): PayZone[] {
+  const all = lasPayZones();
+  const producing = all.find((z) => z.name === "Caddo")!;
+  return all.filter((z) => z.net > 0 && z.top < producing.top).sort((a, b) => phiFt(b) - phiFt(a));
+}
+
 export function lasChart(): ChartSpec {
   return {
     chartType: "bar",
@@ -225,7 +232,7 @@ export function lasReplies(): [string, string] {
   const grossClean = all.reduce((a, z) => a + (z.base - z.top), 0);
   // Behind pipe: every pay zone above the one producing now.
   const producing = all.find((z) => z.name === "Caddo")!;
-  const behind = payZones.filter((z) => z.top < producing.top).sort((a, b) => phiFt(b) - phiFt(a));
+  const behind = behindPipeZones();
   const pick = behind[0];
   const next = behind[1];
   // The porous zones that fail only on resistivity: wet.

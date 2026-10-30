@@ -1,5 +1,6 @@
 "use client"
 
+import { createContext, useContext } from "react"
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
 
 import { cn } from "@/lib/utils"
@@ -25,6 +26,13 @@ function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
 }
 
+/**
+ * landing: where tooltips portal to. Unset, the body, as in the app; a demo
+ * points it into its scaled canvas so a hovered tooltip sits inside the frame
+ * at the canvas's scale.
+ */
+const TooltipContainerContext = createContext<HTMLElement | null>(null)
+
 function TooltipContent({
   className,
   side = "top",
@@ -38,8 +46,9 @@ function TooltipContent({
     TooltipPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset"
   >) {
+  const container = useContext(TooltipContainerContext)
   return (
-    <TooltipPrimitive.Portal>
+    <TooltipPrimitive.Portal container={container ?? undefined}>
       <TooltipPrimitive.Positioner
         align={align}
         alignOffset={alignOffset}
@@ -66,4 +75,4 @@ function TooltipContent({
   )
 }
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, TooltipContainerContext }

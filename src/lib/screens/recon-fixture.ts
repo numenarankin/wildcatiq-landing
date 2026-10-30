@@ -1,7 +1,7 @@
 /**
- * Recon's fixture: the filters bar in Permits mode over Young County, the
- * permit legend's counts, and one approved new-drill permit open in the
- * panel. Types are the app's own (`Filters`, `PurposeOption`); the permit
+ * Recon's fixture: the filters bar in Permits mode over Young County and one
+ * approved new-drill permit open in the panel. The permit key's counts and the
+ * purpose menu are counted from the drawn permits (`recon/layer-data.ts`). Types are the app's own (`Filters`, `PurposeOption`); the permit
  * record carries the fields `PermitPanel` reads off `/api/scout/rrc/pending`.
  *
  * The permit is simulated: Tonk Creek Operating (a fictional operator) on its
@@ -10,7 +10,6 @@
  * RRC's Young County wellbores and P-5 list.
  */
 import { DEFAULT_FILTERS, type Filters } from "@/components/scout/map-filters";
-import type { PurposeOption } from "@/lib/scout/permit-filter";
 import type { CommodityPrices } from "@/lib/analytics/types";
 import { OPERATOR, PRICES } from "./operator";
 import { wellLngLat } from "./recon-dossier-fixture";
@@ -26,17 +25,6 @@ export const reconFilters: Filters = {
 
 /** The bar's WTI and Henry Hub quotes: the one price every page shows. */
 export const reconPrices: CommodityPrices = PRICES;
-
-/** Filing purposes in the loaded Young County permit payload. */
-export const reconPermitPurposes: PurposeOption[] = [
-  { value: "New Drill", label: "New Drill", count: 12, other: false },
-  { value: "Recompletion", label: "Recompletion", count: 9, other: false },
-  { value: "Re-Enter", label: "Re-Enter", count: 3, other: false },
-  { value: "Field Transfer", label: "Field Transfer", count: 2, other: false },
-];
-
-/** Pending, approved (all) and drilled, the way the map counts them. */
-export const reconPermitCounts = { total: 12, approved: 7, drilled: 3 };
 
 /** The neighbour who filed it (fictional). */
 export const PERMIT_OPERATOR = { name: "TONK CREEK OPERATING LLC", short: "Tonk Creek Operating", no: "854127" } as const;
@@ -77,7 +65,8 @@ export const reconPermit: Record<string, unknown> = {
   depth: 4400,
   submitted: "2026-10-13",
   api: "50385871",
-  purpose: "New Drill",
+  // The app's label for code 01 (`FILING_PURPOSE` in rrc-queries.ts).
+  purpose: "New drill",
   horiz: 0,
   src: "gis",
 };

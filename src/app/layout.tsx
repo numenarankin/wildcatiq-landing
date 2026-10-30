@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Figtree, Geist_Mono } from "next/font/google";
 import "./site.css";
 import { SalesChat } from "@/components/sales-chat/sales-chat";
+import { SnitcherTracker } from "@/components/analytics/snitcher-tracker";
+import { Tracker } from "@/components/analytics/tracker";
 
 const figtree = Figtree({
   variable: "--font-sans",
@@ -32,6 +34,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {children}
         <SalesChat />
+        <Tracker />
+        <SnitcherTracker />
       </body>
     </html>
   );

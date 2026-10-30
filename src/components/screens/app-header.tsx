@@ -23,13 +23,16 @@ import { DecorIcon } from "@/components/decor-icon";
 import { CustomSidebarTrigger } from "@/components/custom-sidebar-trigger";
 import { SparkleIcon } from "@/components/ai/sparkle-icon";
 import { DeltaPct } from "@/components/delta-pct";
+import { navLinks } from "@/components/app-shared";
 
 const QUOTES = [
   { label: "WTI", unit: "/bbl", price: 61.42, changePct: 0.82 },
-  { label: "HH", unit: "/MMBtu", price: 3.18, changePct: -1.21 },
+  { label: "Nat Gas", unit: "/MCF", price: 3.18, changePct: -1.21 },
 ];
 
-export function AppHeader({ crumbs, initials = "JM" }: { crumbs: string[]; initials?: string }) {
+export function AppHeader({ crumbs, path, initials = "JM" }: { crumbs: string[]; path?: string; initials?: string }) {
+  // The first crumb is the section, with its sidebar icon (app-breadcrumbs.tsx).
+  const section = path ? navLinks.find((item) => item.path === `/${path.split("/")[1]}`) : undefined;
   return (
     <header
       className={cn(
@@ -53,7 +56,23 @@ export function AppHeader({ crumbs, initials = "JM" }: { crumbs: string[]; initi
               return (
                 <BreadcrumbItem key={c}>
                   {i > 0 && <BreadcrumbSeparator />}
-                  {last ? <BreadcrumbPage>{c}</BreadcrumbPage> : <BreadcrumbLink href="#">{c}</BreadcrumbLink>}
+                  {i === 0 && section ? (
+                    last ? (
+                      <BreadcrumbPage className="flex items-center gap-2 [&>svg]:size-3.5">
+                        {section.icon}
+                        {c}
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink href="#" className="flex items-center gap-2 [&>svg]:size-3.5">
+                        {section.icon}
+                        {c}
+                      </BreadcrumbLink>
+                    )
+                  ) : last ? (
+                    <BreadcrumbPage>{c}</BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink href="#">{c}</BreadcrumbLink>
+                  )}
                 </BreadcrumbItem>
               );
             })}

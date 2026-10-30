@@ -89,6 +89,8 @@ interface ChatPanelProps {
    * says so here instead.
    */
   greeting?: React.ReactNode;
+  /** landing: what a scripted screen shows typed into the composer, in place of the user's own input. */
+  scriptedInput?: string;
 }
 
 /**
@@ -105,6 +107,7 @@ export function ChatPanel({
   initialMessages,
   onSaved,
   greeting,
+  scriptedInput,
 }: ChatPanelProps) {
   // Ground the assistant in the user's current location + selected file/folder
   // so it can resolve "this page" / "this file" references. `useChat` captures
@@ -175,7 +178,9 @@ export function ChatPanel({
         });
       },
     });
-  const [input, setInput] = useState("");
+  const [typedInput, setInput] = useState("");
+  // landing: the scripted screen types for the user.
+  const input = scriptedInput ?? typedInput;
   // Files dragged onto the panel or pasted into it, staged until the next send.
   const {
     staged,

@@ -1,19 +1,34 @@
 "use client";
 
 /**
- * The phone app's gauge entry form (mobile src/components/tanks/
- * tank-gauge-modal.tsx on src/components/ui/fullscreen-data-entry.tsx),
+ * The phone app's gauge entry form (mobile-background src/components/tanks/
+ * tank-gauge-modal.tsx on src/components/ui/fullscreen-data-entry.tsx: Date,
+ * Time and the sheet-opening Comments field under the hero),
  * transcribed from its StyleSheets into HTML at the same pixel values, and
  * played as a loop: the wheel sheet is open on the parked level, the pumper
- * spins it to the new stick, Done drops the sheet, Add Reading saves, and
- * the app-wide SuccessSheet (success-sheet.tsx: blue ring sweep, tick,
- * "Gauge saved" with the tank and level, entry-flows.tsx:91) slides up, then the loop restarts. Tokens are the phone's src/config/theme.ts.
+ * spins it to the new stick, Done drops the sheet, Add Reading saves, the
+ * form closes onto the Smith lease page it opened from, and the app-wide
+ * SuccessSheet (success-sheet.tsx: blue ring sweep, tick, "Gauge saved" with
+ * the tank and level, entry-flows.tsx:91) slides up over it; then the form
+ * opens again and the loop restarts. Sheets move on slideup-sheet.tsx's
+ * springs. Tokens are the phone's src/config/theme.ts.
  */
 import { useEffect, useState } from "react";
 import { ChevronDown, ChevronLeft } from "lucide-react";
 import { ScaledScreen } from "./shell";
 import { bbl2, formatFeetInches, mobileFixture } from "@/lib/screens/mobile-fixture";
-import { useDemoActive } from "./demo-active";
+import { useDemoActive, useDemoProgress } from "./demo-active";
+import { springCurve } from "./product/mobile/motion";
+import { SmithLeasePage } from "./product/mobile/lease-offline";
+import { MONO, PHONE_FONTS, SANS } from "./product/mobile/phone";
+
+/** slideup-sheet.tsx / fullscreen-data-entry.tsx: in on 26 / 180, out on 26 / 210 clamped. */
+const SPRING_IN = springCurve({ damping: 26, stiffness: 180, mass: 1 });
+const SPRING_OUT = springCurve({ damping: 26, stiffness: 210, mass: 1, overshootClamping: true });
+const sheetMotion = (open: boolean) =>
+  open ? `transform ${SPRING_IN.ms}ms ${SPRING_IN.easing}` : `transform ${SPRING_OUT.ms}ms ${SPRING_OUT.easing}`;
+const scrimMotion = (open: boolean) =>
+  open ? "opacity 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "opacity 200ms cubic-bezier(0.455, 0.03, 0.515, 0.955)";
 
 const C = {
   background: "#ffffff",
@@ -27,7 +42,7 @@ const C = {
 };
 
 const LABEL: React.CSSProperties = {
-  fontFamily: "var(--font-geist-mono), ui-monospace, monospace",
+  fontFamily: MONO,
   fontWeight: 600,
   fontSize: 12,
   letterSpacing: 1,
@@ -37,16 +52,18 @@ const LABEL: React.CSSProperties = {
 
 // The loop's beats, in ms. Each phase has its own hold so the spin can be
 // watched and the check can land before the form resets.
-const PHASES = [2000, 1500, 1500, 1800, 1800, 700, 3600, 900] as const;
-type Phase = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+const PHASES = [900, 1500, 1500, 1800, 1800, 700, 3600, 1300, 1000] as const;
+type Phase = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 // 0 sheet open, parked on yesterday's stick
 // 1 feet wheel spun
 // 2 inches wheel spun
 // 3 fraction wheel spun, hero filled in
 // 4 Done: sheet drops, the form shows the value
 // 5 Add Reading pressed
-// 6 saved: the app-wide SuccessSheet slides up (ring sweep, tick, caption)
-// 7 success sheet drops, reset
+// 6 saved: the form closes onto the lease page and the app-wide SuccessSheet
+//   slides up over it (ring sweep, tick, caption)
+// 7 success sheet drops, the lease page alone
+// 8 the form opens again from the lease page, parked
 
 function usePhase(): Phase {
   const [i, setI] = useState<Phase>(0);
@@ -56,6 +73,7 @@ function usePhase(): Phase {
     const id = setTimeout(() => setI(((i + 1) % PHASES.length) as Phase), PHASES[i]);
     return () => clearTimeout(id);
   }, [active, i]);
+  useDemoProgress(i, PHASES.length);
   return i;
 }
 
@@ -90,7 +108,7 @@ function FieldCard({ label, value, chevron = true, tall, placeholder }: { label:
           minHeight: tall ? 96 : undefined,
         }}
       >
-        <span style={{ fontWeight: 500, fontSize: 16, color: placeholder ? C.tertiaryText : C.foreground, flexShrink: 1 }}>{value}</span>
+        <span style={{ fontWeight: 500, fontSize: 16, lineHeight: "22px", color: placeholder ? C.tertiaryText : C.foreground, flexShrink: 1 }}>{value}</span>
         {chevron && <ChevronDown size={16} color={C.mutedFg} />}
       </div>
     </div>
@@ -139,7 +157,7 @@ function GaugeSheet({ open, value, spinning }: { open: boolean; value: typeof TO
   const header: React.CSSProperties = { ...LABEL, fontSize: 11, textAlign: "center" };
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "flex-end", pointerEvents: "none" }}>
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.50)", opacity: open ? 1 : 0, transition: "opacity 280ms ease" }} />
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.50)", opacity: open ? 1 : 0, transition: scrimMotion(open) }} />
       <div
         style={{
           position: "relative",
@@ -152,7 +170,7 @@ function GaugeSheet({ open, value, spinning }: { open: boolean; value: typeof TO
           padding: "8px 8px 0",
           boxShadow: "0 16px 40px rgba(0,0,0,0.25)",
           transform: open ? "translateY(0)" : "translateY(105%)",
-          transition: "transform 320ms cubic-bezier(0.32, 0.72, 0, 1)",
+          transition: sheetMotion(open),
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0 16px" }}>
@@ -178,7 +196,7 @@ function GaugeSheet({ open, value, spinning }: { open: boolean; value: typeof TO
           <div style={{ height: 52, borderRadius: 999, background: C.primary, color: C.primaryFg, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 500, fontSize: 14 }}>
             Done
           </div>
-          <div style={{ height: 24 }} />
+          <div style={{ height: 34 }} />
         </div>
       </div>
     </div>
@@ -199,7 +217,7 @@ const MARK = "#1a71ff";
 function SuccessSheet({ open }: { open: boolean }) {
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "flex-end", pointerEvents: "none" }}>
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.50)", opacity: open ? 1 : 0, transition: "opacity 280ms ease" }} />
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.50)", opacity: open ? 1 : 0, transition: scrimMotion(open) }} />
       <div
         style={{
           position: "relative",
@@ -212,7 +230,7 @@ function SuccessSheet({ open }: { open: boolean }) {
           padding: "8px 8px 0",
           boxShadow: "0 16px 40px rgba(0,0,0,0.25)",
           transform: open ? "translateY(0)" : "translateY(105%)",
-          transition: "transform 320ms cubic-bezier(0.32, 0.72, 0, 1)",
+          transition: sheetMotion(open),
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "4px 0 16px" }}>
@@ -248,7 +266,7 @@ function SuccessSheet({ open }: { open: boolean }) {
               <span style={{ fontWeight: 600, fontSize: 20, lineHeight: "28px", color: C.foreground }}>Gauge saved</span>
               <span style={{ fontSize: 16, lineHeight: "24px", color: C.mutedFg, textAlign: "center" }}>{SAVED_DETAIL}</span>
             </div>
-            <div style={{ height: 24 }} />
+            <div style={{ height: 36 }} />
           </div>
         )}
       </div>
@@ -273,24 +291,35 @@ export function MobileScreen() {
   const entered = phase >= 1 && phase <= 6;
   const pressed = phase === 5;
   const saved = phase === 6;
+  const formOpen = phase !== 6 && phase !== 7;
 
   return (
-    <div className="mx-auto w-full max-w-[320px] overflow-hidden rounded-[44px] border-[8px] border-neutral-900 bg-neutral-900 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.35)]">
+    <div className="mx-auto w-full max-w-[290px] overflow-hidden rounded-[44px] border-[8px] border-neutral-900 bg-neutral-900 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.35)]">
+      <style>{PHONE_FONTS}</style>
       <style>{`@keyframes wc-ring { to { stroke-dashoffset: 0; } } @keyframes wc-tick { to { stroke-dashoffset: 0; } } @keyframes wc-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }`}</style>
       <div className="overflow-hidden rounded-[36px]">
         <ScaledScreen w={390} h={844}>
-          <div style={{ position: "relative", display: "flex", flexDirection: "column", height: "100%", background: C.background, color: C.foreground, fontFamily: "var(--font-sans), system-ui, sans-serif" }}>
-            {/* OS status bar */}
-            <div style={{ height: 54, display: "flex", alignItems: "flex-end", justifyContent: "space-between", padding: "0 28px 6px", fontSize: 15, fontWeight: 600 }}>
-              <span>7:41</span>
-              <span style={{ display: "flex", gap: 5, alignItems: "center" }}>
-                <svg width="18" height="12" viewBox="0 0 18 12" fill={C.foreground} aria-hidden><rect x="0" y="8" width="3" height="4" rx="0.5" /><rect x="5" y="5" width="3" height="7" rx="0.5" /><rect x="10" y="2.5" width="3" height="9.5" rx="0.5" /><rect x="15" y="0" width="3" height="12" rx="0.5" /></svg>
-                <svg width="27" height="13" viewBox="0 0 27 13" fill="none" aria-hidden><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke={C.foreground} opacity="0.35" /><rect x="2" y="2" width="20" height="9" rx="2" fill={C.foreground} /><path d="M25 4.5v4a2 2 0 0 0 0-4z" fill={C.foreground} opacity="0.4" /></svg>
-              </span>
+          <div style={{ position: "relative", display: "flex", flexDirection: "column", height: "100%", background: C.background, color: C.foreground, fontFamily: SANS, lineHeight: "normal" }}>
+            {/* Behind the form: the Smith lease page it was opened from */}
+            <div style={{ position: "absolute", top: 54, left: 0, right: 0, bottom: 0, display: "flex", flexDirection: "column" }}>
+              <SmithLeasePage back={false} />
             </div>
-
-            {/* topBar: height 56, title absolutely centred, back caret left */}
-            <div style={{ position: "relative", height: 56, display: "flex", alignItems: "center", padding: "0 12px" }}>
+            {/* The fullscreen form, closing onto the lease page on save and opening from it again */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                paddingTop: 54,
+                display: "flex",
+                flexDirection: "column",
+                background: C.background,
+                transform: formOpen ? "translateY(0)" : "translateY(100%)",
+                // fullscreen-data-entry.tsx opens and closes on the same 26 / 180 spring.
+                transition: `transform ${SPRING_IN.ms}ms ${SPRING_IN.easing}`,
+              }}
+            >
+            {/* topBar: height 56 under OVERLAY_TOP_GAP (8), title absolutely centred, back caret left */}
+            <div style={{ position: "relative", marginTop: 8, height: 56, display: "flex", alignItems: "center", padding: "0 12px" }}>
               <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
                 <span style={{ fontWeight: 600, fontSize: 16 }}>Add Gauge Reading</span>
               </div>
@@ -303,7 +332,7 @@ export function MobileScreen() {
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "0 24px" }}>
               <span style={LABEL}>Gauge</span>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontWeight: 600, fontSize: 56, lineHeight: 1.15, textAlign: "center", whiteSpace: "nowrap", color: entered ? C.foreground : C.mutedFg, transition: "color 300ms ease" }}>
+                <span style={{ fontWeight: 600, fontSize: 56, textAlign: "center", whiteSpace: "nowrap", color: entered ? C.foreground : C.mutedFg, transition: "color 300ms ease" }}>
                   {gaugeLabel(value)}
                 </span>
               </div>
@@ -317,6 +346,8 @@ export function MobileScreen() {
               <div style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", gap: 10 }}>
                 <FieldCard label="Date" value={DATE_LABEL} />
                 <FieldCard label="Time" value={FX.today.time} />
+                {/* Comments: a text field that opens in a sheet, so a tall card with no caret and "—" while empty */}
+                <FieldCard label="Comments" value="—" chevron={false} tall />
                 {/* heroSheetSlot: the wheel's reserved room when it opens in a sheet */}
                 <div style={{ height: 120 }} />
                 <div
@@ -341,8 +372,20 @@ export function MobileScreen() {
                 </div>
               </div>
             </div>
-            {/* home indicator */}
-            <div style={{ display: "flex", justifyContent: "center", paddingBottom: 8 }}>
+            {/* insets.bottom under the form */}
+            <div style={{ height: 34 }} />
+            </div>
+            {/* OS status bar */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 50, height: 54, display: "flex", alignItems: "flex-end", justifyContent: "space-between", padding: "0 28px 6px", fontSize: 15, fontWeight: 600 }}>
+              <span>7:41</span>
+              <span style={{ display: "flex", gap: 5, alignItems: "center" }}>
+                <svg width="18" height="12" viewBox="0 0 18 12" fill={C.foreground} aria-hidden><rect x="0" y="8" width="3" height="4" rx="0.5" /><rect x="5" y="5" width="3" height="7" rx="0.5" /><rect x="10" y="2.5" width="3" height="9.5" rx="0.5" /><rect x="15" y="0" width="3" height="12" rx="0.5" /></svg>
+                <svg width="27" height="13" viewBox="0 0 27 13" fill="none" aria-hidden><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke={C.foreground} opacity="0.35" /><rect x="2" y="2" width="20" height="9" rx="2" fill={C.foreground} /><path d="M25 4.5v4a2 2 0 0 0 0-4z" fill={C.foreground} opacity="0.4" /></svg>
+              </span>
+            </div>
+
+            {/* the home indicator, over everything */}
+            <div style={{ position: "absolute", left: 0, right: 0, bottom: 8, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 40 }}>
               <div style={{ width: 134, height: 5, borderRadius: 3, background: C.foreground, opacity: 0.9 }} />
             </div>
             <GaugeSheet open={sheetOpen} value={value} spinning={phase >= 1 && phase <= 3} />

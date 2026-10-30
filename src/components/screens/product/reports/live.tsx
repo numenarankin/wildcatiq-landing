@@ -18,12 +18,18 @@ import type { NarrationState } from "@/components/ai/use-narration";
 import {
   dailyDigestDoc,
   dailyProductionDoc,
+  productionDoc,
   productionVarianceDoc,
   reportsFixture,
+  reportsSchedule,
   type HubDocument,
 } from "@/lib/screens/reports-fixture";
+import { cellKey } from "@/lib/reports/schedule/catalog";
+import type { ReportSchedule } from "@/lib/reports/schedule/actions";
+import { ReportsLive } from "../../reports-live";
 import { useDemoActive } from "../../demo-active";
 import { ScreenPanel } from "../../panel";
+import { DemoCursor, centreOf, type CursorPoint } from "../recon/cursor";
 import { Actions, PickerRow, ReportSkeleton, glideTo, monthlyDigestDoc } from "./hub";
 
 const PATH = "/reports";
@@ -43,6 +49,9 @@ interface Beat {
   loading?: boolean;
   scroll?: string | "top";
   ms: number;
+  /** The nav entry the pointer moves to (a report id); `down` presses it. */
+  aim?: string;
+  down?: boolean;
 }
 
 /** Runs `beats` in order on a loop while the screen is on screen. */
@@ -58,11 +67,38 @@ function useBeats(count: number, ms: (i: number) => number): number {
 }
 
 /** The hub with the report list beside the document, played through `beats`. */
-function HubLive({ beats, w, h }: { beats: Beat[]; w: number; h: number }) {
+function HubLive({
+  beats,
+  w,
+  h,
+  openGroup = "Company",
+}: {
+  beats: Beat[];
+  w: number;
+  h: number;
+  openGroup?: string;
+}) {
   const fx = reportsFixture();
   const ms = useCallback((i: number) => beats[i].ms, [beats]);
   const beat = beats[useBeats(beats.length, ms)];
   const column = useRef<HTMLDivElement>(null);
+  const nav = useRef<HTMLDivElement>(null);
+  const [cursor, setCursor] = useState<(CursorPoint & { down: boolean }) | null>(null);
+
+  // The pointer on the nav entry a beat aims at; it stays put, released,
+  // through the beats that aim at nothing.
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      if (!beat.aim) {
+        setCursor((c) => (c ? { ...c, down: false } : c));
+        return;
+      }
+      const link = nav.current?.querySelector(`a[href$="report=${encodeURIComponent(beat.aim)}"]`);
+      const c = centreOf(link);
+      if (c) setCursor({ ...c, down: !!beat.down });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [beat]);
 
   // The page scrolls the window; the canvas has none, so the document column
   // scrolls itself (overflow hidden: no scrollbar, the glide is the motion).
@@ -85,8 +121,8 @@ function HubLive({ beats, w, h }: { beats: Beat[]; w: number; h: number }) {
     <ScreenPanel w={w} h={h} path={PATH}>
       <PermissionsProvider permissions={["admin", "view_reports"]}>
         <div className="flex min-h-0 flex-1 gap-6">
-          <div className="w-72 shrink-0 self-start">
-            <ReportNav groups={fx.navGroups} selectedId={doc.id} basePath="/reports" param="report" openGroup="Company" />
+          <div ref={nav} className="w-72 shrink-0 self-start">
+            <ReportNav groups={fx.navGroups} selectedId={doc.id} basePath="/reports" param="report" openGroup={openGroup} />
           </div>
           <div ref={column} className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
             {beat.loading ? (
@@ -103,6 +139,7 @@ function HubLive({ beats, w, h }: { beats: Beat[]; w: number; h: number }) {
           </div>
         </div>
       </PermissionsProvider>
+      {cursor ? <DemoCursor {...cursor} /> : null}
     </ScreenPanel>
   );
 }
@@ -151,6 +188,36 @@ export function DigestLive() {
     ];
   }, []);
   return <HubLive beats={beats} w={1200} h={980} />;
+}
+
+/**
+ * Section 3: production at every grain. Monthly Production open on September;
+ * the pointer picks Weekly Production (last week), Quarterly Production (Q3),
+ * Production Variance (each lease and well against its 1, 7 and 30 day
+ * baselines) and the Exception Report (the wells off their norm), each loading
+ * under the skeleton, then Monthly Production again.
+ */
+export function ProductionLive() {
+  const beats = useMemo<Beat[]>(() => {
+    const monthly = productionDoc("production-overview");
+    const path = [
+      { doc: productionDoc("weekly-production"), hold: 3400 },
+      { doc: productionDoc("quarterly-production"), hold: 3400 },
+      { doc: productionDoc("production-variance"), hold: 5200 },
+      { doc: productionDoc("exception-report"), hold: 3800 },
+      { doc: monthly, hold: 0 },
+    ];
+    const out: Beat[] = [{ doc: monthly, ms: 3400 }];
+    let prev = monthly;
+    for (const { doc, hold } of path) {
+      out.push({ doc: prev, aim: doc.id, ms: 1000 });
+      out.push({ doc, aim: doc.id, down: true, loading: true, ms: 1000 });
+      if (hold) out.push({ doc, ms: hold });
+      prev = doc;
+    }
+    return out;
+  }, []);
+  return <HubLive beats={beats} w={1280} h={820} openGroup="Production" />;
 }
 
 /** How long the voice takes to answer before Orion starts reading. */
@@ -244,5 +311,85 @@ export function OutputsLive() {
         </div>
       </NarrationStandInContext.Provider>
     </ScreenPanel>
+  );
+}
+
+/** The two schedule cells the delivery demo switches, by report row and column. */
+const SCHEDULE_PICKS = [
+  { row: "production-production-overview", title: "Monthly Production", frequency: "monthly" },
+  { row: "production-exception-report", title: "Exception Report (last 30 days)", frequency: "daily" },
+] as const;
+
+/**
+ * `rest` holds the panel as saved; `aimA`/`onA` move to Monthly Production's
+ * Monthly switch and press it on; `aimB`/`onB` do the same for the Exception
+ * Report's Daily; `held` reads both on; `offB` and `offA` press them off again,
+ * so the loop starts from the saved panel.
+ */
+type SchedulePhase = "rest" | "aimA" | "onA" | "aimB" | "onB" | "held" | "aimOffB" | "offB" | "aimOffA" | "offA";
+const SCHEDULE: { phase: SchedulePhase; ms: number; aim?: 0 | 1; on: [boolean, boolean]; down?: boolean }[] = [
+  { phase: "rest", ms: 2600, on: [false, false] },
+  { phase: "aimA", ms: 1000, aim: 0, on: [false, false] },
+  { phase: "onA", ms: 1600, aim: 0, on: [true, false], down: true },
+  { phase: "aimB", ms: 1000, aim: 1, on: [true, false] },
+  { phase: "onB", ms: 1600, aim: 1, on: [true, true], down: true },
+  { phase: "held", ms: 3000, aim: 1, on: [true, true] },
+  { phase: "aimOffB", ms: 600, aim: 1, on: [true, true] },
+  { phase: "offB", ms: 1400, aim: 1, on: [true, false], down: true },
+  { phase: "aimOffA", ms: 1000, aim: 0, on: [true, false] },
+  { phase: "offA", ms: 1600, aim: 0, on: [false, false], down: true },
+];
+
+/**
+ * Section 7: the Report delivery modal over the hub, as the gear opens it.
+ * The pointer switches Monthly Production on for the monthly send and the
+ * Exception Report on for the daily one, holds, and switches both off again.
+ * Each flip is a new saved schedule handed to the app's `ReportScheduleTable`,
+ * which re-seeds from it the way it does after the app's write lands.
+ */
+export function ScheduleLive() {
+  const ms = useCallback((i: number) => SCHEDULE[i].ms, []);
+  const step = SCHEDULE[useBeats(SCHEDULE.length, ms)];
+  const [root, setRoot] = useState<HTMLDivElement | null>(null);
+  const [cursor, setCursor] = useState<(CursorPoint & { down: boolean }) | null>(null);
+
+  // One schedule object per on/off combination, so an unchanged step hands the
+  // table the same object and its local state is left alone.
+  const schedules = useMemo(() => {
+    const saved = reportsSchedule();
+    const make = (a: boolean, b: boolean): ReportSchedule => {
+      const cells = { ...saved.cells };
+      [a, b].forEach((on, i) => {
+        const key = cellKey(SCHEDULE_PICKS[i].row, SCHEDULE_PICKS[i].frequency);
+        if (on) cells[key] = true;
+        else delete cells[key];
+      });
+      return { ...saved, cells };
+    };
+    return { ff: make(false, false), tf: make(true, false), tt: make(true, true), ft: make(false, true) };
+  }, []);
+  const schedule = schedules[`${step.on[0] ? "t" : "f"}${step.on[1] ? "t" : "f"}` as keyof typeof schedules];
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      if (step.aim === undefined) {
+        setCursor(null);
+        return;
+      }
+      const pick = SCHEDULE_PICKS[step.aim];
+      const label = `emailing ${pick.title} ${pick.frequency}`;
+      const target = [...(root?.querySelectorAll('[role="dialog"] [aria-label]') ?? [])].find((el) =>
+        el.getAttribute("aria-label")?.endsWith(label),
+      );
+      const c = centreOf(target);
+      if (c) setCursor({ ...c, down: !!step.down });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [step, root]);
+
+  return (
+    <div ref={setRoot} className="contents">
+      <ReportsLive schedule={schedule}>{cursor ? <DemoCursor {...cursor} /> : null}</ReportsLive>
+    </div>
   );
 }

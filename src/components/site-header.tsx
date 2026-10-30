@@ -3,11 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { AnimatePresence, motion } from "motion/react";
 import { SIGN_IN_URL, SIGN_UP_URL } from "@/lib/links";
-import { FEATURES, SOLUTIONS } from "@/lib/site";
+import { PRODUCT_MENU, SOLUTIONS, sectionHref } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { setDemosPaused } from "@/components/screens/demo-active";
 
 type MenuId = "product" | "solutions";
+
+/**
+ * The mobile menu's one motion: the panel's slide, the backdrop's fade and the
+ * icon's turn all run on this curve and duration together, so they read as one
+ * movement. A gentle ease-in-out, not a front-loaded ease-out that jumps.
+ */
+const MENU_MOTION = { duration: 0.35, ease: [0.32, 0.72, 0, 1] } as const;
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -43,12 +52,31 @@ export function SiteHeader() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
+      {/* While the mobile menu is open the page behind it darkens and blurs; a tap there closes it. */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            key="menu-backdrop"
+            aria-hidden
+            onClick={() => setMenuOpen(false)}
+            className="fixed inset-0 -z-10 bg-black/40 backdrop-blur-sm will-change-[opacity] md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={MENU_MOTION}
+          />
+        )}
+      </AnimatePresence>
       <div
         className={cn(
-          "border-b transition-colors",
-          scrolled || open || menuOpen
-            ? "border-border bg-background/90 backdrop-blur-md"
-            : "border-transparent bg-transparent",
+          // Above the mobile menu, which slides out from under it.
+          "relative z-10 border-b transition-colors",
+          // Solid while the mobile menu is open, so the darkened backdrop does not tint the bar.
+          menuOpen
+            ? "border-border bg-background duration-0"
+            : scrolled || open
+              ? "border-border bg-background/90 backdrop-blur-md"
+              : "border-transparent bg-transparent",
         )}
       >
         <nav
@@ -74,10 +102,10 @@ export function SiteHeader() {
                 {open === "product" && (
                   <Panel className="w-max">
                     <div className="grid grid-cols-[repeat(2,max-content)] gap-x-8 gap-y-1">
-                      {FEATURES.map((f) => (
+                      {PRODUCT_MENU.map((f) => (
                         <Link
                           key={f.slug}
-                          href={`/product/${f.slug}`}
+                          href={sectionHref(f)}
                           onClick={() => setOpen(null)}
                           className="rounded-lg px-3 py-2.5 transition-colors hover:bg-black/[0.03]"
                         >
@@ -109,20 +137,20 @@ export function SiteHeader() {
               </li>
               <li>
                 <Link
-                  href="/story"
-                  onClick={() => setOpen(null)}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  Our story
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/pricing"
                   onClick={() => setOpen(null)}
                   className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
                   Pricing
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  onClick={() => setOpen(null)}
+                  className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Contact
                 </Link>
               </li>
             </ul>
@@ -147,56 +175,89 @@ export function SiteHeader() {
             type="button"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((v) => !v)}
-            className="flex h-10 w-10 items-center justify-center rounded-md text-foreground transition-colors hover:bg-black/[0.03] md:hidden"
+            onClick={() => {
+              // Demos hold still while the menu covers the page; they resume once it has closed.
+              if (!menuOpen) setDemosPaused(true);
+              setMenuOpen((v) => !v);
+            }}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-background text-foreground shadow-[0_2px_10px_rgba(0,0,0,0.14)] ring-1 ring-black/5 transition-colors hover:bg-muted md:hidden"
           >
-            {menuOpen ? <CloseGlyph /> : <MenuGlyph />}
+            {/* Both glyphs stacked in one cell and cross-faded, so the circle is never empty. */}
+            <span className="grid [&>*]:col-start-1 [&>*]:row-start-1">
+              <motion.span
+                className="flex"
+                initial={false}
+                animate={{ opacity: menuOpen ? 0 : 1, rotate: menuOpen ? 90 : 0 }}
+                transition={MENU_MOTION}
+              >
+                <MenuGlyph />
+              </motion.span>
+              <motion.span
+                className="flex"
+                initial={false}
+                animate={{ opacity: menuOpen ? 1 : 0, rotate: menuOpen ? 0 : -90 }}
+                transition={MENU_MOTION}
+              >
+                <CloseGlyph />
+              </motion.span>
+            </span>
           </button>
 
         </nav>
       </div>
 
       {/* Mobile menu */}
-      {menuOpen && (
-        <div className="border-b border-border bg-background md:hidden">
-          <div className="mx-auto max-w-7xl px-6 py-4">
-            <MobileGroup title="Product">
-              {FEATURES.map((f) => (
-                <MobileLink key={f.slug} href={`/product/${f.slug}`} onClick={() => setMenuOpen(false)}>
-                  {f.label}
-                </MobileLink>
-              ))}
-            </MobileGroup>
-            <MobileGroup title="Solutions">
-              {byRole.map((s) => (
-                <MobileLink key={s.slug} href={`/solutions/${s.slug}`} onClick={() => setMenuOpen(false)}>
-                  {s.label}
-                </MobileLink>
-              ))}
-            </MobileGroup>
-            <MobileLink href="/story" onClick={() => setMenuOpen(false)}>
-              Our story
-            </MobileLink>
-            <MobileLink href="/pricing" onClick={() => setMenuOpen(false)}>
-              Pricing
-            </MobileLink>
-            <div className="mt-3 flex flex-col gap-2 border-t border-border pt-4">
-              <a
-                href={SIGN_IN_URL}
-                className="inline-flex items-center justify-center rounded-md border border-border px-4 py-2.5 text-sm font-semibold text-foreground"
-              >
-                Sign in
-              </a>
-              <a
-                href={SIGN_UP_URL}
-                className="inline-flex items-center justify-center rounded-md bg-foreground px-4 py-2.5 text-sm font-semibold text-background"
-              >
-                Get started
-              </a>
+      <AnimatePresence onExitComplete={() => setDemosPaused(false)}>
+        {menuOpen && (
+          <motion.div
+            key="menu-panel"
+            className="border-b border-border bg-background shadow-lg will-change-transform md:hidden"
+            // Solid all the way, sliding down from behind the bar: a fading panel
+            // would show its links over the page beneath for the first frames.
+            initial={{ y: "-100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "-100%" }}
+            transition={MENU_MOTION}
+          >
+            <div className="mx-auto max-w-7xl px-6 py-4">
+              <MobileGroup title="Product">
+                {PRODUCT_MENU.map((f) => (
+                  <MobileLink key={f.slug} href={sectionHref(f)} onClick={() => setMenuOpen(false)}>
+                    {f.label}
+                  </MobileLink>
+                ))}
+              </MobileGroup>
+              <MobileGroup title="Solutions">
+                {byRole.map((s) => (
+                  <MobileLink key={s.slug} href={`/solutions/${s.slug}`} onClick={() => setMenuOpen(false)}>
+                    {s.label}
+                  </MobileLink>
+                ))}
+              </MobileGroup>
+              <MobileLink href="/pricing" onClick={() => setMenuOpen(false)}>
+                Pricing
+              </MobileLink>
+              <MobileLink href="/contact" onClick={() => setMenuOpen(false)}>
+                Contact
+              </MobileLink>
+              <div className="mt-3 flex flex-col gap-2 border-t border-border pt-4">
+                <a
+                  href={SIGN_IN_URL}
+                  className="inline-flex items-center justify-center rounded-md border border-border px-4 py-2.5 text-sm font-semibold text-foreground"
+                >
+                  Sign in
+                </a>
+                <a
+                  href={SIGN_UP_URL}
+                  className="inline-flex items-center justify-center rounded-md bg-foreground px-4 py-2.5 text-sm font-semibold text-background"
+                >
+                  Get started
+                </a>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

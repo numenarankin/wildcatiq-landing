@@ -10,6 +10,7 @@
 import type { KBFileType, RepoFile, RepoFolder } from "@/lib/kb/types";
 import { LEASES, OIL_PURCHASER, OPERATOR, SWD, TANKS, WELLS } from "./operator";
 import { LAS_FILE_NAME } from "./mobile-b-fixture";
+import { CORBETT_TICKET_FILE } from "./documents-fixture";
 
 /** A placed file plus who uploaded it. The app keeps the uploader on `files`; the browser does not show it. */
 export interface FixtureFile extends RepoFile {
@@ -112,6 +113,17 @@ export const SMITH_4_FILES: FixtureFile[] = [
   file(SMITH_4_FOLDER_ID, "smith-4-1987-induction.tif", 18_874_368, "2026-09-18T15:52:00Z", LUIS),
 ];
 
+export const SCANS_FOLDER_ID = "folder-scans";
+
+/**
+ * Brazos Bend's two-page ticket for the Roy Corbett 4 rod job, scanned on the
+ * phone from Files on the morning of FIXTURE_TODAY (7:58 in Graham) and filed,
+ * as every phone scan is, in Scans. The well page reads this same file at 13:20.
+ */
+export const SCANNED_TICKET: FixtureFile = file(SCANS_FOLDER_ID, CORBETT_TICKET_FILE, 1_268_940, "2026-10-27T12:58:40Z", LUIS);
+/** When the scanner opened on it, ahead of the shots and the naming. */
+export const SCAN_OPENED_AT = "2026-10-27T12:58:04Z";
+
 /** The Smith 4 log a screen opens ticked. */
 export const SMITH_4_LAS_ID = SMITH_4_FILES[0].id;
 
@@ -143,6 +155,6 @@ export const FILES_ROOT: RepoFolder = {
     folder("folder-meters", "Meters", SEEDED, meterFolders),
     folder("folder-batteries", "Batteries", SEEDED, batteryFolders),
     folder("folder-data-entry", "Data Entry", SEEDED),
-    folder("folder-scans", "Scans", SEEDED),
+    folder(SCANS_FOLDER_ID, "Scans", SEEDED, [], [SCANNED_TICKET]),
   ].sort((a, b) => a.name.localeCompare(b.name)),
 };

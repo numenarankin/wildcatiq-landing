@@ -12,25 +12,32 @@ import { dashboardFixture, morningBrief } from "@/lib/screens/dashboard-fixture"
 import { AppFrame } from "./app-frame";
 
 export function DashboardLive() {
-  const fx = dashboardFixture();
   return (
     <AppFrame path="/dashboard" crumbs={["Dashboard"]}>
-      <div className="flex flex-1 flex-col gap-4">
-        <MorningBriefStatic text={morningBrief(fx)} />
-        <DashboardOverview
-          {...fx.cards}
-          monthly={fx.monthly}
-          byWellMonthly={fx.byWellMonthly}
-          dailyByWell={fx.dailyByWell}
-          prices={fx.prices}
-          nriByLease={fx.nriByLease}
-          companyNri={fx.companyNri}
-          leaseRows={fx.leaseRows}
-          wellRows={fx.wellRows}
-          chartLeases={fx.chartLeases}
-          pie={<ProductionByWellPie wells={fx.pieWells} leaseByWell={fx.leaseByWell} />}
-        />
-      </div>
+      <DashboardPageBody />
     </AppFrame>
+  );
+}
+
+/** The /dashboard page body as the app lays it out (`app/dashboard/page.tsx`): the brief over the overview, 16px apart. */
+export function DashboardPageBody() {
+  const fx = dashboardFixture();
+  return (
+    <div className="flex flex-1 flex-col gap-4">
+      <MorningBriefStatic text={morningBrief(fx)} />
+      <DashboardOverview
+        {...fx.cards}
+        monthly={fx.monthly}
+        byWellMonthly={fx.byWellMonthly}
+        dailyByWell={fx.dailyByWell}
+        prices={fx.prices}
+        nriByLease={fx.nriByLease}
+        companyNri={fx.companyNri}
+        leaseRows={fx.leaseRows}
+        wellRows={fx.wellRows}
+        chartLeases={fx.chartLeases}
+        pie={<ProductionByWellPie wells={fx.pieWells} leaseByWell={fx.leaseByWell} />}
+      />
+    </div>
   );
 }

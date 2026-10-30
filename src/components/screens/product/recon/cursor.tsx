@@ -7,6 +7,8 @@
  * `getBoundingClientRect`) back into the canvas's unscaled pixels.
  */
 
+import { motion } from "motion/react";
+
 export type CursorPoint = { x: number; y: number };
 
 export function toCanvas(from: Element | null, vx: number, vy: number): CursorPoint | null {
@@ -24,13 +26,26 @@ export function centreOf(el: Element | null | undefined): CursorPoint | null {
   return toCanvas(el, b.left + b.width / 2, b.top + b.height / 2);
 }
 
+const GLIDE = { duration: 0.7, ease: [0.22, 0.61, 0.36, 1] as const };
+
+/**
+ * Glides as a whole `transform`, which motion runs on the compositor, so the
+ * screens rendering underneath cannot make it stutter (animating `left`/`top`
+ * re-ran layout every frame). It appears where it is first placed.
+ */
 export function DemoCursor({ x, y, down }: CursorPoint & { down: boolean }) {
   return (
-    <div
-      className="pointer-events-none fixed z-[120] transition-[left,top] duration-700 ease-[cubic-bezier(.22,.61,.36,1)]"
-      style={{ left: x, top: y }}
+    <motion.div
+      className="pointer-events-none fixed left-0 top-0 z-[120]"
+      initial={false}
+      animate={{ transform: `translate3d(${x}px, ${y}px, 0px)` }}
+      transition={GLIDE}
     >
-      {down && <span className="absolute -left-3 -top-3 size-6 animate-ping rounded-full bg-black/40" />}
+      {/* One ping per click: `down` holds for the whole phase, and the
+          default ping loops. Held at its last frame (gone) once played. */}
+      {down && (
+        <span className="absolute -left-3 -top-3 size-6 animate-ping rounded-full bg-black/40 [animation-fill-mode:forwards] [animation-iteration-count:1]" />
+      )}
       <svg
         width="22"
         height="26"
@@ -45,6 +60,6 @@ export function DemoCursor({ x, y, down }: CursorPoint & { down: boolean }) {
           strokeLinejoin="round"
         />
       </svg>
-    </div>
+    </motion.div>
   );
 }

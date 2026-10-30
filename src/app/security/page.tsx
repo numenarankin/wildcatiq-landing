@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { devOnlyPage } from "@/lib/dev-only";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Container, Eyebrow, ClosingCta } from "@/components/home/sections";
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 const SECTIONS = SECURITY_DETAILS;
 
 export default function SecurityPage() {
+  devOnlyPage();
   return (
     <main>
       <SiteHeader />

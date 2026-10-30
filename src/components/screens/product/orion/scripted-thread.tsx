@@ -29,6 +29,7 @@ type Step =
   | { k: "stream"; i: number }
   | { k: "show"; i: number; ms: number }
   | { k: "approved"; ms: number }
+  | { k: "settle"; i: number; ms: number }
   | { k: "end"; ms: number };
 
 const TYPE_MS = 30;
@@ -38,6 +39,8 @@ const STREAM_CHUNK = 8;
 const CHART_HOLD = 1600;
 const APPROVAL_HOLD = 4200;
 const APPROVED_HOLD = 3800;
+/** A gated write, approved: it runs under the orb before the turn carries on. */
+const SETTLE_HOLD = 1500;
 
 const isTool = (p: Part): p is ToolPart => "toolCallId" in p && p.type.startsWith("tool-");
 const isChart = (p: Part) => p.type === "tool-render_chart";
@@ -71,23 +74,37 @@ function savedOf(p: Part): Part {
   return { ...p, state: "output-available", output, approval: { ...p.approval, approved: true } };
 }
 
-function stepsOf(t: ReturnType<typeof threadParts>, holdMs: number): Step[] {
+/**
+ * `gated`: the reply is several writes, each needing the one before it (a well
+ * needs its lease's id), so the SDK pauses at each: a card waits, is approved,
+ * runs, and only then does the next one arrive. Approvals side by side in the
+ * thread were called together in one step and wait together. Without it every
+ * card waits until the end and is approved at once.
+ */
+function stepsOf(t: ReturnType<typeof threadParts>, holdMs: number, gated: boolean): Step[] {
   const steps: Step[] = [{ k: "empty", ms: 1800 }];
   if (t.files.length || t.kbFiles.length) steps.push({ k: "attach", ms: 1600 });
   steps.push({ k: "type" }, { k: "sent", ms: 1400 });
   if (t.reads.length) steps.push({ k: "tools" });
-  t.content.forEach((p, i) => {
+  for (let i = 0; i < t.content.length; i++) {
+    const p = t.content[i];
     if (p.type === "text") steps.push({ k: "stream", i });
-    else steps.push({ k: "show", i, ms: isApproval(p) ? APPROVAL_HOLD : CHART_HOLD });
-  });
-  if (t.content.some(isApproval)) steps.push({ k: "approved", ms: APPROVED_HOLD });
+    else if (gated && isApproval(p)) {
+      let j = i;
+      while (j + 1 < t.content.length && isApproval(t.content[j + 1])) j++;
+      steps.push({ k: "show", i: j, ms: APPROVAL_HOLD }, { k: "settle", i: j, ms: SETTLE_HOLD });
+      i = j;
+    } else steps.push({ k: "show", i, ms: isApproval(p) ? APPROVAL_HOLD : CHART_HOLD });
+  }
+  if (!gated && t.content.some(isApproval)) steps.push({ k: "approved", ms: APPROVED_HOLD });
   steps.push({ k: "end", ms: holdMs });
   return steps;
 }
 
-function useThreadScript(conversation: Conversation, holdMs: number) {
+/** The thread's playback: what the chat shows and the composer holds at each step, and which step it is on. */
+export function useThreadScript(conversation: Conversation, holdMs: number, gated = false) {
   const t = useMemo(() => threadParts(conversation), [conversation]);
-  const steps = useMemo(() => stepsOf(t, holdMs), [t, holdMs]);
+  const steps = useMemo(() => stepsOf(t, holdMs, gated), [t, holdMs, gated]);
   const active = useDemoActive();
   const [at, setAt] = useState(0);
   const [n, setN] = useState(0);
@@ -130,6 +147,10 @@ function useThreadScript(conversation: Conversation, holdMs: number) {
     const kinds = steps.map((s) => s.k);
     const sentAt = kinds.indexOf("sent");
     const firstContentAt = steps.findIndex((s) => s.k === "stream" || s.k === "show");
+    // The last content part a gated approval has settled through, so far.
+    const settledThrough = steps
+      .slice(0, at + 1)
+      .reduce((m, s) => (s.k === "settle" ? Math.max(m, s.i) : m), -1);
     const messages: UIMessage[] = [];
     let status: ChatStatus = "ready";
     if (at >= sentAt && step.k !== "empty") messages.push(t.user);
@@ -146,22 +167,31 @@ function useThreadScript(conversation: Conversation, holdMs: number) {
           if (i === current && step.k === "stream" && p.type === "text") {
             parts.push({ type: "text", text: p.text.slice(0, n), state: "streaming" });
           } else {
-            parts.push(step.k === "approved" || step.k === "end" ? savedOf(p) : p);
+            parts.push(step.k === "approved" || step.k === "end" || i <= settledThrough ? savedOf(p) : p);
           }
         });
         const last = t.content[current];
-        if (step.k === "stream" || (step.k === "show" && last && !isApproval(last))) status = "streaming";
+        if (step.k === "stream" || step.k === "settle" || (step.k === "show" && last && !isApproval(last))) {
+          status = "streaming";
+        }
       }
       messages.push({ ...t.reply, parts });
     }
     return { messages, status };
   }, [steps, at, step, n, t]);
 
+  // Approved writes so far: what a page acting on them has to show.
+  const settled = useMemo(() => {
+    if (step.k === "approved" || step.k === "end") return t.content.filter(isApproval).length;
+    const through = steps.slice(0, at + 1).reduce((m, s) => (s.k === "settle" ? Math.max(m, s.i) : m), -1);
+    return t.content.filter((p, i) => isApproval(p) && i <= through).length;
+  }, [steps, at, step, t]);
+
   const input = step.k === "type" ? t.question.slice(0, n) : "";
   const staged = step.k === "attach" || step.k === "type";
   const files = staged ? t.files : [];
   const kbFiles = staged ? t.kbFiles : [];
-  return { script, input, files, kbFiles };
+  return { script, input, files, kbFiles, phase: step.k, settled };
 }
 
 /** The /orion page on one thread, the rest of the history beside it, the thread playing itself. */

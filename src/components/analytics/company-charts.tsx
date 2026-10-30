@@ -269,6 +269,7 @@ export function CompanyCharts({
   className,
   initialView = "oil",
   initialLease,
+  viewMenu,
 }: {
   data: MonthlyProduction[];
   wells: WellMonthlySeries[];
@@ -310,6 +311,8 @@ export function CompanyCharts({
   initialView?: View;
   /** landing: the lease row a product-page screen opens isolated (the app opens on all leases). */
   initialLease?: string;
+  /** landing: a demo holds the view menu open or shut, portalled into its scaled canvas. */
+  viewMenu?: { open: boolean; container: HTMLElement | null };
 }) {
   const [view, setView] = useState<View>(initialView);
   // Settings > Charts picks the opening preset (1M where the user has none)
@@ -734,12 +737,12 @@ export function CompanyCharts({
       <div className="flex flex-row flex-wrap items-start gap-x-4 gap-y-2 px-4">
         <div className="flex min-w-0 flex-col gap-1">
           <CardTitle>
-            <DropdownMenu>
+            <DropdownMenu open={viewMenu?.open}>
               <DropdownMenuTrigger className="-mx-1 -my-0.5 inline-flex items-center gap-1 rounded-md px-1 py-0.5 outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">
                 {VIEWS.find((v) => v.value === view)?.label}
                 <ChevronDownIcon className="size-4 text-muted-foreground" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
+              <DropdownMenuContent align="start" container={viewMenu?.container ?? undefined}>
                 {VIEWS.map((o) => (
                   <DropdownMenuItem
                     key={o.value}
@@ -755,7 +758,7 @@ export function CompanyCharts({
           {view === "revenue" ? (
             <CardDescription>
               {revenueNri == null
-                ? "Net revenue needs the operator's interest — none entered"
+                ? "Net revenue needs the operator's interest. None entered"
                 : `Monthly revenue net of ${nriPercent.format(revenueNri)} NRI`}
             </CardDescription>
           ) : null}

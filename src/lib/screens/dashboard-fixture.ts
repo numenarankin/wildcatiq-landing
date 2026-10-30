@@ -423,7 +423,7 @@ export function dashboardFixture(): DashboardFixture {
  * The comments on file, newest first, as the brief and the Daily Company
  * Digest both read them: Smith 4's thread from the Mobile page
  * (`SMITH4_COMMENTS`), Luis's reading remark on the Oct 26 Smith T201 gauge,
- * his Johnson A Water note the same day, and his Roy Corbett 4 note the day
+ * his Johnson A W1 note the same day, and his Roy Corbett 4 note the day
  * the well came back from its shut-in (`EVENTS.rc4Downtime`, the zero days in
  * the daily series).
  */
@@ -463,7 +463,7 @@ export const PUMPER_COMMENTS: FieldComment[] = [
   {
     date: EVENTS.smithGauge.date,
     facilityType: "tank" as const,
-    facilityName: "Johnson A Water",
+    facilityName: "Johnson A W1",
     author: OPERATOR.pumper,
     body: "Thief hatch leaking on the water tank. New gasket on order.",
   },

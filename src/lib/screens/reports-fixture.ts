@@ -39,7 +39,10 @@ import {
   PRODUCTION_REPORTS_BY_ID,
   REPORT_WINDOW_DAYS,
   asOfDate,
+  windowFor,
+  type ProductionReportId,
 } from "@/lib/reports/report-specs";
+import { periodOptions, periodSubtitle, resolvePeriod, type ProductionPeriodKind } from "@/lib/reports/periods";
 import { resolveWindow } from "@/lib/reports/windows";
 import { TANKS_CALLED_IN_COLUMNS } from "@/lib/reports/tanks/export";
 import { summarizeTanksCalledIn } from "@/lib/reports/tanks/tanks-called-in";
@@ -324,7 +327,7 @@ function buildDigest(period: DigestPeriod, anchor: string): CompanyDigest {
     // The app's model writes this from the comments; this is what it wrote.
     commentsSummary:
       comments.length > 0
-        ? `${OPERATOR.pumper} gauged Smith T201 at ${EVENTS.smithGauge.feet} ft ${EVENTS.smithGauge.inches} in and reported the thief hatch leaking on Johnson A Water, with a new gasket on order. ${OPERATOR.ownerFirst} noted a dry polish rod on Smith 4 and asked for the stuffing box to be greased.`
+        ? `${OPERATOR.pumper} gauged Smith T201 at ${EVENTS.smithGauge.feet} ft ${EVENTS.smithGauge.inches} in and reported the thief hatch leaking on Johnson A W1, with a new gasket on order. ${OPERATOR.ownerFirst} noted a dry polish rod on Smith 4 and asked for the stuffing box to be greased.`
         : "",
     priceMoves,
     prices: { oilPerBbl: OIL_PRICE, gasPerMcf: GAS_PRICE, measured: true },
@@ -450,17 +453,44 @@ function wellScopePickers(): ReportPicker[] {
   ];
 }
 
-/** A derivable production report as the hub's production loader builds it. */
-function productionDoc(reportId: "company-daily-summary" | "production-variance"): HubDocument {
+/**
+ * A production report's period picker, on its latest complete period, as the
+ * hub's `periodParams` offers it.
+ */
+function periodPicker(kind: ProductionPeriodKind, current: string): ReportPicker {
+  return {
+    param: "period",
+    value: current,
+    options: periodOptions(kind, FIXTURE_TODAY).map((p) => ({ value: p.key, label: p.label })),
+  };
+}
+
+/**
+ * A derivable production report as the hub's production loader builds it:
+ * a period report on its latest complete period, the lease and well pickers
+ * only where the report is well-scoped (Production Variance and the Exception
+ * Report have neither), and a windowed report's window as its subtitle.
+ */
+export function productionDoc(reportId: ProductionReportId): HubDocument {
   const report = PRODUCTION_REPORTS_BY_ID[reportId];
   const rows = productionRows();
   const leaseByWell = Object.fromEntries(WELLS.map((w) => [w.id, leaseOf(w).name]));
   const asOf = asOfDate(rows);
-  const built = report.build(rows, { asOf, leaseByWell, windowDays: REPORT_WINDOW_DAYS });
+  const period = report.period ? resolvePeriod(report.period, undefined, FIXTURE_TODAY) : undefined;
+  const built = report.build(rows, { asOf, leaseByWell, windowDays: REPORT_WINDOW_DAYS, period });
+  const subtitle = period
+    ? periodSubtitle(period)
+    : report.windowed
+      ? windowFor(asOf || FIXTURE_TODAY, REPORT_WINDOW_DAYS).label
+      : undefined;
+  const pickers = [
+    ...(report.period && period ? [periodPicker(report.period, period.key)] : []),
+    ...(report.wellScoped ? wellScopePickers() : []),
+  ];
   return doc(
     `production-${reportId}`,
-    tableMarkdown(report.name, undefined, report.columns, built),
-    wellScopePickers(),
+    tableMarkdown(report.name, subtitle, report.columns, built),
+    pickers,
     `/api/reports/production/export?report=${reportId}`
   );
 }
@@ -526,7 +556,7 @@ export function tanksCalledInDoc(): HubDocument {
  * The Pumper Report over the last 30 days, on the app's roster: each lease's
  * oil tanks are one tank battery stop, the water tanks and the SWD meter count
  * on their own. Luis's route reads all of them daily, with two stops missed:
- * Roach Parrott Battery on Oct 11 and Johnson A Water on Oct 20.
+ * Roach Parrott Battery on Oct 11 and Johnson A W1 on Oct 20.
  */
 export function pumperDoc(): HubDocument {
   const window = resolveWindow("30d", FIXTURE_TODAY);

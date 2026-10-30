@@ -366,7 +366,7 @@ export function InjectionChart({
       <p className="shrink-0 text-xs leading-relaxed text-muted-foreground">
         Reported through {fullMonth.format(monthDate(reportedThrough))}. The
         shaded tail is months operators have not filed yet, not months the well
-        sat idle — H-10 runs about a year behind.
+        sat idle. H-10 runs about a year behind.
         {showVolumeCeiling
           ? " The grey dashed line is the permitted daily volume times the days in each month."
           : ""}

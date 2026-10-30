@@ -253,3 +253,24 @@ export function MorningBriefStatic({ text }: { text: string }) {
     </div>
   );
 }
+
+/**
+ * landing: the brief as the page renders it while the route streams, fed by a
+ * demo instead of the fetch. `text` is what has arrived so far (empty: the
+ * skeleton the page holds while it waits), `ended` once the stream is done.
+ */
+export function MorningBriefScripted({ text, ended }: { text: string; ended: boolean }) {
+  return (
+    <div className="min-h-28 max-w-5xl py-4">
+      {text ? (
+        <GlideText text={capText(noDashes(ended ? finishedText(text) : text))} />
+      ) : (
+        <div className="flex flex-col gap-2.5" aria-hidden>
+          <div className="h-4 w-4/5 animate-pulse rounded bg-muted" />
+          <div className="h-4 w-full animate-pulse rounded bg-muted" />
+          <div className="h-4 w-3/5 animate-pulse rounded bg-muted" />
+        </div>
+      )}
+    </div>
+  );
+}

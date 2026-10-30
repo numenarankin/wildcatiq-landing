@@ -25,6 +25,8 @@ import { ScoutWellModal, loadWellDossier } from "@/components/scout/scout-well-m
 import type { WellTabKey } from "@/components/scout/well-modal";
 import { reconPrices } from "@/lib/screens/recon-fixture";
 import { AppFrame } from "./app-frame";
+import { useDemoActive, useDemoProgress } from "./demo-active";
+import { DemoCursor } from "./product/recon/cursor";
 
 /** RRC county code for Young County (`COUNTY_NAMES`). */
 const YOUNG_COUNTY = 503;
@@ -36,13 +38,10 @@ const KIRBY_LNG_LAT: [number, number] = [-98.51215, 33.169529];
 const TEXAS = { center: [-99.6, 31.3] as [number, number], zoom: 5.3 };
 const GRAHAM = { center: [-98.54, 33.13] as [number, number], zoom: 10.8 };
 
-/** The app header's height (h-14) and the open sidebar's width (16rem), which the backdrop cuts around. */
-const HEADER_H = 56;
-const SIDEBAR_W = 256;
 
 type Phase = "texas" | "fly" | "aim" | "summary" | "toTab" | "production" | "back";
 const HOLD: Record<Phase, number> = {
-  texas: 2400,
+  texas: 600,
   fly: 3400,
   aim: 1000,
   summary: 2800,
@@ -50,6 +49,9 @@ const HOLD: Record<Phase, number> = {
   production: 5200,
   back: 3000,
 };
+/** The script in order, for the GTM progress report. */
+const ORDER: Phase[] = ["texas", "fly", "aim", "summary", "toTab", "production", "back"];
+
 const NEXT: Record<Phase, Phase> = {
   texas: "fly",
   fly: "aim",
@@ -64,35 +66,13 @@ const noop = () => {};
 
 type Point = { x: number; y: number };
 
-function Cursor({ x, y, down }: Point & { down: boolean }) {
-  return (
-    <div
-      className="pointer-events-none fixed z-[120] transition-[left,top] duration-700 ease-[cubic-bezier(.22,.61,.36,1)]"
-      style={{ left: x, top: y }}
-    >
-      {down && <span className="absolute -left-3 -top-3 size-6 animate-ping rounded-full bg-black/40" />}
-      <svg
-        width="22"
-        height="26"
-        viewBox="0 0 22 26"
-        className="-translate-x-[3px] -translate-y-[2px] drop-shadow-[0_1px_2px_rgba(0,0,0,.5)]"
-      >
-        <path
-          d="M3 2 L3 20 L8 15.5 L11.5 23 L14.5 21.7 L11 14.2 L18 14 Z"
-          fill="#fff"
-          stroke="#111"
-          strokeWidth="1.4"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </div>
-  );
-}
 
 export function ReconLive() {
   const [filters, setFilters] = useState<Filters>(WELL_FILTERS);
   const [basemap, setBasemap] = useState<Basemap>("satellite");
+  const active = useDemoActive();
   const [phase, setPhase] = useState<Phase>("texas");
+  useDemoProgress(ORDER.indexOf(phase), ORDER.length);
   const [cursor, setCursor] = useState<(Point & { down: boolean }) | null>(null);
   const mapHandle = useRef<ReconMapHandle | null>(null);
   const mapPane = useRef<HTMLDivElement>(null);
@@ -116,6 +96,7 @@ export function ReconLive() {
   }, []);
 
   useEffect(() => {
+    if (!active) return;
     // On the next frame, not in the effect body: the Production tab is
     // measured after the modal has painted, and the cursor is set the same way.
     const frame = requestAnimationFrame(() => {
@@ -168,7 +149,7 @@ export function ReconLive() {
       cancelAnimationFrame(frame);
       clearTimeout(id);
     };
-  }, [phase, toCanvas]);
+  }, [active, phase, toCanvas]);
 
   const modalOpen = phase === "summary" || phase === "toTab" || phase === "production";
   const tab: WellTabKey = phase === "production" ? "production" : "summary";
@@ -209,18 +190,9 @@ export function ReconLive() {
 
         {modalOpen ? (
           <>
-            {/* The backdrop, in the modal's pieces: the page below the header
-                and the strip beside it over the sidebar's top. */}
-            <div className="pointer-events-none fixed inset-0 z-[100]">
-              <div
-                className="pointer-events-auto absolute inset-x-0 bottom-0 bg-black/50 backdrop-blur-sm"
-                style={{ top: HEADER_H }}
-              />
-              <div
-                className="pointer-events-auto absolute top-0 left-0 bg-black/50 backdrop-blur-sm"
-                style={{ width: SIDEBAR_W, height: HEADER_H }}
-              />
-            </div>
+            {/* The backdrop over the whole canvas, header included: the
+                landing header mounts no shade of its own (app-header.tsx). */}
+            <div className="pointer-events-auto fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm" />
             <div className="pointer-events-none fixed inset-0 z-[101] flex items-center justify-center p-4">
               <div
                 role="dialog"
@@ -242,7 +214,7 @@ export function ReconLive() {
           </>
         ) : null}
 
-        {cursor && <Cursor {...cursor} />}
+        {cursor && <DemoCursor {...cursor} />}
       </div>
     </AppFrame>
   );

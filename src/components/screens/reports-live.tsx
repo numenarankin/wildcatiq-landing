@@ -12,7 +12,7 @@
  * and the backdrop layers are laid here with the modal's own classes; `fixed`
  * positions against the canvas because the canvas is transformed.
  */
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { ExternalLinkIcon, SettingsIcon } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { PermissionsProvider } from "@/components/auth/permissions-context";
@@ -21,14 +21,22 @@ import { ReportDownloadMenu } from "@/components/reports/viewer/download-menu";
 import { ReportNav } from "@/components/reports/viewer/report-nav";
 import { ReportScheduleTable } from "@/components/reports/schedule-table";
 import { SwipeUpModal } from "@/components/wells/swipe-up-modal";
+import type { ReportSchedule } from "@/lib/reports/schedule/actions";
 import { DIGEST_ID, reportsFixture } from "@/lib/screens/reports-fixture";
 import { AppFrame } from "./app-frame";
 
-/** The app header's height (h-14) and the open sidebar's width (16rem), which the backdrop cuts around. */
-const HEADER_H = 56;
-const SIDEBAR_W = 256;
-
-export function ReportsLive({ settings = true }: { settings?: boolean }) {
+export function ReportsLive({
+  settings = true,
+  schedule,
+  children,
+}: {
+  settings?: boolean;
+  /** The saved schedule the delivery panel shows; the fixture's by default. A
+   *  new object re-seeds the table, the way the app's refresh after a write does. */
+  schedule?: ReportSchedule;
+  /** Drawn over the canvas (a demo's pointer). */
+  children?: ReactNode;
+}) {
   const fx = reportsFixture();
   const [open, setOpen] = useState(settings);
 
@@ -80,26 +88,18 @@ export function ReportsLive({ settings = true }: { settings?: boolean }) {
 
         {open ? (
           <>
-            {/* The backdrop, in the modal's pieces: the page below the header
-                and the strip beside it over the sidebar's top. */}
-            <div className="pointer-events-none fixed inset-0 z-[100]">
-              <div
-                className="pointer-events-auto absolute inset-x-0 bottom-0 bg-black/50 backdrop-blur-sm transition-colors duration-300"
-                style={{ top: HEADER_H }}
-                onClick={() => setOpen(false)}
-              />
-              <div
-                className="pointer-events-auto absolute top-0 left-0 bg-black/50 backdrop-blur-sm transition-colors duration-300"
-                style={{ width: SIDEBAR_W, height: HEADER_H }}
-                onClick={() => setOpen(false)}
-              />
-            </div>
+            {/* The backdrop over the whole canvas, header included: the
+                landing header mounts no shade of its own (app-header.tsx). */}
+            <div
+              className="pointer-events-auto fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm transition-colors duration-300"
+              onClick={() => setOpen(false)}
+            />
             <div className="pointer-events-none fixed inset-0 z-[101] flex items-center justify-center p-4">
               <div
                 role="dialog"
                 aria-modal="true"
                 aria-label="Report delivery"
-                className="pointer-events-auto flex max-h-[90vh] w-full max-w-md max-w-4xl flex-col overflow-hidden rounded-md bg-card text-card-foreground shadow-2xl ring-1 ring-foreground/10"
+                className="pointer-events-auto flex max-h-[90%] w-full max-w-4xl flex-col overflow-hidden rounded-md bg-card text-card-foreground shadow-2xl ring-1 ring-foreground/10"
               >
                 <SwipeUpModal
                   open
@@ -112,13 +112,14 @@ export function ReportsLive({ settings = true }: { settings?: boolean }) {
                 >
                   {/* The modal shell supplies no padding around its children. */}
                   <div className="overflow-y-auto px-5 py-5">
-                    <ReportScheduleTable rows={fx.scheduleRows} schedule={fx.schedule} />
+                    <ReportScheduleTable rows={fx.scheduleRows} schedule={schedule ?? fx.schedule} />
                   </div>
                 </SwipeUpModal>
               </div>
             </div>
           </>
         ) : null}
+        {children}
       </PermissionsProvider>
     </AppFrame>
   );

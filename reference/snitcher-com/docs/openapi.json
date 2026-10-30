@@ -1,0 +1,3871 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Snitcher API",
+        "description": "Discovering leads or discovering our API. This page is all you need to do both!",
+        "contact": {
+            "email": "info@snitcher.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://api.snitcher.com",
+            "description": "Production API"
+        }
+    ],
+    "paths": {
+        "/v1/workspaces/{workspaceUuid}/contact-credits": {
+            "get": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Get the workspace's contact reveal credit balance",
+                "description": "The credits available for revealing contact emails and phone numbers in the current billing cycle, how many have been used, and when the cycle resets. Agency partners can read this for each of their client workspaces.",
+                "operationId": "9811bea2355c538b822286bba3c523c1",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Contact credit balance",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Subscription_ContactCredits"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Workspace not found"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/custom-fields": {
+            "get": {
+                "tags": [
+                    "Custom Fields"
+                ],
+                "summary": "List custom field definitions",
+                "operationId": "13bb6fcd9e4eea5724ccf5bce9dec9d5",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of custom field definitions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CustomField"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Custom Fields"
+                ],
+                "summary": "Create a custom field definition",
+                "operationId": "3f6fbac40b703a6d7c2613057f22415a",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreCustomFieldRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The created custom field definition",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomField"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/custom-fields/{key}": {
+            "get": {
+                "tags": [
+                    "Custom Fields"
+                ],
+                "summary": "Get a custom field definition",
+                "operationId": "cbbabd356391086c42af49195d603a32",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "The key of the custom field",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "industry"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The custom field definition",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomField"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The custom field does not exist"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Custom Fields"
+                ],
+                "summary": "Delete a custom field definition",
+                "operationId": "168074da175a8c48392c6e499978b822",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "The key of the custom field",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "industry"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The custom field was deleted"
+                    },
+                    "403": {
+                        "description": "The field is read-only, including research fields managed by Snitcher in this workspace"
+                    },
+                    "404": {
+                        "description": "The custom field does not exist"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Custom Fields"
+                ],
+                "summary": "Update a custom field definition",
+                "operationId": "1fbaac83d80065c38e0a450f2ba82446",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "The key of the custom field",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "industry"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCustomFieldRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The updated custom field definition",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomField"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The field is read-only, including research fields managed by Snitcher in this workspace"
+                    },
+                    "404": {
+                        "description": "The custom field does not exist"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/contacts": {
+            "get": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Get contacts for an organisation",
+                "operationId": "34f1c3648b5916d18464df748bb6ac92",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "domain",
+                        "in": "query",
+                        "description": "Either organisation_uuid or domain must be provided",
+                        "schema": {
+                            "type": "string",
+                            "example": "pirateinc.com"
+                        }
+                    },
+                    {
+                        "name": "organisation_uuid",
+                        "in": "query",
+                        "description": "Either organisation_uuid or domain must be provided",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page number for pagination. page × size may not exceed 25,000 rows; narrow the listing with date_from and date_to instead of paging deeper.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "The number of organisations per page (1-1000)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 1000,
+                            "minimum": 1,
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of the contacts. Contacts are served from Snitcher's store; when a domain has not been looked up recently the lookup runs in the background and `refreshing` is true, meaning the list may still grow. Poll the same request until `refreshing` is false.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/Pagination"
+                                        },
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "refreshing": {
+                                                    "description": "Whether a contact lookup for this domain is still running in the background.",
+                                                    "type": "boolean",
+                                                    "example": false
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/OrganisationContact"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The domain or organisation_uuid must be provided"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/contacts/{contactUuid}/reveal-email": {
+            "put": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Reveal an email for an organisation contact",
+                "operationId": "8f5dd491c593a4c25fecf18535e88852",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "contactUuid",
+                        "in": "path",
+                        "description": "The UUID of the contact",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The contact",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/OrganisationContact"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Out of email reveal credits for this billing period",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Email reveal limit reached"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The contact UUID is malformed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid UUID string: not-a-uuid"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/organisations": {
+            "get": {
+                "tags": [
+                    "Organisations"
+                ],
+                "summary": "List organisations",
+                "operationId": "3fce12415d68a07de47f9e509f9e138a",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "segmentUuid",
+                        "in": "query",
+                        "description": "Optional segment UUID for filtering organisations",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page number for pagination. page × size may not exceed 25,000 rows; narrow the listing with date_from and date_to instead of paging deeper.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "The number of organisations per page (1-1000)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 1000,
+                            "minimum": 1,
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "The specific date to filter organisations that visited that day.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-03-01"
+                        }
+                    },
+                    {
+                        "name": "date_from",
+                        "in": "query",
+                        "description": "The start date for filtering organisations based on visits. Can only be used if `date` is not provided.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-03-01"
+                        }
+                    },
+                    {
+                        "name": "date_to",
+                        "in": "query",
+                        "description": "The end date for filtering organisations based on visits. Can only be used if `date` is not provided.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-03-10"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Filters organisations where the name contains the given string.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Pirate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of organisations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/Pagination"
+                                        },
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "allOf": [
+                                                            {
+                                                                "$ref": "#/components/schemas/Organisation_Organisation"
+                                                            },
+                                                            {
+                                                                "properties": {
+                                                                    "custom_fields": {
+                                                                        "description": "Map of the organisation's custom fields: field key to value in its natural JSON type (text/select as string, number as number, checkbox as boolean, multi-select as array of strings, dates as ISO strings). Only present when the workspace has custom fields enabled and the organisation has at least one value.",
+                                                                        "type": "object",
+                                                                        "example": {
+                                                                            "custom_text_field": "Fresh bananas quarterly",
+                                                                            "custom_date_field": "2026-08-01"
+                                                                        },
+                                                                        "additionalProperties": true
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Organisations"
+                ],
+                "summary": "List organisations using advanced filters",
+                "operationId": "855af56034d01086200d1f707a7709cb",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "segmentUuid",
+                        "in": "query",
+                        "description": "Optional segment UUID for filtering organisations",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page number for pagination. page × size may not exceed 25,000 rows; narrow the listing with date_from and date_to instead of paging deeper.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "The number of organisations per page (1-1000)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 1000,
+                            "minimum": 1,
+                            "example": 10
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "filters"
+                                ],
+                                "properties": {
+                                    "filters": {
+                                        "$ref": "#/components/schemas/FilterGroup"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of organisations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/Pagination"
+                                        },
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "allOf": [
+                                                            {
+                                                                "$ref": "#/components/schemas/Organisation_Organisation"
+                                                            },
+                                                            {
+                                                                "properties": {
+                                                                    "custom_fields": {
+                                                                        "description": "Map of the organisation's custom fields: field key to value in its natural JSON type (text/select as string, number as number, checkbox as boolean, multi-select as array of strings, dates as ISO strings). Only present when the workspace has custom fields enabled and the organisation has at least one value.",
+                                                                        "type": "object",
+                                                                        "example": {
+                                                                            "custom_text_field": "Fresh bananas quarterly",
+                                                                            "custom_date_field": "2026-08-01"
+                                                                        },
+                                                                        "additionalProperties": true
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/organisations/{organisationUuid}": {
+            "get": {
+                "tags": [
+                    "Organisations"
+                ],
+                "summary": "Get an organisation",
+                "operationId": "fcde6a037495a5125926648e48245aa2",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "organisationUuid",
+                        "in": "path",
+                        "description": "The UUID of the organisation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The organisation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/Organisation_Organisation"
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "custom_fields": {
+                                                            "description": "Map of the organisation's custom fields: field key to value in its natural JSON type (text/select as string, number as number, checkbox as boolean, multi-select as array of strings, dates as ISO strings). Only present when the workspace has custom fields enabled and the organisation has at least one value.",
+                                                            "type": "object",
+                                                            "example": {
+                                                                "custom_text_field": "Fresh bananas quarterly",
+                                                                "custom_date_field": "2026-08-01"
+                                                            },
+                                                            "additionalProperties": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/organisations/{organisationUuid}/tags": {
+            "post": {
+                "tags": [
+                    "Organisations"
+                ],
+                "summary": "Add a tag to an organisation",
+                "operationId": "31a8ba6fa4956a561d9813768ca735be",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "organisationUuid",
+                        "in": "path",
+                        "description": "The UUID of the organisation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TagRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The tag was added to the organisation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The tag does not exist"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Organisations"
+                ],
+                "summary": "Remove a tag from an organisation",
+                "operationId": "6744499084650b4cc95d844779e33f5e",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "organisationUuid",
+                        "in": "path",
+                        "description": "The UUID of the organisation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TagRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "The tag was removed from the organisation"
+                    },
+                    "400": {
+                        "description": "The tag does not exist"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/organisations/{organisationUuid}/custom-fields": {
+            "get": {
+                "tags": [
+                    "Custom Field Values"
+                ],
+                "summary": "List custom field values for an organisation",
+                "operationId": "2ff65831122638ad0ce60cc7c179f6a3",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "organisationUuid",
+                        "in": "path",
+                        "description": "The UUID of the organisation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of custom field values",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CustomFieldValue"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Custom Field Values"
+                ],
+                "summary": "Set multiple custom field values on an organisation",
+                "description": "Set one or more custom field values in a single request (at most 50 per request). Unknown field keys are created automatically, with their type inferred from the value — so an integration does not have to pre-create fields. Values are validated against each field's type, and for select/status/multi-select fields against the field's defined options; an unusable value, an off-list option, or a bad key returns a 422 naming the offending key. Validation covers the whole payload before anything is written, so a rejected key never leaves earlier keys half-applied. Every value must be non-empty: sending an empty array does not clear a multi-select — use the DELETE custom-fields/{key} endpoint to remove a value.",
+                "operationId": "e5fb2f188ed4aa818684c53ace53cc62",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "organisationUuid",
+                        "in": "path",
+                        "description": "The UUID of the organisation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SetOrganisationCustomFieldValuesRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The custom field values that were set",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CustomFieldValue"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The organisation does not exist"
+                    },
+                    "422": {
+                        "description": "A field key or value was invalid"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/organisations/{organisationUuid}/custom-fields/{key}": {
+            "put": {
+                "tags": [
+                    "Custom Field Values"
+                ],
+                "summary": "Set a custom field value on an organisation",
+                "operationId": "aa97d2e8ecff4b324eeffa51f73a4734",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "organisationUuid",
+                        "in": "path",
+                        "description": "The UUID of the organisation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "The key of the custom field",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "industry"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "value"
+                                ],
+                                "properties": {
+                                    "value": {
+                                        "description": "The value to set for the field",
+                                        "example": "Technology"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The custom field value that was set",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomFieldValue"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The field is read-only, including research fields managed by Snitcher in this workspace"
+                    },
+                    "404": {
+                        "description": "The custom field does not exist"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Custom Field Values"
+                ],
+                "summary": "Clear a custom field value on an organisation",
+                "operationId": "c915d426004f1bde89475e7e2682f32b",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "organisationUuid",
+                        "in": "path",
+                        "description": "The UUID of the organisation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "The key of the custom field",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "industry"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The custom field value was cleared"
+                    },
+                    "403": {
+                        "description": "The field is read-only, including research fields managed by Snitcher in this workspace"
+                    },
+                    "404": {
+                        "description": "The custom field does not exist"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/segments": {
+            "get": {
+                "tags": [
+                    "Segments"
+                ],
+                "summary": "List all segments in a workspace",
+                "operationId": "1ee28e246f469f20931f2e4cd0b660fc",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of segments",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Segment"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/sessions": {
+            "get": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Overview of the sessions in a date range",
+                "description": "Lists sessions within a date range. A date range is required: provide either `date` or `date_from` (optionally with `date_to`), otherwise the request fails with a 400.",
+                "operationId": "3c1a872e427c8996e46308a4d3861551",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    },
+                    {
+                        "name": "segmentUuid",
+                        "in": "query",
+                        "description": "Only include sessions matching this segment UUID",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "The specific date to filter sessions. Cannot be used together with date_from/date_to. Either `date` or `date_from` must be provided.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-03-01"
+                        }
+                    },
+                    {
+                        "name": "date_from",
+                        "in": "query",
+                        "description": "Start date for filtering sessions (inclusive). Required unless `date` is provided.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-03-01"
+                        }
+                    },
+                    {
+                        "name": "date_to",
+                        "in": "query",
+                        "description": "End date for filtering sessions (inclusive). Defaults to the end of today when omitted.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-03-10"
+                        }
+                    },
+                    {
+                        "name": "url",
+                        "in": "query",
+                        "description": "Filter sessions where the visited URL contains the given string.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "checkout"
+                        }
+                    },
+                    {
+                        "name": "referrer",
+                        "in": "query",
+                        "description": "Filter sessions where the referrer contains the given string.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "google.com"
+                        }
+                    },
+                    {
+                        "name": "visitor_uuid",
+                        "in": "query",
+                        "description": "Only include sessions of this visitor (client) ID — the `visitor_uuid` returned on every session, and the value the tracker sends as `anonymous_id`. Lets a client-side ID minted at conversion time be resolved back to the sessions, and therefore the organisation, it belongs to.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page number for pagination. page × size may not exceed 25,000 rows; narrow the listing with date_from and date_to instead of paging deeper.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "Number of sessions per page (1-1000).",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 1000,
+                            "minimum": 1,
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of sessions. When more than `organisation_limit` organisations match the date range, the response is truncated to the most-recently-active organisations and `truncated` is set to true. The caller can use the per-organisation sessions endpoint to backfill any orgs beyond the cap.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/Pagination"
+                                        },
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Session"
+                                                    }
+                                                },
+                                                "truncated": {
+                                                    "description": "True when the organisation set was capped to `organisation_limit`.",
+                                                    "type": "boolean",
+                                                    "example": false
+                                                },
+                                                "total_organisations": {
+                                                    "description": "Total number of organisations matching the filter, before any cap.",
+                                                    "type": "integer",
+                                                    "example": 42
+                                                },
+                                                "organisation_limit": {
+                                                    "description": "Maximum number of organisations included in a single response.",
+                                                    "type": "integer",
+                                                    "example": 10000
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid parameters, e.g. no date range provided"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/organisations/{organisationUuid}/sessions": {
+            "get": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Overview of the sessions of an organisation",
+                "operationId": "71efed14b0d3aaf9caea94c0602c1e34",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "The UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    },
+                    {
+                        "name": "organisationUuid",
+                        "in": "path",
+                        "description": "The UUID of the organisation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page number for pagination. page × size may not exceed 25,000 rows; narrow the listing with date_from and date_to instead of paging deeper.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "The number of sessions per page (1-1000)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 1000,
+                            "minimum": 1,
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "The specific date to filter sessions.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-03-01"
+                        }
+                    },
+                    {
+                        "name": "date_from",
+                        "in": "query",
+                        "description": "The start date for filtering sessions. Can only be used if `date` is not provided.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-03-01"
+                        }
+                    },
+                    {
+                        "name": "date_to",
+                        "in": "query",
+                        "description": "The end date for filtering sessions. Can only be used if `date` is not provided.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-03-10"
+                        }
+                    },
+                    {
+                        "name": "url",
+                        "in": "query",
+                        "description": "Filters sessions where the visited URL contains the given string.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "checkout"
+                        }
+                    },
+                    {
+                        "name": "referrer",
+                        "in": "query",
+                        "description": "Filters sessions where the referrer contains the given string.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "google.com"
+                        }
+                    },
+                    {
+                        "name": "visitor_uuid",
+                        "in": "query",
+                        "description": "Only include sessions of this visitor (client) ID — the `visitor_uuid` returned on every session, and the value the tracker sends as `anonymous_id`. Lets a client-side ID minted at conversion time be resolved back to the sessions, and therefore the organisation, it belongs to.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of sessions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/Pagination"
+                                        },
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Session"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{workspaceUuid}/tracker-features": {
+            "get": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Get the workspace's tracker features",
+                "description": "Whether the tracking script captures form submissions and abandons, link clicks and file downloads. A workspace without a tracking script reports the defaults its script will run with once installed.",
+                "operationId": "339c386f6bec883c4f316fe01c09977c",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tracker features",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/TrackingScript_RadarFeatures"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Workspace not found"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Update the workspace's tracker features",
+                "description": "Turn form, click or download tracking on or off. Only the fields in the request change; the others keep their current value. The tracking script picks the change up on its next load.",
+                "operationId": "fdea821117459e5110ba2ed18aa1c1a5",
+                "parameters": [
+                    {
+                        "name": "workspaceUuid",
+                        "in": "path",
+                        "description": "UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "form_tracking": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "click_tracking": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "download_tracking": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tracker features after the update",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/TrackingScript_RadarFeatures"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Workspace not found, or it has no tracking script"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/me": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get the authenticated user's profile",
+                "operationId": "74f07f8b8304a8e80da44133da925cff",
+                "responses": {
+                    "200": {
+                        "description": "User profile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 123
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                },
+                                                "first_name": {
+                                                    "type": "string",
+                                                    "example": "John"
+                                                },
+                                                "last_name": {
+                                                    "type": "string",
+                                                    "example": "Doe"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces": {
+            "get": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Get the user's workspaces",
+                "operationId": "d181186b161c6baafaa8b23266b5e6b8",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page number for pagination. page × size may not exceed 25,000 rows; narrow the listing with date_from and date_to instead of paging deeper.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "The number of organisations per page (1-1000)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 1000,
+                            "minimum": 1,
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of workspaces",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/Pagination"
+                                        },
+                                        {
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Workspace_Workspace"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Create a new workspace",
+                "operationId": "7973387b2c184e4d8e471cbe6f01e19f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "url": {
+                                        "type": "string",
+                                        "format": "url",
+                                        "example": "https://acme.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Workspace details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Workspace_Workspace"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{uuid}": {
+            "get": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Get details of a specific workspace",
+                "operationId": "141bf170f7bbb4497b6c23ef3c7fe4e7",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Workspace details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Workspace_Workspace"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Workspace not found"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Delete a workspace",
+                "operationId": "63457e8e20c1fd12f8d8c4f5308ed8ec",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Workspace deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Workspace deleted"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Workspace not found"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Update workspace details",
+                "operationId": "b8a67cc1b1e2cbb51c0c8883753904cb",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "usage_limit": {
+                                        "type": "integer",
+                                        "example": 1000
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Workspace details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Workspace_Workspace"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Workspace not found"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{uuid}/users/invite": {
+            "post": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Invite a user to a workspace",
+                "operationId": "1fce4c8efb148c6a9b1de32a9bea0e08",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john.doe@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User invited",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "An invite link has been sent to john.doe@example.com"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "invite_link": {
+                                                    "type": "string",
+                                                    "format": "url",
+                                                    "example": "https://app.snitcher.com/invite/12345"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Workspace not found"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        },
+        "/v1/workspaces/{uuid}/tags": {
+            "post": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Create a new tag for a workspace",
+                "operationId": "d24647f57de8b0d7de36353b87a869eb",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "UUID of the workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TagRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Workspace details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Workspace_Workspace"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Workspace not found"
+                    }
+                },
+                "security": [
+                    {
+                        "Snitcher bearer token": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "IngestPipelineConfiguration_Delivery": {
+                "required": [
+                    "webhook_url"
+                ],
+                "properties": {
+                    "webhook_url": {
+                        "type": "string"
+                    },
+                    "signature": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "IngestPipelineConfiguration_PipelineConfiguration": {
+                "properties": {
+                    "delivery": {
+                        "$ref": "#/components/schemas/IngestPipelineConfiguration_Delivery"
+                    },
+                    "event_aggregation": {
+                        "description": "Delivery mode. `per_session` groups all events of a session into one payload sent after the session ends; `per_event` pushes each event in near real-time.",
+                        "type": "string",
+                        "enum": [
+                            "per_event",
+                            "per_session"
+                        ],
+                        "example": "per_session"
+                    }
+                },
+                "type": "object"
+            },
+            "Organisation_Organisation": {
+                "required": [
+                    "uuid",
+                    "name",
+                    "website",
+                    "first_seen",
+                    "last_seen",
+                    "profiles",
+                    "tags",
+                    "segments"
+                ],
+                "properties": {
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "unique_visitor_count": {
+                        "description": "Unique tracked visitors currently attributed to this company in this workspace. Counts non-merged identities, independent of date filters and tracking-event retention. Hiding a visitor does not remove its attribution.",
+                        "type": "integer",
+                        "minimum": 0,
+                        "example": 7
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Pirate Inc."
+                    },
+                    "website": {
+                        "type": "string",
+                        "example": "https://pirateinc.com"
+                    },
+                    "first_seen": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2021-01-01T00:00:00Z"
+                    },
+                    "last_seen": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2021-01-01T00:00:00Z"
+                    },
+                    "logo": {
+                        "type": "string",
+                        "example": "https://pirateinc.com/logo.png",
+                        "nullable": true
+                    },
+                    "address": {
+                        "$ref": "#/components/schemas/Value_Address"
+                    },
+                    "founded": {
+                        "type": "number",
+                        "example": "2000",
+                        "nullable": true
+                    },
+                    "size": {
+                        "$ref": "#/components/schemas/Organisation_EmployeeRange"
+                    },
+                    "industry": {
+                        "type": "string",
+                        "example": "Piracy",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "+49 123 4567890",
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "john@example.org",
+                        "nullable": true
+                    },
+                    "profiles": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Organisation_SocialProfile"
+                        }
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "segments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Organisation_Segment"
+                        }
+                    },
+                    "total_pageviews": {
+                        "type": "integer",
+                        "example": 42,
+                        "nullable": true
+                    },
+                    "total_time_on_site": {
+                        "type": "string",
+                        "example": "1:02:05",
+                        "nullable": true
+                    },
+                    "visitor_locations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "Amsterdam, NL"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "Organisation_OrganisationContact": {
+                "required": [
+                    "uuid",
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "position",
+                    "department",
+                    "seniority",
+                    "country",
+                    "profiles"
+                ],
+                "properties": {
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "first_name": {
+                        "type": "string"
+                    },
+                    "last_name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "type": "string"
+                    },
+                    "department": {
+                        "type": "string"
+                    },
+                    "seniority": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "profiles": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Organisation_SocialProfile"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "Organisation_Segment": {
+                "required": [
+                    "uuid",
+                    "name"
+                ],
+                "properties": {
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Hot leads"
+                    }
+                },
+                "type": "object"
+            },
+            "Organisation_SocialProfile": {
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Twitter"
+                    },
+                    "handle": {
+                        "type": "string",
+                        "example": "@pirateinc",
+                        "nullable": true
+                    },
+                    "url": {
+                        "type": "string",
+                        "example": "https://twitter.com/pirateinc",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "TrackingScript_TrackingScript": {
+                "required": [
+                    "tracking_script_id",
+                    "internal_identifier",
+                    "active"
+                ],
+                "properties": {
+                    "tracking_script_id": {
+                        "type": "string"
+                    },
+                    "internal_identifier": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "domains": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "example.com"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "TrackingScript_TrackingScriptFilter": {
+                "required": [
+                    "uuid",
+                    "filter_value"
+                ],
+                "properties": {
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "tracking_script_filter_field": {
+                        "$ref": "#/components/schemas/TrackingScript_TrackingScriptFilterField"
+                    },
+                    "tracking_script_filter_type": {
+                        "$ref": "#/components/schemas/TrackingScript_TrackingScriptFilterType"
+                    },
+                    "filter_value": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "TrackingScript_RadarFeatures": {
+                "required": [
+                    "form_tracking",
+                    "click_tracking",
+                    "download_tracking"
+                ],
+                "properties": {
+                    "form_tracking": {
+                        "description": "Capture form submissions and abandons",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "click_tracking": {
+                        "description": "Capture link clicks",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "download_tracking": {
+                        "description": "Capture file downloads",
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "TrackingScript_TrackingScriptUsage": {
+                "required": [
+                    "tracking_script_id",
+                    "event_usage"
+                ],
+                "properties": {
+                    "tracking_script_id": {
+                        "type": "string"
+                    },
+                    "event_usage": {
+                        "type": "number"
+                    }
+                },
+                "type": "object"
+            },
+            "TrackingScript_Usage": {
+                "required": [
+                    "event_usage",
+                    "usage_cycle_from",
+                    "usage_cycle_to",
+                    "tracking_script_usages"
+                ],
+                "properties": {
+                    "event_usage": {
+                        "type": "number"
+                    },
+                    "usage_cycle_from": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "usage_cycle_to": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "tracking_script_usages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TrackingScript_TrackingScriptUsage"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "Value_Address": {
+                "required": [
+                    "street",
+                    "address",
+                    "full_address",
+                    "city",
+                    "state"
+                ],
+                "properties": {
+                    "street": {
+                        "type": "string",
+                        "example": "Hollywood Blvd"
+                    },
+                    "street_number": {
+                        "type": "string",
+                        "example": "123",
+                        "nullable": true
+                    },
+                    "postal_code": {
+                        "type": "string",
+                        "example": "90028",
+                        "nullable": true
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "Hollywood Blvd 123"
+                    },
+                    "full_address": {
+                        "type": "string",
+                        "example": "Hollywood Blvd 123, Los Angeles, California, US"
+                    },
+                    "city": {
+                        "type": "string",
+                        "example": "Los Angeles"
+                    },
+                    "state": {
+                        "type": "string",
+                        "example": "California"
+                    },
+                    "country": {
+                        "type": "string",
+                        "example": "US",
+                        "nullable": true
+                    },
+                    "latitude": {
+                        "type": "number",
+                        "example": "34.0522",
+                        "nullable": true
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "example": "-118.2437",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Value_Location": {
+                "required": [
+                    "city",
+                    "state"
+                ],
+                "properties": {
+                    "city": {
+                        "type": "string",
+                        "example": "Los Angeles"
+                    },
+                    "state": {
+                        "type": "string",
+                        "example": "California"
+                    },
+                    "country": {
+                        "type": "string",
+                        "example": "US",
+                        "nullable": true
+                    },
+                    "latitude": {
+                        "type": "number",
+                        "example": "34.0522",
+                        "nullable": true
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "example": "-118.2437",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Workspace_Workspace": {
+                "required": [
+                    "uuid",
+                    "name",
+                    "url",
+                    "tracking_script_id",
+                    "tracking_script_snippet",
+                    "available_tags"
+                ],
+                "properties": {
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "ACME Inc."
+                    },
+                    "url": {
+                        "type": "string",
+                        "example": "https://acme.com"
+                    },
+                    "tracking_script_id": {
+                        "type": "string",
+                        "example": "s123456789"
+                    },
+                    "tracking_script_snippet": {
+                        "type": "string",
+                        "example": "<script>...</script>"
+                    },
+                    "available_tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "marketing",
+                            "design"
+                        ]
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/Workspace_Status"
+                    },
+                    "usage_limit": {
+                        "type": "number",
+                        "example": "1000",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Subscription_ContactCreditsPlan": {
+                "required": [
+                    "currency",
+                    "credits",
+                    "period"
+                ],
+                "properties": {
+                    "currency": {
+                        "type": "string",
+                        "example": "eur"
+                    },
+                    "credits": {
+                        "description": "Credits the package adds per period",
+                        "type": "integer",
+                        "example": 500
+                    },
+                    "period": {
+                        "type": "string",
+                        "enum": [
+                            "monthly",
+                            "yearly"
+                        ],
+                        "example": "monthly"
+                    }
+                },
+                "type": "object"
+            },
+            "Subscription_ContactCreditsPackage": {
+                "required": [
+                    "status",
+                    "plan",
+                    "on_grace_period"
+                ],
+                "properties": {
+                    "status": {
+                        "description": "Stripe subscription status of the package",
+                        "type": "string",
+                        "example": "active"
+                    },
+                    "ends_at": {
+                        "description": "When a cancelled package stops adding credits",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "plan": {
+                        "$ref": "#/components/schemas/Subscription_ContactCreditsPlan"
+                    },
+                    "on_grace_period": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "Subscription_ContactCredits": {
+                "required": [
+                    "used",
+                    "total",
+                    "remaining",
+                    "free_credits",
+                    "email_credits_used",
+                    "phone_credits_used"
+                ],
+                "properties": {
+                    "cycle_starts_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-09T00:00:00+00:00",
+                        "nullable": true
+                    },
+                    "cycle_ends_at": {
+                        "description": "When the cycle's usage resets",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-10-09T00:00:00+00:00",
+                        "nullable": true
+                    },
+                    "used": {
+                        "description": "Credits consumed in the current cycle",
+                        "type": "integer",
+                        "example": 100
+                    },
+                    "total": {
+                        "description": "Credits available per cycle: the plan's free credits plus any purchased package",
+                        "type": "integer",
+                        "example": 600
+                    },
+                    "remaining": {
+                        "type": "integer",
+                        "example": 500
+                    },
+                    "package": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Subscription_ContactCreditsPackage"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "The purchased credit package, or null when the workspace only has the credits included in its plan"
+                    },
+                    "free_credits": {
+                        "description": "Credits included in the plan each cycle",
+                        "type": "integer",
+                        "example": 100
+                    },
+                    "email_credits_used": {
+                        "type": "integer",
+                        "example": 60
+                    },
+                    "phone_credits_used": {
+                        "description": "Phone reveals expressed in credits (a phone reveal costs 5 credits)",
+                        "type": "integer",
+                        "example": 40
+                    }
+                },
+                "type": "object"
+            },
+            "Organisation_EmployeeRange": {
+                "type": "string",
+                "enum": [
+                    "1-10 employees",
+                    "11-50 employees",
+                    "51-200 employees",
+                    "201-500 employees",
+                    "501-1000 employees",
+                    "1001-5000 employees",
+                    "5001-10,000 employees",
+                    "10,001+ employees"
+                ]
+            },
+            "TrackingScript_TrackingScriptFilterField": {
+                "type": "string",
+                "enum": [
+                    "country",
+                    "url"
+                ]
+            },
+            "TrackingScript_TrackingScriptFilterType": {
+                "type": "string",
+                "enum": [
+                    "blacklist",
+                    "whitelist"
+                ]
+            },
+            "Workspace_Status": {
+                "type": "string",
+                "enum": [
+                    "active",
+                    "inactive",
+                    "on_trial"
+                ]
+            },
+            "CustomField": {
+                "title": "Custom Field",
+                "description": "A custom field definition for organisations",
+                "properties": {
+                    "identifier": {
+                        "description": "The unique identifier of the field",
+                        "type": "string",
+                        "example": "industry"
+                    },
+                    "key": {
+                        "description": "The machine-readable key of the field",
+                        "type": "string",
+                        "example": "industry"
+                    },
+                    "name": {
+                        "description": "The human-readable name of the field",
+                        "type": "string",
+                        "example": "Industry"
+                    },
+                    "entity_type": {
+                        "description": "The entity type the field belongs to",
+                        "type": "string",
+                        "example": "organisation"
+                    },
+                    "type": {
+                        "description": "The data type of the field",
+                        "type": "string",
+                        "example": "text"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "The primary industry of the company.",
+                        "nullable": true
+                    },
+                    "group": {
+                        "description": "The group the field belongs to",
+                        "type": "string",
+                        "example": "custom"
+                    },
+                    "is_visible": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "source": {
+                        "description": "The source of the field",
+                        "type": "string",
+                        "example": "manual"
+                    },
+                    "rules": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "is_system": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "visible_in_spotter": {
+                        "description": "Whether this field's values are exposed in the Spotter API response",
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "CustomFieldValue": {
+                "title": "Custom Field Value",
+                "description": "A custom field value set on an organisation",
+                "properties": {
+                    "field_identifier": {
+                        "description": "The identifier of the field",
+                        "type": "string",
+                        "example": "industry"
+                    },
+                    "field_key": {
+                        "description": "The machine-readable key of the field",
+                        "type": "string",
+                        "example": "industry"
+                    },
+                    "field_type": {
+                        "description": "The data type of the field",
+                        "type": "string",
+                        "example": "text"
+                    },
+                    "value": {
+                        "description": "The value of the field",
+                        "example": "Technology"
+                    },
+                    "source": {
+                        "description": "The source of the value",
+                        "type": "string",
+                        "example": "manual"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-01-01T00:00:00Z",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Pagination": {
+                "properties": {
+                    "current_page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "last_page": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "per_page": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "total": {
+                        "type": "integer",
+                        "example": 150
+                    },
+                    "next_page_url": {
+                        "type": "string",
+                        "example": "https://api.example.com/v1/workspaces?page=2",
+                        "nullable": true
+                    },
+                    "prev_page_url": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "first_page_url": {
+                        "type": "string",
+                        "example": "https://api.example.com/v1/workspaces?page=1",
+                        "nullable": true
+                    },
+                    "last_page_url": {
+                        "type": "string",
+                        "example": "https://api.example.com/v1/workspaces?page=10",
+                        "nullable": true
+                    },
+                    "path": {
+                        "type": "string",
+                        "example": "https://api.example.com/v1/workspaces",
+                        "nullable": true
+                    },
+                    "from": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "to": {
+                        "type": "integer",
+                        "example": 15,
+                        "nullable": true
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {}
+                    }
+                },
+                "type": "object"
+            },
+            "Location": {
+                "title": "Location",
+                "description": "Representation of an location in API responses",
+                "properties": {
+                    "country": {
+                        "description": "Maps an Organisation object to an API response.",
+                        "type": "string",
+                        "example": "US"
+                    },
+                    "state": {
+                        "type": "string",
+                        "example": "California"
+                    },
+                    "city": {
+                        "type": "string",
+                        "example": "Los Angeles"
+                    },
+                    "latitude": {
+                        "type": "number",
+                        "example": 34.0522
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "example": -118.2437
+                    }
+                },
+                "type": "object"
+            },
+            "Address": {
+                "title": "Address",
+                "description": "Representation of an address in API responses",
+                "properties": {
+                    "country": {
+                        "description": "Maps an Organisation object to an API response.",
+                        "type": "string",
+                        "example": "US"
+                    },
+                    "state": {
+                        "type": "string",
+                        "example": "California"
+                    },
+                    "city": {
+                        "type": "string",
+                        "example": "Los Angeles"
+                    },
+                    "latitude": {
+                        "type": "number",
+                        "example": 34.0522
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "example": -118.2437
+                    },
+                    "street": {
+                        "type": "string",
+                        "example": "Hollywood Blvd"
+                    },
+                    "street_number": {
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "postal_code": {
+                        "type": "string",
+                        "example": "90028"
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "Hollywood Blvd 123"
+                    },
+                    "full_address": {
+                        "type": "string",
+                        "example": "Hollywood Blvd 123, Los Angeles, California, US"
+                    }
+                },
+                "type": "object"
+            },
+            "OrganisationContact": {
+                "title": "Organisation contact",
+                "description": "Representation of an organisation contact",
+                "properties": {
+                    "uuid": {
+                        "description": "Maps an Organisation contact object to an API response.",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "john@pirateinc.com"
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "example": "John"
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "example": "Doe"
+                    },
+                    "position": {
+                        "type": "string",
+                        "example": "CEO"
+                    },
+                    "headline": {
+                        "type": "string",
+                        "example": "CEO at Pirate Inc."
+                    },
+                    "department": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "IT"
+                        ]
+                    },
+                    "seniority": {
+                        "type": "string",
+                        "example": "Senior"
+                    },
+                    "linkedin_url": {
+                        "type": "string",
+                        "example": "https://linkedin.com/in/johndoe"
+                    },
+                    "location": {
+                        "properties": {
+                            "city": {
+                                "type": "string",
+                                "example": "Amsterdam"
+                            },
+                            "state": {
+                                "type": "string",
+                                "example": "North Holland"
+                            },
+                            "country": {
+                                "type": "string",
+                                "example": "Netherlands"
+                            },
+                            "country_code": {
+                                "type": "string",
+                                "example": "NL"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "profiles": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "Twitter"
+                                },
+                                "handle": {
+                                    "type": "string",
+                                    "example": "@pirateinc"
+                                },
+                                "url": {
+                                    "type": "string",
+                                    "example": "https://twitter.com/pirateinc"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "Segment": {
+                "title": "Segment",
+                "description": "A representation of a segment",
+                "properties": {
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Segment name"
+                    }
+                },
+                "type": "object"
+            },
+            "Session": {
+                "title": "Session",
+                "description": "A representation of a session",
+                "properties": {
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "organisation_uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "visitor_uuid": {
+                        "description": "The visitor (client) ID of the browser this session belongs to, the same value the tracker sends as `anonymous_id` and Spotter returns. Stable per browser until its storage is cleared, and shared across every session of that visitor, so it can be joined against an ID minted client-side.",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    "started_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2021-01-01T00:00:00Z"
+                    },
+                    "ended_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2021-01-01T00:00:00Z"
+                    },
+                    "location": {
+                        "$ref": "#/components/schemas/Location"
+                    },
+                    "browser": {
+                        "description": "The browser used during the session",
+                        "type": "string",
+                        "example": "Chrome",
+                        "nullable": true
+                    },
+                    "referrer": {
+                        "description": "The referring URL from which the session originated",
+                        "type": "string",
+                        "example": "https://google.com",
+                        "nullable": true
+                    },
+                    "device_type": {
+                        "description": "The type of device used (e.g., desktop, mobile, tablet)",
+                        "type": "string",
+                        "example": "mobile",
+                        "nullable": true
+                    },
+                    "views": {
+                        "description": "Deprecated: Use `events` instead. Only contains pageview events.",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "visited_at": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "example": "2021-01-01T00:00:00Z"
+                                },
+                                "time_on_page": {
+                                    "type": "integer",
+                                    "example": 0
+                                },
+                                "url": {
+                                    "type": "string",
+                                    "example": "https://acme.com/page?foo=bar#baz"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "deprecated": true
+                    },
+                    "events": {
+                        "description": "All tracking events in the session (pageviews, form submissions, custom events, clicks, downloads)",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SessionEvent"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "SessionEvent": {
+                "title": "SessionEvent",
+                "description": "A tracking event within a session. Additional fields depend on event_type.",
+                "properties": {
+                    "event_type": {
+                        "description": "The type of event",
+                        "type": "string",
+                        "enum": [
+                            "pageview",
+                            "form_submit",
+                            "form_abandon",
+                            "track",
+                            "click",
+                            "download"
+                        ],
+                        "example": "pageview"
+                    },
+                    "url": {
+                        "description": "The URL where the event occurred",
+                        "type": "string",
+                        "example": "https://acme.com/pricing"
+                    },
+                    "triggered_at": {
+                        "description": "When the event was triggered",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2021-01-01T00:00:00Z"
+                    },
+                    "time_on_page": {
+                        "description": "Time spent on page in seconds (pageview only)",
+                        "type": "integer",
+                        "example": 45,
+                        "nullable": true
+                    },
+                    "form_id": {
+                        "description": "The form element ID (form_submit and form_abandon)",
+                        "type": "string",
+                        "example": "contact-form",
+                        "nullable": true
+                    },
+                    "form_name": {
+                        "description": "The form name (form_submit and form_abandon)",
+                        "type": "string",
+                        "example": "Contact Form",
+                        "nullable": true
+                    },
+                    "time_spent": {
+                        "description": "Seconds spent interacting with the form before leaving (form_abandon only)",
+                        "type": "integer",
+                        "example": 54,
+                        "nullable": true
+                    },
+                    "fields": {
+                        "description": "Form field values captured (form_submit and form_abandon)",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
+                    "name": {
+                        "description": "Event name (track, click, download only)",
+                        "type": "string",
+                        "example": "plan_selected",
+                        "nullable": true
+                    },
+                    "properties": {
+                        "description": "Event properties (track, click, download only)",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "FilterCondition": {
+                "required": [
+                    "field",
+                    "comparison"
+                ],
+                "properties": {
+                    "field": {
+                        "description": "The field to filter on.",
+                        "type": "string"
+                    },
+                    "comparison": {
+                        "description": "The comparison operator to use. The relative date comparisons (`less_than_x_units_ago`, `more_than_x_units_ago`) require a numeric `value` and a `unit`.",
+                        "type": "string",
+                        "enum": [
+                            "equal",
+                            "not_equal",
+                            "contains",
+                            "not_contains",
+                            "starts_with",
+                            "ends_with",
+                            "doesnt_start_with",
+                            "doesnt_end_with",
+                            "in",
+                            "not_in",
+                            "between",
+                            "not_between",
+                            "greater_than",
+                            "less_than",
+                            "greater_than_or_equal",
+                            "less_than_or_equal",
+                            "less_than_x_units_ago",
+                            "more_than_x_units_ago",
+                            "set",
+                            "not_set",
+                            "is_true",
+                            "is_false"
+                        ]
+                    },
+                    "value": {
+                        "description": "The value(s) for the comparison. Not required for `set` and `not_set`.",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                }
+                            }
+                        ]
+                    },
+                    "unit": {
+                        "description": "The date unit. Required for the relative date comparisons (`less_than_x_units_ago`, `more_than_x_units_ago`), not allowed otherwise.",
+                        "type": "string",
+                        "enum": [
+                            "second",
+                            "minute",
+                            "hour",
+                            "day",
+                            "week",
+                            "month",
+                            "year"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "FilterGroup": {
+                "required": [
+                    "operator",
+                    "conditions"
+                ],
+                "properties": {
+                    "operator": {
+                        "description": "The logical operator for the group. 'AND' means all conditions must match, 'OR' means at least one condition must match.",
+                        "type": "string",
+                        "enum": [
+                            "AND",
+                            "OR"
+                        ]
+                    },
+                    "conditions": {
+                        "description": "A list of filter conditions or nested filter groups.",
+                        "type": "array",
+                        "items": {
+                            "oneOf": [
+                                {
+                                    "$ref": "#/components/schemas/FilterCondition"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/FilterGroup"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "SetOrganisationCustomFieldValuesRequest": {
+                "title": "Set Organisation Custom Field Values Request",
+                "required": [
+                    "custom_fields"
+                ],
+                "properties": {
+                    "custom_fields": {
+                        "description": "Map of field key to value (at most 50 keys per request). Unknown keys are created automatically, with their type inferred from the value. Every value must be non-empty — sending an empty array does not clear a multi-select; use the DELETE custom-fields/{key} endpoint to remove a value.",
+                        "type": "object",
+                        "example": {
+                            "deal_size": 50000,
+                            "account_tier": "enterprise"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "StoreCustomFieldRequest": {
+                "title": "Store Custom Field Request",
+                "description": "Request body for creating a custom field definition",
+                "required": [
+                    "name",
+                    "type"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "The human-readable name of the field",
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Industry"
+                    },
+                    "type": {
+                        "description": "The data type of the field",
+                        "type": "string",
+                        "example": "text"
+                    },
+                    "key": {
+                        "description": "The machine-readable key. Must start with a lowercase letter and contain only lowercase letters, numbers, and underscores. Generated from the name when omitted.",
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "industry",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 1000,
+                        "example": "The primary industry of the company.",
+                        "nullable": true
+                    },
+                    "visible_in_spotter": {
+                        "description": "Expose this field's values in the Spotter API response. Off by default: exposed values become readable on your website by any script that can access the Spotter response.",
+                        "type": "boolean",
+                        "example": false,
+                        "nullable": true
+                    },
+                    "field_rules": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "type"
+                            ],
+                            "properties": {
+                                "type": {
+                                    "description": "The rule type",
+                                    "type": "string"
+                                },
+                                "config": {
+                                    "type": "object",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "key",
+                                "label"
+                            ],
+                            "properties": {
+                                "key": {
+                                    "type": "string",
+                                    "maxLength": 255,
+                                    "example": "technology"
+                                },
+                                "label": {
+                                    "type": "string",
+                                    "maxLength": 255,
+                                    "example": "Technology"
+                                },
+                                "color": {
+                                    "type": "string",
+                                    "maxLength": 50,
+                                    "example": "#FF0000",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "TagRequest": {
+                "title": "Tag Request",
+                "description": "Request parameters for creating a tag",
+                "properties": {
+                    "tag_name": {
+                        "description": "The name of the tag",
+                        "type": "string",
+                        "example": "Tag Name"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateCustomFieldRequest": {
+                "title": "Update Custom Field Request",
+                "description": "Request body for updating a custom field definition",
+                "properties": {
+                    "name": {
+                        "description": "The human-readable name of the field",
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Industry",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 1000,
+                        "example": "The primary industry of the company.",
+                        "nullable": true
+                    },
+                    "visible_in_spotter": {
+                        "description": "Expose this field's values in the Spotter API response. Omitted or null leaves the current setting unchanged; exposed values become readable on your website by any script that can access the Spotter response.",
+                        "type": "boolean",
+                        "example": false,
+                        "nullable": true
+                    },
+                    "field_rules": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "type"
+                            ],
+                            "properties": {
+                                "type": {
+                                    "description": "The rule type",
+                                    "type": "string"
+                                },
+                                "config": {
+                                    "type": "object",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "key",
+                                "label"
+                            ],
+                            "properties": {
+                                "key": {
+                                    "type": "string",
+                                    "maxLength": 255,
+                                    "example": "technology"
+                                },
+                                "label": {
+                                    "type": "string",
+                                    "maxLength": 255,
+                                    "example": "Technology"
+                                },
+                                "color": {
+                                    "type": "string",
+                                    "maxLength": 50,
+                                    "example": "#FF0000",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "Snitcher bearer token": {
+                "type": "http",
+                "description": "Enter your personal access token (PAT) to authenticate",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Workspaces",
+            "description": "Endpoints for managing workspaces, users and tags available in the workspace"
+        },
+        {
+            "name": "Organisations",
+            "description": "Endpoints for organisations"
+        },
+        {
+            "name": "Contacts",
+            "description": "Endpoints for organisation contacts"
+        },
+        {
+            "name": "Sessions",
+            "description": "Endpoints for sessions"
+        },
+        {
+            "name": "Custom Fields",
+            "description": "Endpoints for managing custom field definitions"
+        },
+        {
+            "name": "Custom Field Values",
+            "description": "Endpoints for managing custom field values on organisations"
+        },
+        {
+            "name": "Segments",
+            "description": "Endpoints for segments"
+        },
+        {
+            "name": "User",
+            "description": "Endpoints for authenticated user information"
+        }
+    ]
+}

@@ -19,9 +19,11 @@ import { FormPrScriptContext, type FormPrScript } from "@/components/reports/for
 import { FilingsTable } from "@/components/filings/filings-table";
 import { ModalScope } from "@/components/wells/swipe-up-modal";
 import { BUILD_MS } from "@/lib/rrc/form-pr/actions";
-import { filer, filingRows, septemberFormPr } from "@/lib/screens/filings-fixture";
+import type { FilingRow } from "@/lib/rrc/forms/types";
+import { PR_CYCLE, filer, filingRows, septemberFormPr } from "@/lib/screens/filings-fixture";
 import { useDemoActive } from "../../demo-active";
 import { ScreenPanel } from "../../panel";
+import { DemoCursor, centreOf, type CursorPoint } from "../recon/cursor";
 
 /** One beat of a screen: what it does on arrival, and how long it holds. */
 interface Step {
@@ -247,11 +249,106 @@ export function FormPrFileScreen() {
   return <Scripted steps={FILE_STEPS} w={1400} h={760} />;
 }
 
-/** The docket: twelve ended cycles, September generated. */
+type DocketPhase = "owed" | "aim" | "generate" | "review" | "aimClose" | "close" | "filed";
+const DOCKET_ORDER: readonly DocketPhase[] = ["owed", "aim", "generate", "review", "aimClose", "close", "filed"];
+const DOCKET_HOLD: Record<DocketPhase, number> = {
+  owed: 1500,
+  aim: 900,
+  generate: BUILD_MS + RISE_MS + 200,
+  review: 3400,
+  aimClose: 900,
+  close: DROP_MS + 300,
+  filed: 4400,
+};
+
+/** The docket with September still owed: no file, nothing generated. */
+function owedRows(): FilingRow[] {
+  return filingRows().map((r) =>
+    r.period === PR_CYCLE ? { ...r, id: null, status: "draft", fileName: null, generatedAt: null } : r
+  );
+}
+
+/** A button in September's row whose label is `label`. */
+function septemberButton(root: HTMLElement | null, label: string) {
+  for (const tr of root?.querySelectorAll("tbody tr") ?? []) {
+    if (!tr.textContent?.includes(septemberFormPr().summary.month)) continue;
+    for (const b of tr.querySelectorAll<HTMLElement>("button")) {
+      if (b.textContent?.trim() === label) return b;
+    }
+  }
+  return null;
+}
+
+/**
+ * The docket, played: twelve ended cycles with September still owed; the
+ * cursor presses its Generate, the row builds and the review rises over the
+ * docket; Close drops it, and September is on file as Generated with its EDI.
+ */
 export function FilingsDocketScreen() {
+  const active = useDemoActive();
+  const [at, setAt] = useState(0);
+  const [loop, setLoop] = useState(0);
+  const [cursor, setCursor] = useState<(CursorPoint & { down: boolean }) | null>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const phase = DOCKET_ORDER[at];
+
+  useEffect(() => {
+    if (!active) return;
+    const id = setTimeout(() => {
+      if (at === DOCKET_ORDER.length - 1) setLoop((n) => n + 1);
+      setAt((a) => (a + 1) % DOCKET_ORDER.length);
+    }, DOCKET_HOLD[phase]);
+    return () => clearTimeout(id);
+  }, [active, at, phase]);
+
+  useEffect(() => {
+    const el = root.current;
+    const frame = requestAnimationFrame(() => {
+      const close = () => (el ? dialogOf(el)?.querySelector<HTMLElement>('button[aria-label="Close"]') : null);
+      switch (phase) {
+        case "owed":
+          setCursor(null);
+          break;
+        case "aim": {
+          const p = centreOf(septemberButton(el, "Generate"));
+          if (p) setCursor({ ...p, down: false });
+          break;
+        }
+        case "generate":
+          click(septemberButton(el, "Generate"));
+          setCursor((c) => (c ? { ...c, down: true } : c));
+          break;
+        case "review":
+          // Off the button while the review reads; it rose under the cursor.
+          setCursor((c) => (c ? { x: c.x - 260, y: c.y + 140, down: false } : c));
+          break;
+        case "aimClose": {
+          const p = centreOf(close());
+          if (p) setCursor({ ...p, down: false });
+          break;
+        }
+        case "close":
+          click(close());
+          setCursor((c) => (c ? { ...c, down: true } : c));
+          break;
+        case "filed": {
+          const p = centreOf(septemberButton(el, "View"));
+          if (p) setCursor({ x: p.x - 200, y: p.y + 40, down: false });
+          break;
+        }
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [phase]);
+
   return (
     <ScreenPanel w={1200} h={780} path="/filings">
-      <FilingsTable rows={filingRows()} filer={filer} canManage />
+      <ModalScope>
+        <div ref={root} className="flex flex-1 flex-col [&_*]:no-scrollbar">
+          <FilingsTable key={loop} rows={phase === "filed" ? filingRows() : owedRows()} filer={filer} canManage />
+        </div>
+      </ModalScope>
+      {cursor && <DemoCursor {...cursor} />}
     </ScreenPanel>
   );
 }

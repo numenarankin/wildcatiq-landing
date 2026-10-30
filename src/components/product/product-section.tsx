@@ -10,6 +10,7 @@ import type { FeatureSlug } from "@/lib/site";
 import type { ProductSection } from "@/lib/product/types";
 import { useSectionScreen } from "@/components/screens/product";
 import { Container, Eyebrow } from "@/components/home/sections";
+import { DemoActiveProvider } from "@/components/screens/demo-active";
 
 function Cards({ cards, columns }: { cards: ProductSection["cards"]; columns: string }) {
   return (
@@ -49,8 +50,11 @@ export function ProductSectionBlock({ slug, section, index }: { slug: FeatureSlu
                 <Cards cards={section.cards} columns="sm:grid-cols-2" />
               </div>
             </div>
-            <div className="flex justify-center" data-screen={section.screen}>
-              <Phone />
+            {/* The demo runs while it is on screen, so its loop starts when it is reached. */}
+            <div data-screen={section.screen}>
+              <DemoActiveProvider demo={`${slug}:${section.screen}`} className="flex justify-center">
+                <Phone />
+              </DemoActiveProvider>
             </div>
           </div>
         </Container>
@@ -67,8 +71,14 @@ export function ProductSectionBlock({ slug, section, index }: { slug: FeatureSlu
           <Cards cards={section.cards} columns="sm:grid-cols-2 lg:grid-cols-3" />
         </div>
         {Screen ? (
-          <div data-screen={section.screen} className="mt-12 overflow-hidden rounded-xl border border-border bg-white shadow-[0_24px_60px_-24px_rgba(0,0,0,0.25)]">
-            <Screen />
+          // The demo runs while it is on screen, so its loop starts when it is reached.
+          <div data-screen={section.screen}>
+            <DemoActiveProvider
+              demo={`${slug}:${section.screen}`}
+              className="mt-12 -mx-3 overflow-hidden rounded-xl border border-border bg-white shadow-[0_24px_60px_-24px_rgba(0,0,0,0.25)] sm:mx-0"
+            >
+              <Screen />
+            </DemoActiveProvider>
           </div>
         ) : null}
       </Container>

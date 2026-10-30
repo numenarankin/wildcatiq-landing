@@ -6,18 +6,18 @@
  *
  * - reads / rrc / context: a page with the drawer's `ChatPanel` docked beside
  *   it (Dashboard, Recon, Facilities), one answered question each.
- * - math / logs / attach: the /orion page (`OrionConversationList` + `OrionChat`)
+ * - math / attach: the /orion page (`OrionConversationList` + `OrionChat`)
  *   playing a thread forward on a loop (`scripted-thread.tsx`): a decline
  *   chart worked, a LAS log interpreted, or a photo sent in, read and carded.
- * - approval: the `ApprovalCard` alone, pending.
+ * - approval: the `ApprovalCard` alone, arriving, approved, and saved.
  * - memory: Settings > AI > Orion (`OrionContextEditor`), history open.
  * - voice: `VoiceOverlay` over the dashboard, a gauge said aloud.
  * - permissions: Settings > AI > Permissions (`AiPermissionsTable`).
  */
-import { useState } from "react";
-import { DashboardOverview } from "@/components/analytics/dashboard-overview";
-import { ProductionByWellPie } from "@/components/analytics/production-by-well-pie";
-import { ApprovalCard, pendingApprovals } from "@/components/ai/tool-approval";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { DashboardPageBody } from "@/components/screens/dashboard-live";
+import { ApprovalCard, OutcomeCard, pendingApprovals, settledWrites } from "@/components/ai/tool-approval";
 import { VoiceOverlay } from "@/components/ai/voice-overlay";
 import { PermissionsProvider } from "@/components/auth/permissions-context";
 import { FacilitiesFlowMap } from "@/components/facilities/flow-map";
@@ -25,10 +25,10 @@ import { MapFilters, type Filters } from "@/components/scout/map-filters";
 import { AiPermissionsTable } from "@/components/settings/ai-permissions-table";
 import { OrionContextEditor } from "@/components/settings/orion-context-editor";
 import { ScreenPanel } from "@/components/screens/panel";
+import { useDemoActive } from "@/components/screens/demo-active";
 import { ReconMap } from "@/components/screens/recon-map";
 import { DEFAULT_OFF } from "@/lib/ai/tool-permissions";
 import { nodeId } from "@/lib/facilities/graph";
-import { dashboardFixture } from "@/lib/screens/dashboard-fixture";
 import {
   LEASES as FLOW_LEASES,
   flowMapCatalog,
@@ -48,36 +48,17 @@ import {
   t201FeedThread,
   voiceTurns,
 } from "@/lib/screens/orion-fixture";
-import { smith4LogThread } from "@/lib/screens/orion-las-fixture";
 import { reconFilters, reconPrices, A3_LNG_LAT } from "@/lib/screens/recon-fixture";
+import { DemoCursor, centreOf, type CursorPoint } from "../recon/cursor";
 import { OrionDrawerScreen } from "./drawer";
 import { ScriptedOrionPage } from "./scripted-thread";
-
-function Dashboard() {
-  const fx = dashboardFixture();
-  return (
-    <DashboardOverview
-      {...fx.cards}
-      monthly={fx.monthly}
-      byWellMonthly={fx.byWellMonthly}
-      dailyByWell={fx.dailyByWell}
-      prices={fx.prices}
-      nriByLease={fx.nriByLease}
-      companyNri={fx.companyNri}
-      leaseRows={fx.leaseRows}
-      wellRows={fx.wellRows}
-      chartLeases={fx.chartLeases}
-      pie={<ProductionByWellPie wells={fx.pieWells} leaseByWell={fx.leaseByWell} />}
-    />
-  );
-}
 
 /** 1. Reads your operation: the Dashboard with Smith's September answered in the drawer. */
 export function OrionReadsScreen() {
   const [conversation] = useState(smithSeptemberThread);
   return (
-    <OrionDrawerScreen path="/dashboard" conversation={conversation} pagePad>
-      <Dashboard />
+    <OrionDrawerScreen path="/dashboard" crumbs={["Dashboard"]} conversation={conversation} pagePad>
+      <DashboardPageBody />
     </OrionDrawerScreen>
   );
 }
@@ -88,7 +69,7 @@ export function OrionRrcScreen() {
   const [conversation] = useState(offsetsThread);
   const [filters, setFilters] = useState<Filters>({ ...reconFilters, mode: "wells" });
   return (
-    <OrionDrawerScreen path="/recon" conversation={conversation}>
+    <OrionDrawerScreen path="/recon" crumbs={["Recon"]} conversation={conversation}>
       <div className="flex h-full w-full flex-col">
         <MapFilters
           filters={filters}
@@ -102,7 +83,7 @@ export function OrionRrcScreen() {
           onChange={setFilters}
         />
         <div className="relative min-h-0 flex-1">
-          <ReconMap center={A3_LNG_LAT} zoom={12.2} basemap="map" pin={{ lngLat: A3_LNG_LAT, color: "#111827", label: "Johnson A 3" }} />
+          <ReconMap center={A3_LNG_LAT} zoom={12.2} basemap="satellite" pin={{ lngLat: A3_LNG_LAT, color: "#111827", label: "Johnson A 3" }} />
         </div>
       </div>
     </OrionDrawerScreen>
@@ -115,19 +96,13 @@ export function OrionMathScreen() {
   return <ScriptedOrionPage conversation={conversation} />;
 }
 
-/** Reads your logs: Smith 4's LAS attached from Files, read whole, tops and pay worked. */
-export function OrionLogsScreen() {
-  const [conversation] = useState(smith4LogThread);
-  return <ScriptedOrionPage conversation={conversation} holdMs={8000} />;
-}
-
 const flowGraph = flowMapGraph();
 
 /** 4. Knows the page: the Facilities flow map on Smith, asked what feeds T201. */
 export function OrionContextScreen() {
   const [conversation] = useState(t201FeedThread);
   return (
-    <OrionDrawerScreen path="/facilities" conversation={conversation}>
+    <OrionDrawerScreen path="/facilities" crumbs={["Facilities"]} conversation={conversation}>
       <PermissionsProvider permissions={["view_facilities", "manage_facilities", "manage_leases"]}>
         <FacilitiesFlowMap
           graph={flowGraph}
@@ -146,16 +121,101 @@ function pendingOf(part: ReturnType<typeof smithReadingPart>) {
   return pendingApprovals({ id: "m", role: "assistant", parts: [part] })[0];
 }
 
-/** 5. Asks before it writes: the approval card on its own, waiting. */
+type ApprovalPhase = "empty" | "arrive" | "aim" | "press" | "approved" | "fade";
+const APPROVAL_ORDER: readonly ApprovalPhase[] = ["empty", "arrive", "aim", "press", "approved", "fade"];
+const APPROVAL_HOLD: Record<ApprovalPhase, number> = {
+  empty: 900,
+  arrive: 3400,
+  aim: 900,
+  press: 600,
+  approved: 3800,
+  fade: 450,
+};
+
+/**
+ * 5. Asks before it writes: the approval card played as the chat shows it.
+ * The card arrives, the cursor reads down it to Approve and presses the
+ * card's own button, and the card turns into the saved outcome the thread
+ * shows once the write has run (`OutcomeCard`, as `scripted-thread.tsx`
+ * settles an approved call).
+ */
 export function OrionApprovalScreen() {
+  const active = useDemoActive();
   const [request] = useState(() => pendingOf(smithReadingPart("pending")));
+  const [saved] = useState(() => settledWrites({ id: "m", role: "assistant", parts: [smithReadingPart("saved")] })[0]);
+  const [at, setAt] = useState(0);
+  const [approved, setApproved] = useState(false);
+  const [cursor, setCursor] = useState<(CursorPoint & { down: boolean }) | null>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const phase = APPROVAL_ORDER[at];
+
+  useEffect(() => {
+    if (!active) return;
+    const id = setTimeout(() => setAt((a) => (a + 1) % APPROVAL_ORDER.length), APPROVAL_HOLD[phase]);
+    return () => clearTimeout(id);
+  }, [active, phase]);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const approve = Array.from(root.current?.querySelectorAll("button") ?? []).find(
+        (b) => b.textContent?.trim() === "Approve"
+      );
+      switch (phase) {
+        case "empty":
+          setApproved(false);
+          setCursor(null);
+          break;
+        case "arrive": {
+          // In from below the card, where the reader's eye starts.
+          const p = centreOf(root.current);
+          if (p) setCursor({ x: p.x + 180, y: p.y + 120, down: false });
+          break;
+        }
+        case "aim": {
+          const p = centreOf(approve);
+          if (p) setCursor({ ...p, down: false });
+          break;
+        }
+        case "press":
+          setCursor((c) => (c ? { ...c, down: true } : c));
+          approve?.click();
+          break;
+        case "approved":
+          setCursor((c) => (c ? { x: c.x + 90, y: c.y + 40, down: false } : c));
+          break;
+        case "fade":
+          setCursor(null);
+          break;
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [phase]);
+
+  const shown = phase !== "empty";
   return (
     <ScreenPanel w={760} h={300} path="/orion">
-      <div className="flex flex-1 items-center justify-center">
+      <div ref={root} className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-[560px]">
-          <ApprovalCard request={request} onApprove={() => {}} onDeny={() => {}} />
+          <AnimatePresence mode="wait">
+            {shown && phase !== "fade" ? (
+              <motion.div
+                key={approved ? "saved" : "pending"}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.35, ease: [0.22, 0.61, 0.36, 1] }}
+              >
+                {approved ? (
+                  <OutcomeCard write={saved} />
+                ) : (
+                  <ApprovalCard request={request} onApprove={() => setApproved(true)} onDeny={() => {}} />
+                )}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </div>
       </div>
+      {cursor && <DemoCursor {...cursor} />}
     </ScreenPanel>
   );
 }
@@ -183,7 +243,7 @@ export function OrionVoiceScreen() {
   return (
     <ScreenPanel w={1320} h={820} path="/dashboard" pad={false}>
       <div className="h-full w-full overflow-hidden px-10 py-6">
-        <Dashboard />
+        <DashboardPageBody />
       </div>
       <VoiceOverlay status="speaking" lastUser={turns.user} liveReply={turns.reply} liveActive pendingApprovals={pending} readOut={() => {}} onClose={() => {}} />
     </ScreenPanel>

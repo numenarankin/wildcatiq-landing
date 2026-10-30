@@ -489,7 +489,13 @@ export const wellOptions: WellOption[] = WELLS.map((w) => ({ id: w.id, name: w.n
 /** The photo of Smith T201's gauge sheet a pumper uploads through Add History. */
 export const GAUGE_SHEET_FILE = "smith-t201-gauge-sheet-2026-10.jpg";
 export const GREASEBOOK_FILE = "greasebook-smith-t201-2026-09.xlsx";
-export const CORBETT_TICKET_FILE = "brazos-bend-well-service-ticket-20417.pdf";
+/**
+ * The pulling-unit ticket as Luis filed it from the phone's Files scanner (one
+ * PDF of its two pages, in Scans: `documents-files-fixture.ts` SCANNED_TICKET),
+ * the name he typed plus the ".pdf" the scanner adds.
+ */
+export const CORBETT_TICKET_NAME = "Brazos Bend ticket 20417";
+export const CORBETT_TICKET_FILE = `${CORBETT_TICKET_NAME}.pdf`;
 
 const smithTank = () => leaseTank("l-smith");
 

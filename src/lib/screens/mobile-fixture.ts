@@ -100,7 +100,6 @@ function build() {
       closeIn,
       bbl: (openIn - closeIn) * runTank.bblPerInch,
     },
-    offline: { pending: 3 },
     note: { well: WELLS.find((w) => w.id === "w-s4")!, body: "Smith 4 pumping off, cut time 2 hrs" },
     members: { owner: OPERATOR.owner, pumper: OPERATOR.pumper },
   };

@@ -430,7 +430,7 @@ export function CropReviewModal({
 
   const kept = items.filter((it) => !it.skipped).length;
   const hint = detecting
-    ? "Looking for the page — drag the corners now if you'd rather place them yourself."
+    ? "Looking for the page. Drag the corners now if you'd rather place them yourself."
     : current?.detection?.reject
       ? describeReject(current.detection.reject)
       : current?.mode === "crop"

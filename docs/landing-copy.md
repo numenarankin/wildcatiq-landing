@@ -86,15 +86,17 @@ Body: Nearly a million Texas wellbores, with their leases, permits, orphan wells
 
 Screen: Recon map with a permit panel open.
 
-## 7. Documents
+## 7. Log analysis
 
-Eyebrow: Documents
+Replaced Documents on the home page (2026-10-29). Documents keeps its product page. The link goes to the Orion page, which carries the log screen.
 
-Headline: Your paperwork becomes your records.
+Eyebrow: Log analysis
 
-Body: Drop in a run ticket, purchaser statement, vendor invoice, gauge sheet or last year's production report. Orion reads it, builds the rows, flags duplicates and hands you an approval card. Lease terms, expirations and rentals live on the lease, with their dates tracked. PDFs and photos are OCR'd and Orion can search them.
+Headline: Tops and pay from the LAS itself.
 
-Screen: Drop zone with an extracted statement and the approval grid.
+Body: Open a LAS in a project and it draws as a triple combo: gamma ray, resistivity and density against depth. Ask Orion about it and it reads every row of the file in one call, picks the tops, works porosity and net pay on cutoffs it states, and names the zone behind pipe worth shooting. Every depth it quotes is in the file.
+
+Screen: The Smith 4 recompletion project. Files tab, the LAS opened in the log viewer and zoomed to the zone behind pipe, then the Orion tab: the question with the log attached, read_las_full, the tops and zone tables, the porosity-feet chart and the recompletion call.
 
 ## 8. Reports
 

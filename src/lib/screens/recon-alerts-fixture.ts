@@ -26,11 +26,11 @@ export const reconAlerts: ReconAlert[] = [
     countyCodes: [YOUNG, JACK],
     kinds: ["pending_permit", "permit", "well"],
     frequency: "daily",
-    sendHour: 6,
+    sendHour: 7,
     timezone: "America/Chicago",
     enabled: true,
     cursorAt: "2026-10-26T05:12:00Z",
-    nextDueAt: "2026-10-28T11:00:00Z",
+    nextDueAt: "2026-10-28T12:00:00Z",
   },
 ];
 
