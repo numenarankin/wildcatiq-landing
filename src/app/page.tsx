@@ -1,3 +1,4 @@
+import { DEV_ONLY_VISIBLE } from "@/lib/dev-only";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import {
@@ -30,7 +31,7 @@ export default function Home() {
       })}
       <GettingStarted />
       <Comparison />
-      <PricingSummary />
+      {DEV_ONLY_VISIBLE && <PricingSummary />}
       <Security />
       <Faq />
       <ClosingCta />

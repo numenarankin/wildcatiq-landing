@@ -48,7 +48,7 @@ export default async function SolutionPage({ params }: { params: Promise<Params>
               <ButtonLink href={SIGN_UP_URL} external size="lg">
                 Get started <ArrowIcon className="h-4 w-4" aria-hidden />
               </ButtonLink>
-              <ButtonLink href={BOOK_DEMO_URL} external variant="outline" size="lg">
+              <ButtonLink href={BOOK_DEMO_URL} variant="outline" size="lg">
                 Book a demo
               </ButtonLink>
             </div>

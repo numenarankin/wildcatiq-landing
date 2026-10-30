@@ -24,7 +24,7 @@ export default function ContactPage() {
             <p className="mt-6 max-w-md text-lg text-muted-foreground">
               Book a 30-minute demo, or send us a message and we will get back to you within one business day.
             </p>
-            <ButtonLink href={BOOK_DEMO_URL} external size="lg" className="mt-8">
+            <ButtonLink href={BOOK_DEMO_URL} size="lg" className="mt-8">
               Book a demo <ArrowIcon className="h-4 w-4" aria-hidden />
             </ButtonLink>
             <div className="mt-10 space-y-1 text-base text-muted-foreground">

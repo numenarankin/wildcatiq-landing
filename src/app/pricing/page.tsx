@@ -6,6 +6,7 @@ import { Container, Eyebrow, Faq, ClosingCta } from "@/components/home/sections"
 import { CheckCircleIcon } from "@/components/icons";
 import { PRICING_TIERS, INCLUDED_FEATURES } from "@/lib/pricing";
 import { CREDITS_FAQ } from "@/lib/site";
+import { devOnlyPage } from "@/lib/dev-only";
 
 export const metadata: Metadata = {
   title: "Pricing | WildcatIQ",
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default function PricingPage() {
+  devOnlyPage();
   return (
     <main>
       <SiteHeader />

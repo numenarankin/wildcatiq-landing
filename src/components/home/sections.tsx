@@ -39,7 +39,7 @@ export function Hero() {
             <ButtonLink href={SIGN_UP_URL} external size="lg">
               Get started <ArrowIcon className="h-4 w-4" aria-hidden />
             </ButtonLink>
-            <ButtonLink href={BOOK_DEMO_URL} external variant="outline" size="lg">
+            <ButtonLink href={BOOK_DEMO_URL} variant="outline" size="lg">
               Book a demo
             </ButtonLink>
           </Rise>
@@ -230,7 +230,7 @@ export function ClosingCta({ headline = "Ready to run the company from one place
           <ButtonLink href={SIGN_UP_URL} external size="lg">
             Get started <ArrowIcon className="h-4 w-4" aria-hidden />
           </ButtonLink>
-          <ButtonLink href={BOOK_DEMO_URL} external variant="outline" size="lg">
+          <ButtonLink href={BOOK_DEMO_URL} variant="outline" size="lg">
             Book a demo
           </ButtonLink>
         </div>

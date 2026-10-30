@@ -315,6 +315,33 @@ function tick() {
 
 /* ---- Sending ------------------------------------------------------------ */
 
+/** Where Snitcher's script keeps its visitor id (cookie and localStorage, JSON-encoded). */
+const SNITCHER_ID_KEY = "radar_device_id";
+
+/**
+ * Snitcher's own id for this browser, once its script has set it; null
+ * before then or where Snitcher does not run. It is the `visitor_uuid` on
+ * every Snitcher session, so carrying it on our visitor row is what links a
+ * company Snitcher identifies to this visitor.
+ */
+function snitcherVisitorId(): string | null {
+  const clean = (raw: string | null | undefined): string | null => {
+    if (!raw) return null;
+    let v = raw;
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (typeof parsed === "string") v = parsed;
+    } catch {
+      // Stored bare.
+    }
+    return /^[0-9a-f-]{8,64}$/i.test(v) ? v : null;
+  };
+  const stored = clean(store("local")?.getItem(SNITCHER_ID_KEY));
+  if (stored) return stored;
+  const cookie = document.cookie.split("; ").find((c) => c.startsWith(`${SNITCHER_ID_KEY}=`));
+  return cookie ? clean(decodeURIComponent(cookie.slice(SNITCHER_ID_KEY.length + 1))) : null;
+}
+
 function takeBatch(): TrackBatch | null {
   if (!session) return null;
   if (!sessionDirty && queue.length === 0 && dirtyPlays.size === 0) return null;
@@ -323,7 +350,14 @@ function takeBatch(): TrackBatch | null {
   const demo_views = [...dirtyPlays.values()].map((v) => ({ ...v }));
   dirtyPlays.clear();
   sessionDirty = false;
-  return { visitor_id: visitorId, session: { ...session }, events, demo_views };
+  const snitcher_visitor_id = snitcherVisitorId();
+  return {
+    visitor_id: visitorId,
+    ...(snitcher_visitor_id ? { snitcher_visitor_id } : {}),
+    session: { ...session },
+    events,
+    demo_views,
+  };
 }
 
 /** Put a batch that did not land back in line. */
@@ -421,11 +455,6 @@ export function startTracking(): void {
     else lastTick = Date.now();
   });
   window.addEventListener("pagehide", sendFinal);
-}
-
-/** This browser's anonymous id, once tracking has started; null where it never does. */
-export function trackedVisitorId(): string | null {
-  return started ? visitorId : null;
 }
 
 /** A demo came on screen and started from the top: a new play. */

@@ -44,6 +44,7 @@ const pct = z.number().min(0).max(100);
 
 const batchSchema = z.object({
   visitor_id: z.uuid(),
+  snitcher_visitor_id: z.string().regex(/^[0-9a-f-]{8,64}$/i).optional(),
   session: z.object({
     id: z.uuid(),
     started_at: iso,

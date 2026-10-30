@@ -7,7 +7,7 @@ export const SIGN_IN_URL = "https://app.wildcatiq.ai/auth";
 export const SIGN_UP_URL = "https://app.wildcatiq.ai/auth?mode=signup";
 
 /** Cal.com scheduling link for booking a product demo. */
-export const BOOK_DEMO_URL = "https://cal.com/rankin-wildcatiq/demo";
+export const BOOK_DEMO_URL = "/book";
 
 /** The public inbox, shown on the contact page. */
 export const CONTACT_EMAIL = "info@wildcatiq.ai";

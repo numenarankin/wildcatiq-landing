@@ -37,15 +37,15 @@ export function SiteFooter() {
         </Column>
 
         <Column title="Company">
-          <FooterLink href="/pricing">Pricing</FooterLink>
           <FooterLink href="/contact">Contact</FooterLink>
           {DEV_ONLY_VISIBLE && (
             <>
+              <FooterLink href="/pricing">Pricing</FooterLink>
               <FooterLink href="/security">Security</FooterLink>
               <FooterLink href="/privacy">Privacy</FooterLink>
             </>
           )}
-          <FooterLink href={BOOK_DEMO_URL} external>Book a demo</FooterLink>
+          <FooterLink href={BOOK_DEMO_URL}>Book a demo</FooterLink>
           <FooterLink href={SIGN_IN_URL} external>Sign in</FooterLink>
         </Column>
       </div>

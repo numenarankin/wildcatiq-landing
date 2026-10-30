@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
-import { SIGN_IN_URL, SIGN_UP_URL } from "@/lib/links";
+import { BOOK_DEMO_URL, SIGN_IN_URL, SIGN_UP_URL } from "@/lib/links";
 import { PRODUCT_MENU, SOLUTIONS, sectionHref } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { setDemosPaused } from "@/components/screens/demo-active";
@@ -137,15 +137,6 @@ export function SiteHeader() {
               </li>
               <li>
                 <Link
-                  href="/pricing"
-                  onClick={() => setOpen(null)}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/contact"
                   onClick={() => setOpen(null)}
                   className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -159,9 +150,15 @@ export function SiteHeader() {
           <div className="hidden items-center gap-2 md:flex">
             <a
               href={SIGN_IN_URL}
-              className="inline-flex items-center rounded-md border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-black/[0.03]"
+              className="inline-flex items-center px-3 py-2 text-sm font-semibold text-foreground transition-opacity hover:opacity-70"
             >
               Sign in
+            </a>
+            <a
+              href={BOOK_DEMO_URL}
+              className="inline-flex items-center rounded-md border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-black/[0.03]"
+            >
+              Book a demo
             </a>
             <a
               href={SIGN_UP_URL}
@@ -234,9 +231,6 @@ export function SiteHeader() {
                   </MobileLink>
                 ))}
               </MobileGroup>
-              <MobileLink href="/pricing" onClick={() => setMenuOpen(false)}>
-                Pricing
-              </MobileLink>
               <MobileLink href="/contact" onClick={() => setMenuOpen(false)}>
                 Contact
               </MobileLink>
@@ -246,6 +240,12 @@ export function SiteHeader() {
                   className="inline-flex items-center justify-center rounded-md border border-border px-4 py-2.5 text-sm font-semibold text-foreground"
                 >
                   Sign in
+                </a>
+                <a
+                  href={BOOK_DEMO_URL}
+                  className="inline-flex items-center justify-center rounded-md border border-border px-4 py-2.5 text-sm font-semibold text-foreground"
+                >
+                  Book a demo
                 </a>
                 <a
                   href={SIGN_UP_URL}
