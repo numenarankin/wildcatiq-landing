@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { busyForVisitor, mergeBusy } from "./availability";
-import { clearGeocodeCache, driveTimes, MATRIX_MAX } from "./mapbox";
+import { clearGeocodeCache, driveTimes, guessAddresses, MATRIX_MAX } from "./mapbox";
 import { resolveOffice } from "./place";
 
 // Run: npx tsx --tsconfig tsconfig.json --test src/lib/book/*.test.ts
@@ -93,12 +93,23 @@ describe("driveTimes", () => {
 });
 
 describe("resolveOffice", () => {
+  it("shows back Mapbox's full address for a typed one, so a typo reads correctly, and searches near the visitor", async () => {
+    stub((u) => {
+      assert.equal(u.searchParams.get("proximity"), "-97.25,32.93");
+      return { features: [{ geometry: { coordinates: [-97.25, 32.93] }, properties: { full_address: "805 Secretariat Trail, Keller, Texas 76248", context: { region: { region_code: "TX" } } } }] };
+    });
+    assert.deepEqual(await resolveOffice("805 secretarit trl keler", undefined, undefined, { lat: 32.93, lng: -97.25 }), {
+      lat: 32.93,
+      lng: -97.25,
+      address: "805 Secretariat Trail, Keller, Texas 76248",
+    });
+  });
   const geo = (state: string | null) => ({
     features: [{ geometry: { coordinates: [-97.33, 32.75] }, properties: { context: { region: { region_code: state } } } }],
   });
   it("accepts a typed Texas address and refuses one elsewhere or unknown", async () => {
     stub(() => geo("TX"));
-    assert.deepEqual(await resolveOffice("300 Throckmorton St, Fort Worth"), { lat: 32.75, lng: -97.33 });
+    assert.deepEqual(await resolveOffice("300 Throckmorton St, Fort Worth"), { lat: 32.75, lng: -97.33, address: "300 Throckmorton St, Fort Worth" });
     clearGeocodeCache();
     stub(() => geo("OK"));
     assert.equal(await resolveOffice("1 Main St, Tulsa"), "texas");
@@ -112,5 +123,18 @@ describe("resolveOffice", () => {
       return { features: [{ properties: { feature_type: "region", context: { region: { region_code: "NM" } } } }] };
     });
     assert.equal(await resolveOffice("1 Main St, Hobbs", 32.7, -103.1), "texas");
+  });
+});
+
+describe("guessAddresses", () => {
+  it("offers only Texas matches, nearest the visitor, without repeats", async () => {
+    stub((u) => {
+      assert.equal(u.searchParams.get("bbox"), "-106.65,25.84,-93.51,36.5");
+      assert.equal(u.searchParams.get("proximity"), "-97.33,32.75");
+      const f = (address: string, state: string) => ({ geometry: { coordinates: [-97, 32] }, properties: { full_address: address, context: { region: { region_code: state } } } });
+      return { features: [f("Secretariat Trail, Keller, Texas", "TX"), f("Secretariat Trail, Ardmore, Oklahoma", "OK"), f("Secretariat Trail, Keller, Texas", "TX"), f("Secretariat Trail, Longview, Texas", "TX")] };
+    });
+    const out = await guessAddresses("Secretariat Trail", { lat: 32.75, lng: -97.33 });
+    assert.deepEqual(out.map((g) => g.address), ["Secretariat Trail, Keller, Texas", "Secretariat Trail, Longview, Texas"]);
   });
 });

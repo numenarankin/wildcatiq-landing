@@ -20,6 +20,7 @@ const FIELD =
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const MEETING = "30m";
+const PHONE = "817.217.6250";
 const CARD_MOTION = { duration: 0.4, ease: [0.32, 0.72, 0, 1] as const };
 
 type Day = { y: number; m: number; d: number };
@@ -91,6 +92,8 @@ function Booking() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
+  /** "Did you mean...": Texas addresses near the visitor that match what they typed. */
+  const [guesses, setGuesses] = useState<PickedPlace[]>([]);
   const [step, setStep] = useState<"info" | "pick" | "confirm" | "done">("info");
   // The card takes the next step's size only once the old step has faded out.
   const [shown, setShown] = useState(step);
@@ -117,21 +120,27 @@ function Booking() {
   const shiftMonth = (n: number) => setView((v) => (v ? { y: new Date(v.y, v.m + n).getFullYear(), m: new Date(v.y, v.m + n).getMonth() } : v));
 
   /** Loads open times for the office; lands on the first open day. */
-  async function loadAvailability(): Promise<boolean> {
-    const body = await postJson<{ place?: Availability["place"]; days?: { date: string; slots: string[] }[]; error?: string }>(
-      "/api/book/availability",
-      { address: picked?.address ?? info.office, lat: picked?.lat, lng: picked?.lng, website },
-    );
-    if (body?.error === "address") {
-      setAddressError("We couldn't find that address.");
-      return false;
-    }
-    if (body?.error === "texas") {
-      setAddressError("On-site demos are in Texas only.");
+  async function loadAvailability(place: PickedPlace | null = picked): Promise<boolean> {
+    const body = await postJson<{
+      place?: Availability["place"];
+      days?: { date: string; slots: string[] }[];
+      error?: string;
+      suggestions?: PickedPlace[];
+    }>("/api/book/availability", { address: place?.address ?? info.office, lat: place?.lat, lng: place?.lng, website });
+    if (body?.error === "address" || body?.error === "texas") {
+      const found = body.suggestions ?? [];
+      setGuesses(found);
+      setAddressError(
+        body.error === "texas"
+          ? "On-site demos are in Texas only."
+          : found.length
+            ? "We couldn't find that exact address."
+            : "We couldn't find that address. Try adding the city, or pick one from the list as you type.",
+      );
       return false;
     }
     if (!body?.place || !body.days) {
-      setError("We couldn't load open times. Please try again.");
+      setError(`Something went wrong finding times. Please try again, or call ${PHONE}.`);
       return false;
     }
     const days = Object.fromEntries(body.days.map((d) => [d.date, d.slots]));
@@ -145,6 +154,18 @@ function Booking() {
       setSelected(null);
     }
     return true;
+  }
+
+  /** Continue: open times for the office, then the calendar. */
+  async function findTimes(place: PickedPlace | null) {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    setAddressError(null);
+    setGuesses([]);
+    const ok = await loadAvailability(place);
+    setBusy(false);
+    if (ok) go("pick");
   }
 
   const detailItems = (
@@ -327,15 +348,9 @@ function Booking() {
         {step === "info" && (
           <form
             className="grid content-start gap-4 p-6 lg:min-h-0 lg:grid-rows-[auto_auto_auto_auto_1fr]"
-            onSubmit={async (e) => {
+            onSubmit={(e) => {
               e.preventDefault();
-              if (busy) return;
-              setBusy(true);
-              setError(null);
-              setAddressError(null);
-              const ok = await loadAvailability();
-              setBusy(false);
-              if (ok) go("pick");
+              findTimes(picked);
             }}
           >
             {([
@@ -369,6 +384,7 @@ function Booking() {
                 value={info.office}
                 onChange={(office) => {
                   setAddressError(null);
+                  setGuesses([]);
                   setInfo((v) => ({ ...v, office }));
                 }}
                 onPick={setPicked}
@@ -376,6 +392,29 @@ function Booking() {
                 className={cn(FIELD, "aria-invalid:border-destructive")}
               />
               {addressError && <p className="mt-1.5 text-sm text-destructive">{addressError}</p>}
+              {guesses.length > 0 && (
+                <div className="mt-1.5 text-sm">
+                  <span className="text-muted-foreground">Did you mean </span>
+                  {guesses.map((g, i) => (
+                    <span key={g.address}>
+                      {i > 0 && <span className="text-muted-foreground"> or </span>}
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => {
+                          setInfo((v) => ({ ...v, office: g.address }));
+                          setPicked(g);
+                          findTimes(g);
+                        }}
+                        className="font-medium text-foreground underline underline-offset-2 hover:opacity-70"
+                      >
+                        {g.address}
+                      </button>
+                    </span>
+                  ))}
+                  <span className="text-muted-foreground">?</span>
+                </div>
+              )}
             </div>
             {/* Hidden from people; bots fill it. */}
             <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" value={website} onChange={(e) => setWebsite(e.target.value)} />
@@ -416,7 +455,7 @@ function Booking() {
                 setBusy(false);
                 go("done");
               } else if (body?.reason === "taken") {
-                await loadAvailability();
+                await loadAvailability(avail.place);
                 setBusy(false);
                 setSlot(null);
                 setError("That time was just taken. Please pick another.");

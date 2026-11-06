@@ -2,9 +2,9 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { devOnlyPage } from "@/lib/dev-only";
-import Link from "next/link";
-import Image from "next/image";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+import { Container, Eyebrow } from "@/components/home/sections";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | WildcatIQ",
@@ -50,7 +50,7 @@ function parsePolicy(source: string) {
 function renderInline(text: string): ReactNode[] {
   return text.split(/(\*\*[^*]+\*\*)/).map((part, i) =>
     part.startsWith("**") && part.endsWith("**") ? (
-      <strong key={i} className="font-medium text-neutral-900">
+      <strong key={i} className="font-medium text-foreground">
         {part.slice(2, -2)}
       </strong>
     ) : (
@@ -60,60 +60,51 @@ function renderInline(text: string): ReactNode[] {
 }
 
 export default function PrivacyPage() {
-  devOnlyPage();
   const { dates, blocks } = parsePolicy(readFileSync(POLICY_PATH, "utf8"));
 
   return (
-    <main className="flex-1 bg-white text-neutral-900">
-      <div className="mx-auto max-w-2xl px-6 py-16 sm:py-24">
-        <Link href="/" className="inline-flex items-center gap-2.5">
-          <Image
-            src="/slim_normal.png"
-            alt=""
-            width={903}
-            height={859}
-            aria-hidden
-            className="h-6 w-6 object-contain"
-          />
-          <span className="text-lg font-semibold tracking-tight">WildcatIQ</span>
-        </Link>
+    <main>
+      <SiteHeader />
+      <section className="pb-20 pt-32 sm:pt-40">
+        <Container>
+          <div className="max-w-3xl">
+            <Eyebrow>Legal</Eyebrow>
+            <h1 className="mt-4 text-4xl font-medium leading-[1.08] tracking-tight sm:text-6xl">Privacy Policy</h1>
+            {dates.map((line) => (
+              <p key={line} className="mt-6 text-sm text-muted-foreground">
+                {renderInline(line)}
+              </p>
+            ))}
 
-        <h1 className="mt-16 text-4xl font-medium tracking-tight">
-          Privacy Policy
-        </h1>
-        {dates.map((line) => (
-          <p key={line} className="mt-3 text-sm text-neutral-500">
-            {renderInline(line)}
-          </p>
-        ))}
-
-        {blocks.map((block, i) => {
-          if (block.kind === "heading") {
-            return (
-              <h2 key={i} className="mt-12 text-lg font-medium tracking-tight">
-                {block.text}
-              </h2>
-            );
-          }
-          if (block.kind === "list") {
-            return (
-              <ul
-                key={i}
-                className="mt-3 list-disc space-y-1.5 pl-5 leading-7 text-neutral-700"
-              >
-                {block.items.map((item) => (
-                  <li key={item}>{renderInline(item)}</li>
-                ))}
-              </ul>
-            );
-          }
-          return (
-            <p key={i} className="mt-3 leading-7 text-neutral-700">
-              {renderInline(block.lines.join(" "))}
-            </p>
-          );
-        })}
-      </div>
+            <div className="mt-14">
+              {blocks.map((block, i) => {
+                if (block.kind === "heading") {
+                  return (
+                    <h2 key={i} className="mt-12 text-2xl font-medium tracking-tight first:mt-0">
+                      {block.text}
+                    </h2>
+                  );
+                }
+                if (block.kind === "list") {
+                  return (
+                    <ul key={i} className="mt-3 list-disc space-y-1.5 pl-5 text-base leading-relaxed text-muted-foreground">
+                      {block.items.map((item) => (
+                        <li key={item}>{renderInline(item)}</li>
+                      ))}
+                    </ul>
+                  );
+                }
+                return (
+                  <p key={i} className="mt-3 text-base leading-relaxed text-muted-foreground">
+                    {renderInline(block.lines.join(" "))}
+                  </p>
+                );
+              })}
+            </div>
+          </div>
+        </Container>
+      </section>
+      <SiteFooter />
     </main>
   );
 }

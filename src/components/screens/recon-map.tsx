@@ -150,7 +150,7 @@ export function ReconMap({
 
   useEffect(() => {
     const container = el.current;
-    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim();
     if (!container || !token) return;
     let disposed = false;
     let map: mapboxgl.Map | null = null;

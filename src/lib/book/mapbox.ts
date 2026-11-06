@@ -10,41 +10,54 @@ export interface Point {
   lng: number;
 }
 
-/** A geocoded place and the US state code it is in (e.g. "TX"). */
+/** A geocoded place, its full address as Mapbox has it, and the US state code it is in (e.g. "TX"). */
 export interface Located extends Point {
   state: string | null;
+  address: string | null;
 }
 
 /** The Matrix API's driving profile takes at most 25 coordinates a request. */
 export const MATRIX_MAX = 25;
 
 function token(): string {
-  const t = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  // Trimmed: a pasted env value can carry a trailing newline, which Mapbox rejects.
+  const t = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim();
   if (!t) throw new Error("Mapbox not configured: set NEXT_PUBLIC_MAPBOX_TOKEN");
   return t;
 }
 
 interface Feature {
   geometry?: { coordinates?: [number, number] };
-  properties?: { context?: { region?: { region_code?: string } } };
+  properties?: { full_address?: string; context?: { region?: { region_code?: string } } };
 }
+
+/** Every address here is in the US, so the country is noise. */
+const shortAddress = (a: string | undefined | null) => a?.replace(/,\s*United States$/, "") ?? null;
 
 const located = (f: Feature | undefined): Located | null => {
   const c = f?.geometry?.coordinates;
-  return c ? { lng: c[0], lat: c[1], state: f?.properties?.context?.region?.region_code ?? null } : null;
+  return c
+    ? { lng: c[0], lat: c[1], state: f?.properties?.context?.region?.region_code ?? null, address: shortAddress(f?.properties?.full_address) }
+    : null;
 };
 
 /** Geocoded addresses, kept for the life of the server instance. */
 const geocodeCache = new Map<string, Located | null>();
 
-/** The best US match for an address, or null when nothing matches. */
-export async function geocode(address: string): Promise<Located | null> {
+/** The best US match for an address, nearest `near` when given, or null when nothing matches. */
+export async function geocode(address: string, near?: Point): Promise<Located | null> {
   const q = address.trim().replace(/\s+/g, " ");
   if (!q) return null;
-  const k = q.toLowerCase();
+  const k = `${q.toLowerCase()}|${near ? `${near.lng.toFixed(1)},${near.lat.toFixed(1)}` : ""}`;
   if (geocodeCache.has(k)) return geocodeCache.get(k)!;
   const url = new URL("https://api.mapbox.com/search/geocode/v6/forward");
-  url.search = new URLSearchParams({ q, country: "us", limit: "1", access_token: token() }).toString();
+  url.search = new URLSearchParams({
+    q,
+    country: "us",
+    limit: "1",
+    ...(near ? { proximity: `${near.lng},${near.lat}` } : {}),
+    access_token: token(),
+  }).toString();
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Mapbox geocoding failed (${res.status})`);
   const body = (await res.json()) as { features?: Feature[] };
@@ -62,6 +75,45 @@ export async function stateAt(p: Point): Promise<string | null> {
   const body = (await res.json()) as { features?: { properties?: { region_code?: string; context?: { region?: { region_code?: string } } } }[] };
   const props = body.features?.[0]?.properties;
   return props?.region_code ?? props?.context?.region?.region_code ?? null;
+}
+
+/** Texas's bounding box, for suggestions. */
+const TEXAS_BBOX = "-106.65,25.84,-93.51,36.5";
+
+/** An address Mapbox thinks the visitor meant, with where it is. */
+export interface AddressGuess extends Point {
+  address: string;
+}
+
+/**
+ * Texas addresses close to what was typed, nearest `near` first (the
+ * visitor's IP location, or the owner's base). For "Did you mean...".
+ */
+export async function guessAddresses(q: string, near: Point, limit = 3): Promise<AddressGuess[]> {
+  const text = q.trim().replace(/\s+/g, " ");
+  if (!text) return [];
+  const url = new URL("https://api.mapbox.com/search/geocode/v6/forward");
+  url.search = new URLSearchParams({
+    q: text,
+    country: "us",
+    bbox: TEXAS_BBOX,
+    proximity: `${near.lng},${near.lat}`,
+    autocomplete: "true",
+    types: "address,street,place,locality,neighborhood,postcode",
+    limit: String(limit),
+    access_token: token(),
+  }).toString();
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Mapbox geocoding failed (${res.status})`);
+  const body = (await res.json()) as { features?: (Feature & { properties?: { full_address?: string; place_formatted?: string; name?: string } })[] };
+  const out: AddressGuess[] = [];
+  for (const f of body.features ?? []) {
+    const p = located(f);
+    if (!p || p.state !== "TX") continue;
+    const address = shortAddress(f.properties?.full_address ?? [f.properties?.name, f.properties?.place_formatted].filter(Boolean).join(", "));
+    if (address && !out.some((o) => o.address === address)) out.push({ address, lat: p.lat, lng: p.lng });
+  }
+  return out;
 }
 
 export function clearGeocodeCache(): void {

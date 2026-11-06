@@ -39,8 +39,9 @@ export async function POST(req: Request): Promise<Response> {
   const b = parsed.data;
 
   try {
-    const office = await resolveOffice(b.address, b.lat, b.lng);
-    if (typeof office === "string") return Response.json({ error: office });
+    const resolved = await resolveOffice(b.address, b.lat, b.lng);
+    if (typeof resolved === "string") return Response.json({ error: resolved });
+    const office = { lat: resolved.lat, lng: resolved.lng };
 
     const startMs = Date.parse(b.start);
     const start = new Date(startMs).toISOString();

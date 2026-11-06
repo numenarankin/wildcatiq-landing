@@ -47,7 +47,8 @@ export function AddressInput({
   invalid?: boolean;
   className?: string;
 }) {
-  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  // Trimmed: a pasted env value can carry a trailing newline, which Mapbox rejects.
+  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim();
   const listId = useId();
   // One search session per visit, as Mapbox bills suggest + retrieve.
   const [session] = useState(() => crypto.randomUUID());

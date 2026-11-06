@@ -315,8 +315,12 @@ function tick() {
 
 /* ---- Sending ------------------------------------------------------------ */
 
-/** Where Snitcher's script keeps its visitor id (cookie and localStorage, JSON-encoded). */
-const SNITCHER_ID_KEY = "radar_device_id";
+/**
+ * Where Snitcher's script keeps its visitor id: `<namespace>_device_id`, our
+ * snippet's namespace being "Snitcher". JSON-encoded, in sessionStorage until
+ * consent moves it to localStorage and a cookie.
+ */
+const SNITCHER_ID_KEY = "snitcher_device_id";
 
 /**
  * Snitcher's own id for this browser, once its script has set it; null
@@ -336,7 +340,7 @@ function snitcherVisitorId(): string | null {
     }
     return /^[0-9a-f-]{8,64}$/i.test(v) ? v : null;
   };
-  const stored = clean(store("local")?.getItem(SNITCHER_ID_KEY));
+  const stored = clean(store("local")?.getItem(SNITCHER_ID_KEY)) ?? clean(store("session")?.getItem(SNITCHER_ID_KEY));
   if (stored) return stored;
   const cookie = document.cookie.split("; ").find((c) => c.startsWith(`${SNITCHER_ID_KEY}=`));
   return cookie ? clean(decodeURIComponent(cookie.slice(SNITCHER_ID_KEY.length + 1))) : null;

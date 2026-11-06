@@ -39,7 +39,7 @@ const LINE_SOURCE = "well-lat-src";
  * the neighbouring lease.
  */
 export function WellLocationMap({ location }: { location: WellLocation }) {
-  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN?.trim();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const surveyRef = useRef<SurveyLayer | null>(null);

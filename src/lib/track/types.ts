@@ -54,7 +54,7 @@ export interface TrackDemoView {
 
 export interface TrackBatch {
   visitor_id: string;
-  /** Snitcher's id for this browser (`radar_device_id`), once its script has set it. */
+  /** Snitcher's id for this browser (`snitcher_device_id`), once its script has set it. */
   snitcher_visitor_id?: string;
   session: TrackSession;
   events: TrackEvent[];
